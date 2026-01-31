@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Test - MentalOS (Full)</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-google {
+            background: #4285f4;
+            color: white;
+        }
+        .btn-facebook {
+            background: #1877f2;
+            color: white;
+        }
+        #google-button {
+            margin: 20px 0;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>?? MentalOS OAuth Test</h1>
+        
+        <div id="api-status" style="margin-bottom: 20px;"></div>
+
+        <div class="cards">
+            <!-- Google OAuth -->
+            <div class="card">
+                <h2>?? Google OAuth</h2>
+                <p style="color: #666; margin-bottom: 20px;">? Dzia³a na HTTP localhost</p>
+                <div id="google-button"></div>
+                <div id="google-result" class="result"></div>
+            </div>
+
+            <!-- Facebook OAuth -->
+            <div class="card">
+                <h2>?? Facebook OAuth</h2>
+                <p style="color: #666; margin-bottom: 20px;">?? Wymaga HTTPS lub starszej wersji SDK</p>
+                
+                <button class="btn btn-facebook" onclick="initializeFacebook()">
+                    Initialize Facebook Login (v12.0)
+                </button>
+                
+                <div id="facebook-signin" style="display: none; margin-top: 20px;">
+                    <button class="btn btn-facebook" onclick="handleFacebookLogin()">
+                        ?? Login with Facebook
+                    </button>
+                </div>
+                
+                <div id="facebook-result" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Combined Result -->
+        <div id="combined-result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5076/api/auth';
+        const GOOGLE_CLIENT_ID = '592043560416-4k74p5rq2dl756b2c1ogv8p42h7gkeo6.apps.googleusercontent.com';
+        const FACEBOOK_APP_ID = '1567284824515799';
+        let facebookInitialized = false;
+
+        // Check API status on load
+        window.addEventListener('load', async () => {
+            await checkApiStatus();
+            if (await isApiRunning()) {
+                initializeGoogle();
+            }
+        });
+
+        async function isApiRunning() {
+            try {
+                const response = await fetch('http://localhost:5076/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: '', password: '' }),
+                });
+                return response.status === 400 || response.status === 401;
+            } catch {
+                return false;
+            }
+        }
+
+        async function checkApiStatus() {
+            const statusDiv = document.getElementById('api-status');
+            const isRunning = await isApiRunning();
+            
+            if (isRunning) {
+                statusDiv.innerHTML = `
+                    <div class="card">
+                        <div class="result show success">
+                            ? API is running on http://localhost:5076
+                        </div>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="card">
+                        <div class="result show error">
+                            ? API is not running!<br>
+                            Run: <code>dotnet run --launch-profile http</code><br>
+                            <button class="btn btn-google" onclick="checkApiStatus()" style="margin-top: 10px;">?? Recheck API</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ========== GOOGLE OAUTH ==========
+
+        function initializeGoogle() {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleResponse,
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById('google-button'),
+                { 
+                    theme: 'outline', 
+                    size: 'large',
+                    width: 350,
+                }
+            );
+        }
+
+        async function handleGoogleResponse(response) {
+            const idToken = response.credential;
+            showGoogleResult('info', '?? Sending token to API...');
+            
+            try {
+                const apiResponse = await fetch(`${API_URL}/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken }),
+                });
+
+                if (!apiResponse.ok) {
+                    const errorText = await apiResponse.text();
+                    throw new Error(`API Error ${apiResponse.status}: ${errorText}`);
+                }
+
+                const data = await apiResponse.json();
+                showSuccessResult('Google', data);
+                
+            } catch (error) {
+                showGoogleResult('error', `? Error: ${error.message}`);
+                console.error('Google OAuth error:', error);
+            }
+        }
+
+        function showGoogleResult(type, message) {
+            const resultDiv = document.getElementById('google-result');
+            resultDiv.className = `result show ${type}`;
+            resultDiv.innerHTML = message;
+        }
+
+        // ========== FACEBOOK OAUTH ==========
+
+        function initializeFacebook() {
+            console.log('?? Initializing Facebook SDK v12.0...');
+            showFacebookResult('info', '? Loading Facebook SDK...');
+            
+            if (window.FB) {
+                delete window.FB;
+            }
+            
+            const existingScript = document.getElementById('facebook-jssdk');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            window.fbAsyncInit = function() {
+                console.log('?? FB SDK loaded, initializing...');
+                FB.init({
+                    appId: FACEBOOK_APP_ID,
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v12.0'  // Starsza wersja wspiera HTTP localhost
+                });
+
+                FB.AppEvents.logPageView();
+                facebookInitialized = true;
+                document.getElementById('facebook-signin').style.display = 'block';
+                showFacebookResult('success', '? Facebook Login initialized! Click button above.');
+                console.log('?? Facebook initialized successfully');
+            };
+
+            (function(d, s, id){
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) {return;}
+                js = d.createElement(s); js.id = id;
+                js.src = "https://connect.facebook.net/en_US/sdk.js";
+                js.onload = () => console.log('?? FB SDK script loaded');
+                js.onerror = () => showFacebookResult('error', '? Failed to load Facebook SDK');
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+        }
+
+        function handleFacebookLogin() {
+            console.log('?? handleFacebookLogin called');
+            
+            if (!facebookInitialized) {
+                showFacebookResult('error', '? Facebook not initialized! Click "Initialize" first.');
+                return;
+            }
+
+            if (typeof window.FB === 'undefined') {
+                showFacebookResult('error', '? Facebook SDK not loaded! Wait and try again.');
+                return;
+            }
+
+            showFacebookResult('info', '?? Opening Facebook login popup...');
+            console.log('?? Calling FB.login...');
+
+            FB.login(async function(response) {
+                console.log('?? FB.login response:', response);
+                
+                if (response.authResponse) {
+                    const accessToken = response.authResponse.accessToken;
+                    console.log('?? Got access token');
+                    
+                    showFacebookResult('info', '?? Sending token to API...');
+                    
+                    try {
+                        const apiResponse = await fetch(`${API_URL}/facebook`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ accessToken }),
+                        });
+
+                        if (!apiResponse.ok) {
+                            const errorText = await apiResponse.text();
+                            throw new Error(`API Error ${apiResponse.status}: ${errorText}`);
+                        }
+
+                        const data = await apiResponse.json();
+                        showSuccessResult('Facebook', data);
+                        
+                    } catch (error) {
+                        showFacebookResult('error', `? Error: ${error.message}`);
+                        console.error('Facebook OAuth error:', error);
+                    }
+                } else {
+                    console.log('?? Login cancelled');
+                    showFacebookResult('warning', '?? Facebook login cancelled');
+                }
+            }, {scope: 'public_profile,email'});
+        }
+
+        function showFacebookResult(type, message) {
+            const resultDiv = document.getElementById('facebook-result');
+            resultDiv.className = `result show ${type}`;
+            resultDiv.innerHTML = message;
+        }
+
+        // ========== SHARED SUCCESS DISPLAY ==========
+
+        function showSuccessResult(provider, data) {
+            const resultHtml = `
+                <div class="card" style="margin-top: 20px;">
+                    <h2>? ${provider} Login Success!</h2>
+                    
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Email:</strong> ${data.user.email}<br>
+                        <strong>User ID:</strong> ${data.user.id}<br>
+                        <strong>Personality:</strong> ${data.user.personalityType}<br>
+                        <strong>Admin:</strong> ${data.user.isAdmin ? 'Yes' : 'No'}
+                    </div>
+
+                    <strong>JWT Token:</strong>
+                    <pre>${data.token.substring(0, 150)}...</pre>
+                </div>
+            `;
+            
+            document.getElementById('combined-result').innerHTML = resultHtml;
+            localStorage.setItem('jwt_token', data.token);
+            console.log('? Token saved to localStorage');
+        }
+    </script>
+</body>
+</html>

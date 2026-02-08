@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+/*import { Link } from "expo-router";
 import { StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -27,3 +27,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
 });
+*/
+
+import { View, Text } from "react-native";
+
+export default function Modal() {
+  return (
+    <View>
+      <Text>MODAL</Text>
+    </View>
+  );
+}

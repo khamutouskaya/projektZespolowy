@@ -22,7 +22,10 @@ export default function Home() {
     >
       <SafeAreaView style={styles.safe}>
         {/* ХМАРКА */}
-        <Image source={require("../../assets/cloud.png")} style={styles.cloud} />
+        <Image
+          source={require("../../assets/cloud.png")}
+          style={styles.cloud}
+        />
 
         {/* ЗАГОЛОВОК */}
         <View style={styles.header}>
@@ -69,7 +72,11 @@ export default function Home() {
         {/* НИЖНІЙ БУЛБАШ */}
         <View style={styles.bottomBubble}>
           <View style={styles.smallCloud}>
-            <Ionicons name="cloud-outline" size={18} color="rgba(70,90,110,0.55)" />
+            <Ionicons
+              name="cloud-outline"
+              size={18}
+              color="rgba(70,90,110,0.55)"
+            />
           </View>
           <Text style={styles.bottomText}>
             Dziękuję, że jesteś{"\n"}dziś ze mną 💙
@@ -90,7 +97,10 @@ function Tile({
   onPress: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.tile, pressed && { opacity: 0.9 }]}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.tile, pressed && { opacity: 0.9 }]}
+    >
       <Ionicons name={icon} size={26} color="rgba(70,90,110,0.65)" />
       <Text style={styles.tileText}>{label}</Text>
     </Pressable>

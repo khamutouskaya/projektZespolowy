@@ -1,19 +1,18 @@
 import { Tabs } from "expo-router";
+import { ImageBackground, StyleSheet } from "react-native";
 
-export default function TabsLayout() {
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-
-        tabBarStyle: {
-          backgroundColor: "rgba(240, 229, 255, 0.5)", // 👈 белый + прозрачность
-          borderTopWidth: 0,
-          position: "absolute",
-        },
-
-        tabBarActiveTintColor: "#375a85",
-        tabBarInactiveTintColor: "rgba(55,90,133,0.5)",
+        tabBarStyle: styles.tabBar,
+        tabBarBackground: () => (
+          <ImageBackground
+            source={require("../../assets/images/background.png")}
+            style={styles.tabBackground}
+          />
+        ),
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
@@ -21,3 +20,22 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: "absolute",
+    borderTopWidth: 0,
+    backgroundColor: "transparent", // ❗ важно
+    height: 80,
+
+    shadowColor: "#736b6b",
+    shadowOpacity: 0.9,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+
+  tabBackground: {
+    flex: 1,
+  },
+});

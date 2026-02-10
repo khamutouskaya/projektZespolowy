@@ -33,50 +33,58 @@ export default function DiaryEntryCard({ entry }: Props) {
 }
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "rgba(255,255,255,0.7)", // kolor tła karty z przezroczystością
-    borderRadius: 20, // zaokrąglenie rogów karty
-    padding: 16, // odstęp wewnętrzny od krawędzi
-    marginBottom: 12, // odstęp pod kartą
+    backgroundColor: "rgba(255,255,255,0.7)",
+    borderRadius: 20,
+    padding: 13,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
 
   header: {
-    flexDirection: "row", // ułożenie elementów w poziomie
-    justifyContent: "flex-start", // maksymalny odstęp między elementami
-    alignItems: "center", // wyrównanie elementów w pionie
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
+    marginBottom: 6,
   },
 
   icon: {
-    fontSize: 26, // rozmiar ikony / emoji
-    marginBottom: 6, // odstęp pod ikoną
+    fontSize: 26,
   },
 
   title: {
-    fontSize: 18, // rozmiar tekstu tytułu
-    color: "#2e65a4", // kolor tytułu
-    marginBottom: 10, // odstęp pod tytułem
+    fontSize: 18,
+    color: "#2e65a4",
   },
 
   preview: {
-    fontSize: 14, // rozmiar tekstu podglądu
-    color: "#333", // kolor tekstu
-    marginBottom: 10, // odstęp pod tekstem
+    fontSize: 15,
+    color: "#333",
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
 
   footer: {
-    flexDirection: "row", // elementy w jednym rzędzie
-    justifyContent: "space-between", // rozłożenie elementów na szerokość
-    alignItems: "center", // wyrównanie w pionie
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   meta: {
-    fontSize: 12, // mały rozmiar tekstu
-    color: "#6b7280", // kolor tekstu pomocniczego
+    flex: 1,
+    fontSize: 12,
+    color: "#6b7280",
   },
 
   moodLabel: {
-    fontSize: 12, // rozmiar etykiety nastroju
-    fontWeight: "600", // pogrubienie tekstu
-    color: "#4da6ff", // kolor etykiety nastroju
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#4da6ff",
+    marginLeft: 12,
   },
 });

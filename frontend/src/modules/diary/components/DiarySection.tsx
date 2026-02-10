@@ -25,7 +25,7 @@ export default function DiarySection({ title, entries }: Props) {
 const styles = StyleSheet.create({
   section: {
     marginTop: 24, // odstęp od góry – oddziela sekcję od poprzedniej
-    paddingHorizontal: 16, // odstęp po bokach – żeby treść nie dotykała krawędzi
+    //paddingHorizontal: 16, // odstęp po bokach – żeby treść nie dotykała krawędzi
   },
 
   title: {
@@ -38,6 +38,6 @@ const styles = StyleSheet.create({
   },
 
   list: {
-    gap: 12, // odstęp między kartami
+    gap: 10, // odstęp między kartami
   },
 });

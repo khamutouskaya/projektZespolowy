@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
@@ -15,10 +15,14 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const router = useRouter();
+
   return (
     <>
       {/* Прибирає верхній хедер "login" + білу зону */}
-      <Stack.Screen options={{ headerShown: false }} /><ImageBackground
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <ImageBackground
         source={require("../assets/background.png")}
         style={styles.background}
         resizeMode="cover"
@@ -56,7 +60,10 @@ export default function Login() {
               style={styles.input}
             />
 
-            <Pressable style={styles.button}>
+            <Pressable
+              style={styles.button}
+              onPress={() => router.replace("/(tabs)/home")}
+            >
               <Text style={styles.buttonText}>Zaloguj się</Text>
             </Pressable>
 

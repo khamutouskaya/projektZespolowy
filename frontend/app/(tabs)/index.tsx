@@ -1,11 +1,5 @@
-import { View, Text } from "react-native";
-import { StyleSheet } from "react-native";
-//import DiarySearch from "@/src/modules/diary/components/DiarySearch";
+import { Redirect } from "expo-router";
 
-export default function DiaryTab() {
-  return (
-    <View style={{ padding: 80 }}>
-      <Text>Home TAB</Text>
-    </View>
-  );
+export default function TabsIndex() {
+  return <Redirect href="/(tabs)/home" />;
 }

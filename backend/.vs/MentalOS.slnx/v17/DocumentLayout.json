@@ -1,0 +1,102 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\oem\\desktop\\studia\\projektzesp\\projektzespolowy-main\\backend\\mentalos\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\oem\\desktop\\studia\\projektzesp\\projektzespolowy-main\\backend\\mentalos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\oem\\desktop\\studia\\projektzesp\\projektzespolowy-main\\backend\\mentalos\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\oem\\desktop\\studia\\projektzesp\\projektzespolowy-main\\backend\\mentalos\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\oem\\desktop\\studia\\projektzesp\\projektzespolowy-main\\backend\\mentalos\\mentalos.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\mentalos.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\appsettings.json",
+              "RelativeDocumentMoniker": "MentalOS\\appsettings.json",
+              "ToolTip": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\appsettings.json",
+              "RelativeToolTip": "MentalOS\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-27T16:42:59.115Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\Program.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Program.cs",
+              "ToolTip": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\Program.cs",
+              "RelativeToolTip": "MentalOS\\Program.cs",
+              "ViewState": "AgIAAKcAAAAAAAAAAAAUwMsAAACPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T17:16:12.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "MentalOS\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T17:10:51.245Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MentalOS.http",
+              "DocumentMoniker": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\MentalOS.http",
+              "RelativeDocumentMoniker": "MentalOS\\MentalOS.http",
+              "ToolTip": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\MentalOS.http",
+              "RelativeToolTip": "MentalOS\\MentalOS.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2026-02-27T16:51:36.787Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\Dockerfile",
+              "RelativeDocumentMoniker": "MentalOS\\Dockerfile",
+              "ToolTip": "C:\\Users\\OEM\\Desktop\\STUDIA\\ProjektZesp\\projektZespolowy-main\\backend\\MentalOS\\Dockerfile",
+              "RelativeToolTip": "MentalOS\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-02-27T16:50:48.123Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

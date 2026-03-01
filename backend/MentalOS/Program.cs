@@ -113,9 +113,21 @@ try
 
         logger.LogInformation("Checking database connection...");
         db.Database.SetCommandTimeout(10);
-        
-        var canConnect = db.Database.CanConnect();
-        
+
+        bool canConnect;
+        try
+        {
+            canConnect = db.Database.CanConnect();
+            if (!canConnect)
+                logger.LogWarning("CanConnect returned false (no exception)");
+        }
+        catch (Exception connEx)
+        {
+            logger.LogError("CanConnect threw exception: {Message}", connEx.Message);
+            logger.LogError("Inner: {Inner}", connEx.InnerException?.Message);
+            canConnect = false;
+        }
+
         if (canConnect)
         {
             logger.LogInformation("? Database connection successful!");
@@ -189,7 +201,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection(); //TODO: W produkcji powinno byæ w³¹czone, ale podczas lokalnego testowania mo¿e powodowaæ problemy z certyfikatami
 
 app.UseAuthentication();
 app.UseAuthorization();

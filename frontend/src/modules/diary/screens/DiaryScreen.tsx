@@ -1,78 +1,55 @@
 import React from "react";
-import {
-  Image,
-  ScrollView,
-  View,
-  ImageBackground,
-  StyleSheet,
-} from "react-native";
+import { Image, ScrollView, View, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useDiaryEntries } from "../hooks/useDiaryEntries";
-//import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 
-import DiaryHeader from "../components/DiaryHeader";
-import DiarySection from "../components/DiarySection";
-import DiarySearch from "../components/DiarySearch";
-import AddEntryButton from "../components/AddEntryButton";
-
+import DiaryHeader from "@/modules/diary/components/DiaryHeader";
+import DiarySection from "@/modules/diary/components/DiarySection";
+import DiarySearch from "@/modules/diary/components/DiarySearch";
+import AddEntryButton from "@/modules/diary/components/AddEntryButton";
 export default function DiaryScreen() {
   const { entries } = useDiaryEntries();
+  const router = useRouter();
 
   const today = entries.filter((e) => e.section === "today");
   const earlier = entries.filter((e) => e.section === "earlier");
 
   return (
-    <ImageBackground
-      source={require("../../../../assets/images/background.png")}
-      style={styles.background}
-      resizeMode="cover"
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
     >
-      <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <Image
-            source={require("../../../../assets/images/cloud.png")}
-            style={styles.cloud}
-          />
+      <Image
+        source={require("../../../../assets/images/cloud.png")}
+        style={styles.cloud}
+      />
 
-          <View style={styles.headerRow}>
-            <DiaryHeader />
-            <AddEntryButton
-              onPress={() => {
-                console.log("Add entry");
-              }}
-            />
-          </View>
+      <View style={styles.headerRow}>
+        <DiaryHeader />
+        <AddEntryButton
+          onPress={() => {
+            router.push("/(tabs)/home");
+          }}
+        />
+      </View>
 
-          <View style={styles.searchWrapper}>
-            <DiarySearch />
-          </View>
+      <View style={styles.searchWrapper}>
+        <DiarySearch />
+      </View>
 
-          <View style={styles.section}>
-            <DiarySection title="Dzisiaj" entries={today} />
-          </View>
+      <View style={styles.section}>
+        <DiarySection title="Dzisiaj" entries={today} />
+      </View>
 
-          <View style={styles.section}>
-            <DiarySection title="Wcześniej" entries={earlier} />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </ImageBackground>
+      <View style={styles.section}>
+        <DiarySection title="Wcześniej" entries={earlier} />
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-
-  safeArea: {
-    flex: 1,
-  },
-
   scrollContent: {
     paddingTop: 60, // немного воздуха сверху
     paddingHorizontal: 20,

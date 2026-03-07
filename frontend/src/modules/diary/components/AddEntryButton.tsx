@@ -1,6 +1,5 @@
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   onPress?: () => void;
@@ -17,7 +16,7 @@ export default function AddEntryButton({ onPress }: Props) {
 const styles = StyleSheet.create({
   button: {
     //position: "absolute",
-    //right: 20,
+    //sright: 20,
 
     width: 56,
     height: 56,

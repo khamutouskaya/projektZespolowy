@@ -15,75 +15,69 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <ImageBackground
-      source={require("../../assets/background.png")}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <SafeAreaView style={styles.safe}>
-        {/* ХМАРКА */}
-        <Image
-          source={require("../../assets/cloud.png")}
-          style={styles.cloud}
+    <SafeAreaView style={styles.safe}>
+      {/* ХМАРКА */}
+      <Image
+        source={require("../../assets/images/cloud.png")}
+        style={styles.cloud}
+      />
+
+      {/* ЗАГОЛОВОК */}
+      <View style={styles.header}>
+        <Text style={styles.hey}>Hej!</Text>
+        <Text style={styles.title}>Jak się dziś czujesz?</Text>
+      </View>
+
+      {/* СТАН ЕМОЦІЙНИЙ */}
+      <View style={styles.statusCard}>
+        <Text style={styles.statusLabel}>Twój stan emocjonalny</Text>
+
+        <View style={styles.statusPill}>
+          <Text style={styles.statusText}>2 dni z rzędu</Text>
+
+          <View style={styles.dot} />
+
+          <Text style={styles.statusText}>Dobra ciągłość</Text>
+
+          <View style={styles.sproutWrap}>
+            <Ionicons name="leaf" size={16} color="#6FAE7A" />
+          </View>
+        </View>
+      </View>
+
+      {/* КНОПКИ */}
+      <View style={styles.tilesRow}>
+        <Tile
+          icon="book-outline"
+          label="Dziennik"
+          onPress={() => router.push("/(tabs)/diary")}
         />
+        <Tile
+          icon="chatbubbles-outline"
+          label="Asystent"
+          onPress={() => router.push("/(tabs)/assistant")}
+        />
+        <Tile
+          icon="sunny-outline"
+          label="Refleksja\ndnia"
+          onPress={() => router.push("/(tabs)/reflection")}
+        />
+      </View>
 
-        {/* ЗАГОЛОВОК */}
-        <View style={styles.header}>
-          <Text style={styles.hey}>Hej!</Text>
-          <Text style={styles.title}>Jak się dziś czujesz?</Text>
-        </View>
-
-        {/* СТАН ЕМОЦІЙНИЙ */}
-        <View style={styles.statusCard}>
-          <Text style={styles.statusLabel}>Twój stan emocjonalny</Text>
-
-          <View style={styles.statusPill}>
-            <Text style={styles.statusText}>2 dni z rzędu</Text>
-
-            <View style={styles.dot} />
-
-            <Text style={styles.statusText}>Dobra ciągłość</Text>
-
-            <View style={styles.sproutWrap}>
-              <Ionicons name="leaf" size={16} color="#6FAE7A" />
-            </View>
-          </View>
-        </View>
-
-        {/* КНОПКИ */}
-        <View style={styles.tilesRow}>
-          <Tile
-            icon="book-outline"
-            label="Dziennik"
-            onPress={() => router.push("/(tabs)/diary")}
-          />
-          <Tile
-            icon="chatbubbles-outline"
-            label="Asystent"
-            onPress={() => router.push("/(tabs)/assistant")}
-          />
-          <Tile
-            icon="sunny-outline"
-            label="Refleksja\ndnia"
-            onPress={() => router.push("/(tabs)/reflection")}
+      {/* НИЖНІЙ БУЛБАШ */}
+      <View style={styles.bottomBubble}>
+        <View style={styles.smallCloud}>
+          <Ionicons
+            name="cloud-outline"
+            size={18}
+            color="rgba(70,90,110,0.55)"
           />
         </View>
-
-        {/* НИЖНІЙ БУЛБАШ */}
-        <View style={styles.bottomBubble}>
-          <View style={styles.smallCloud}>
-            <Ionicons
-              name="cloud-outline"
-              size={18}
-              color="rgba(70,90,110,0.55)"
-            />
-          </View>
-          <Text style={styles.bottomText}>
-            Dziękuję, że jesteś{"\n"}dziś ze mną 💙
-          </Text>
-        </View>
-      </SafeAreaView>
-    </ImageBackground>
+        <Text style={styles.bottomText}>
+          Dziękuję, że jesteś{"\n"}dziś ze mną 💙
+        </Text>
+      </View>
+    </SafeAreaView>
   );
 }
 

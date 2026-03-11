@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Test - MentalOS (Simple)</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-google {
+            background: #4285f4;
+            color: white;
+        }
+        .btn-facebook {
+            background: #1877f2;
+            color: white;
+        }
+        #google-button {
+            margin: 20px 0;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f5f5f5;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 MentalOS OAuth Test</h1>
+        
+        <div id="api-status"></div>
+        
+        <div class="note">
+            ⚠️ <strong>UWAGA:</strong> Facebook OAuth wymaga HTTPS w produkcji. 
+            W trybie developerskim możesz użyć tylko Google OAuth lub server-side flow.
+        </div>
+
+        <h3>✅ Google OAuth (działa na HTTP)</h3>
+        <div id="google-button"></div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5076/api/auth';
+        const CLIENT_ID = '592043560416-4k74p5rq2dl756b2c1ogv8p42h7gkeo6.apps.googleusercontent.com';
+
+        // Check API status on load
+        window.addEventListener('load', async () => {
+            await checkApiStatus();
+        });
+
+        async function checkApiStatus() {
+            console.log('🔍 Checking if API is running...');
+            
+            try {
+                const response = await fetch('http://localhost:5076/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: '', password: '' }),
+                });
+                
+                if (response.status === 400 || response.status === 401 || response.status === 200) {
+                    showApiStatus(true);
+                    initializeGoogle();
+                    return;
+                }
+                
+                showApiStatus(false);
+            } catch (error) {
+                console.error('❌ API check failed:', error);
+                showApiStatus(false);
+            }
+        }
+
+        function showApiStatus(isOnline) {
+            const statusDiv = document.getElementById('api-status');
+            
+            if (isOnline) {
+                statusDiv.innerHTML = `
+                    <div class="result show success">
+                        ✅ API is running on http://localhost:5076
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="result show error">
+                        ❌ API is not running! Run: <code>dotnet run --launch-profile http</code><br>
+                        <button class="btn btn-google" onclick="checkApiStatus()" style="margin-top: 10px;">🔄 Recheck API</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize Google Sign-In
+        function initializeGoogle() {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleGoogleResponse,
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById('google-button'),
+                { 
+                    theme: 'outline', 
+                    size: 'large',
+                    width: 400,
+                }
+            );
+        }
+
+        async function handleGoogleResponse(response) {
+            const idToken = response.credential;
+            
+            showResult('info', '📤 Sending token to API...');
+            
+            try {
+                const apiResponse = await fetch(`${API_URL}/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken }),
+                });
+
+                if (!apiResponse.ok) {
+                    const errorText = await apiResponse.text();
+                    throw new Error(`API Error ${apiResponse.status}: ${errorText}`);
+                }
+
+                const data = await apiResponse.json();
+                showResult('success', `
+                    <strong>✅ Google Login Success!</strong><br><br>
+                    <strong>Email:</strong> ${data.user.email}<br>
+                    <strong>User ID:</strong> ${data.user.id}<br>
+                    <strong>Personality:</strong> ${data.user.personalityType}<br><br>
+                    <strong>JWT Token:</strong><br>
+                    <pre>${data.token.substring(0, 100)}...</pre>
+                `);
+                
+                localStorage.setItem('jwt_token', data.token);
+                console.log('✅ Token saved to localStorage');
+                
+            } catch (error) {
+                showResult('error', `❌ Error: ${error.message}`);
+                console.error('Google OAuth error:', error);
+            }
+        }
+
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result show ${type}`;
+            resultDiv.innerHTML = message;
+        }
+    </script>
+</body>
+</html>

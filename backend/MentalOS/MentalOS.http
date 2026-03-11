@@ -1,0 +1,6 @@
+@MentalOS_HostAddress = http://localhost:5076
+
+GET {{MentalOS_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

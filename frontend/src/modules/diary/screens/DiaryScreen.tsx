@@ -4,10 +4,14 @@ import { useRouter } from "expo-router";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 
-import DiaryHeader from "@/modules/diary/components/DiaryHeader";
-import DiarySection from "@/modules/diary/components/DiarySection";
-import DiarySearch from "@/modules/diary/components/DiarySearch";
-import AddEntryButton from "@/modules/diary/components/AddEntryButton";
+import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
+import DiarySection from "@/modules/diary/components/diaryScreen/DiarySection";
+import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
+import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
+
+import LayoutContainer from "@/shared/layout/LayoutContainer";
+import { spacing } from "@/shared/theme/spacing";
+
 export default function DiaryScreen() {
   const { entries } = useDiaryEntries();
   const router = useRouter();
@@ -16,36 +20,38 @@ export default function DiaryScreen() {
   const earlier = entries.filter((e) => e.section === "earlier");
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <Image
-        source={require("../../../../assets/images/cloud.png")}
-        style={styles.cloud}
-      />
-
-      <View style={styles.headerRow}>
-        <DiaryHeader />
-        <AddEntryButton
-          onPress={() => {
-            router.push("/(tabs)/home");
-          }}
+    <LayoutContainer>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Image
+          source={require("../../../../assets/images/cloud.png")}
+          style={styles.cloud}
         />
-      </View>
 
-      <View style={styles.searchWrapper}>
-        <DiarySearch />
-      </View>
+        <View style={styles.headerRow}>
+          <DiaryHeader />
+          <AddEntryButton
+            onPress={() => {
+              router.push("/(tabs)/diary/note");
+            }}
+          />
+        </View>
 
-      <View style={styles.section}>
-        <DiarySection title="Dzisiaj" entries={today} />
-      </View>
+        <View style={styles.searchWrapper}>
+          <DiarySearch />
+        </View>
 
-      <View style={styles.section}>
-        <DiarySection title="Wcześniej" entries={earlier} />
-      </View>
-    </ScrollView>
+        <View style={styles.section}>
+          <DiarySection title="Dzisiaj" entries={today} />
+        </View>
+
+        <View style={styles.section}>
+          <DiarySection title="Wcześniej" entries={earlier} />
+        </View>
+      </ScrollView>
+    </LayoutContainer>
   );
 }
 
@@ -60,33 +66,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
 
   searchWrapper: {
-    marginBottom: 0,
-  },
-
-  buttonWrapper: {
-    marginBottom: 20,
+    marginBottom: spacing.sm,
   },
 
   section: {
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
 
   cloud: {
     width: 320,
     height: 320,
     alignSelf: "center",
-    marginTop: -40, // 👈 поднимаем
-    marginBottom: 0,
+    marginTop: -65,
     resizeMode: "contain",
-
-    shadowColor: "#686868",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
   },
 });

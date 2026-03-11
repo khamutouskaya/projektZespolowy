@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import DiaryEntryCard from "./DiaryEntryCard";
-import { DiaryEntry } from "../diary.types";
+import { DiaryEntry } from "../../diary.types";
 
 type Props = {
   title: string;

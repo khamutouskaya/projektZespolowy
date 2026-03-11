@@ -12,24 +12,26 @@ const TabBarBackground = () => (
 
 export default function TabLayout() {
   return (
-    <LayoutContainer>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          sceneStyle: {
-            backgroundColor: "transparent",
-          },
-          tabBarStyle: styles.tabBar,
-          tabBarBackground: TabBarBackground,
-        }}
-      >
-        <Tabs.Screen name="diary" options={{ title: "Dziennik" }} />
-        <Tabs.Screen name="planer" options={{ title: "Planer" }} />
-        <Tabs.Screen name="home" options={{ title: "Home" }} />
-        <Tabs.Screen name="assistant" options={{ title: "Asystent" }} />
-        <Tabs.Screen name="reflection" options={{ title: "Reflekcja" }} />
-      </Tabs>
-    </LayoutContainer>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        sceneStyle: {
+          backgroundColor: "transparent",
+        },
+        tabBarStyle: styles.tabBar,
+        tabBarBackground: TabBarBackground,
+      }}
+    >
+      <Tabs.Screen name="diary" options={{ title: "Dziennik" }} />
+      <Tabs.Screen name="planer" options={{ title: "Planer" }} />
+      <Tabs.Screen name="home" options={{ title: "Home" }} />
+      <Tabs.Screen name="assistant" options={{ title: "Asystent" }} />
+      <Tabs.Screen name="reflection" options={{ title: "Reflekcja" }} />
+
+      {/* скрываем страницу */}
+      <Tabs.Screen name="diary/note" options={{ href: null }} />
+      <Tabs.Screen name="diary/entry" options={{ href: null }} />
+    </Tabs>
   );
 }
 

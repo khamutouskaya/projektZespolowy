@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import { DiaryEntry } from "../diary.types";
+import { DiaryEntry } from "../../diary.types";
 
 type Props = {
   entry: DiaryEntry;

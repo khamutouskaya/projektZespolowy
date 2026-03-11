@@ -5,7 +5,13 @@ export default function Layout() {
   return (
     <>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack
+        screenOptions={{
+          gestureEnabled: true,
+          gestureDirection: "horizontal",
+          headerShown: false,
+        }}
+      />
     </>
   );
 }

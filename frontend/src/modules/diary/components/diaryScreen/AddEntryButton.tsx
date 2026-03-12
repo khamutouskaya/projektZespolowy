@@ -1,5 +1,8 @@
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
+import { colors } from "@/shared/theme/colors";
+import { spacing } from "@/shared/theme/spacing";
+import { typography } from "@/shared/theme/typography";
 
 type Props = {
   onPress?: () => void;
@@ -15,9 +18,6 @@ export default function AddEntryButton({ onPress }: Props) {
 
 const styles = StyleSheet.create({
   button: {
-    //position: "absolute",
-    //sright: 20,
-
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
 
-    shadowColor: "#736b6b",
+    shadowColor: colors.shadow.primary,
     shadowOpacity: 0.9,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
 
   plus: {
     fontSize: 28,
-    color: "white",
+    //color: "white",
     lineHeight: 28,
     fontWeight: "600",
   },

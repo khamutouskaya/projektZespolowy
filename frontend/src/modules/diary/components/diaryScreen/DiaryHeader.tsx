@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
+import { typography } from "@/shared/theme/typography";
+import { colors } from "@/shared/theme/colors";
 
 export default function DiaryHeader() {
   return (
@@ -10,13 +12,11 @@ export default function DiaryHeader() {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 20, // rozmiar tekstu nagłówka
-    fontWeight: "600", // półpogrubiona czcionka
-    color: "#375a85", // stonowany kolor tekstu
+    ...typography.heading1,
+    color: colors.text.primary, // stonowany kolor tekstu
     textAlign: "center",
-    padding: 5, // odstęp pod nagłówkiem
-    paddingHorizontal: 30,
-    textTransform: "uppercase", // wielkie litery
-    letterSpacing: 0.5, // odstęp między literami
+    paddingHorizontal: 25,
+    //textTransform: "uppercase", // wielkie litery
+    //letterSpacing: 0.5, // odstęp między literami
   },
 });

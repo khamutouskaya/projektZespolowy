@@ -1,5 +1,8 @@
 import { View, Text, StyleSheet } from "react-native";
 import { DiaryEntry } from "../../diary.types";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
+import { cardStyles } from "@/shared/theme/styles";
 
 type Props = {
   entry: DiaryEntry;
@@ -7,7 +10,7 @@ type Props = {
 
 export default function DiaryEntryCard({ entry }: Props) {
   return (
-    <View style={styles.card}>
+    <View style={cardStyles.card}>
       {/* Icon + title */}
       <View style={styles.header}>
         <Text style={styles.icon}>{entry.icon}</Text>
@@ -32,18 +35,6 @@ export default function DiaryEntryCard({ entry }: Props) {
   );
 }
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "rgba(255,255,255,0.7)",
-    borderRadius: 20,
-    padding: 13,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -56,15 +47,15 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
-    color: "#2e65a4",
+    ...typography.title,
+    color: colors.text.primary,
   },
 
   preview: {
-    fontSize: 15,
-    color: "#333",
+    ...typography.body,
+    color: colors.text.secondary,
     marginBottom: 10,
-    shadowColor: "#000",
+    shadowColor: colors.shadow.primary,
     shadowOpacity: 0.2,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -78,14 +69,13 @@ const styles = StyleSheet.create({
 
   meta: {
     flex: 1,
-    fontSize: 12,
-    color: "#6b7280",
+    ...typography.caption,
+    color: colors.text.tertiary,
   },
 
   moodLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#4da6ff",
+    ...typography.caption,
+    color: colors.text.primary,
     marginLeft: 12,
   },
 });

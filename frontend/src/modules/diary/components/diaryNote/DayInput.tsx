@@ -1,62 +1,32 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
-
-const MAX_LENGTH = 140;
+import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import { cardStyles } from "@/shared/theme/styles";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
 
 type Props = {
-  value: string;
-  onChange: (text: string) => void;
+  text?: string;
+  onPress: () => void;
 };
 
-export default function DayInput({ value, onChange }: Props) {
+export default function DiaryInput({ text, onPress }: Props) {
   return (
-    <View>
-      <Text style={styles.title}>Jak minął Twój dzień</Text>
-
-      <View style={styles.card}>
-        <TextInput
-          multiline
-          value={value}
-          onChangeText={onChange}
-          maxLength={MAX_LENGTH}
-          placeholder="Napisz o swoim dniu..."
-          placeholderTextColor="#6b7280"
-          style={styles.input}
-        />
-
-        <Text style={styles.counter}>
-          {value.length}/{MAX_LENGTH}
-        </Text>
-      </View>
-    </View>
+    <Pressable onPress={onPress} style={styles.card}>
+      <Text style={styles.text}>{text ?? "Napisz o swoim dniu..."}</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#375a85",
-  },
-
   card: {
-    backgroundColor: "rgba(255,255,255,0.65)",
-    borderRadius: 18,
+    ...cardStyles.card,
+    minHeight: 170,
     padding: 16,
   },
 
-  input: {
-    fontSize: 15,
-    color: "#1f2937",
+  text: {
+    ...typography.input,
+    color: colors.text.tertiary,
     lineHeight: 22,
-    minHeight: 80,
-    textAlignVertical: "top",
-  },
-
-  counter: {
-    fontSize: 11,
-    color: "#6b7280",
-    marginTop: 6,
-    textAlign: "right",
   },
 });

@@ -1,59 +1,31 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { cardStyles } from "@/shared/theme/styles";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
 
-const MAX_LENGTH = 140;
+type Props = {
+  summary?: string;
+};
 
-export default function SummaryInput() {
-  const [text, setText] = useState<string>("");
-
+export default function DiarySummary({ summary }: Props) {
   return (
-    <View>
-      <Text style={styles.title}>Jak minął Twój dzień</Text>
-
-      <View style={styles.card}>
-        <TextInput
-          multiline
-          value={text}
-          onChangeText={setText}
-          maxLength={MAX_LENGTH}
-          placeholder="Napisz o swoim dniu..."
-          placeholderTextColor="#6b7280"
-          style={styles.input}
-        />
-
-        <Text style={styles.counter}>
-          {text.length}/{MAX_LENGTH}
-        </Text>
-      </View>
+    <View style={styles.card}>
+      <Text style={styles.text}>
+        {summary || "Podsumowanie będzie gotowe o 22:00"}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#375a85",
-  },
-
   card: {
-    backgroundColor: "rgba(255,255,255,0.65)",
-    borderRadius: 18,
-    padding: 16,
+    ...cardStyles.card,
+    minHeight: 170,
   },
 
-  input: {
-    fontSize: 15,
-    color: "#1f2937",
+  text: {
+    ...typography.input,
+    color: colors.text.tertiary,
     lineHeight: 22,
-    minHeight: 80,
-    textAlignVertical: "top",
-  },
-
-  counter: {
-    fontSize: 11,
-    color: "#6b7280",
-    marginTop: 6,
-    textAlign: "right",
   },
 });

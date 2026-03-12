@@ -1,60 +1,81 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { ScrollView, Text, Pressable, StyleSheet } from "react-native";
 import { useState } from "react";
+import { colors } from "@/shared/theme/colors";
 
 export default function TagSelector() {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const tags = [
     { label: "Spokój", icon: "💙" },
     { label: "Relaks", icon: "🌿" },
     { label: "Energia", icon: "⭐" },
+    { label: "Produktywność", icon: "🚀" },
+    { label: "Radość", icon: "🌞" },
+    { label: "Zmęczenie", icon: "😴" },
   ];
 
   return (
     <>
-      <Text style={styles.title}>Tag dnia</Text>
-
-      <View style={styles.row}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.emojiRow}
+      >
         {tags.map((tag) => (
           <Pressable
             key={tag.label}
-            onPress={() => setSelected(tag.label)}
-            style={[styles.tag, selected === tag.label && styles.selected]}
+            onPress={() => setSelectedTag(tag.label)}
+            style={[
+              styles.tag,
+              selectedTag === tag.label && styles.tagSelected,
+            ]}
           >
-            <Text style={styles.text}>
+            <Text style={styles.tagText}>
               {tag.icon} {tag.label}
             </Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#375a85",
-    marginBottom: 8,
-  },
-
-  row: {
+  emojiRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 15,
   },
 
-  emojiBox: {
-    padding: 6,
-    borderRadius: 10,
+  tagRow: {
+    flexDirection: "row",
+    gap: 10,
   },
 
-  selected: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+  tag: {
+    backgroundColor: colors.background.glass,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    marginRight: 16,
+
+    shadowColor: colors.shadow.primary,
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
   },
 
-  emoji: {
-    fontSize: 28,
+  tagSelected: {
+    backgroundColor: "#ede1fc",
+
+    shadowColor: colors.shadow.primary,
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+  },
+
+  tagText: {
+    fontSize: 14,
+    color: "#375a85",
   },
 });

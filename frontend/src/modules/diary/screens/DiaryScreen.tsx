@@ -57,7 +57,6 @@ export default function DiaryScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingTop: 60, // немного воздуха сверху
     paddingHorizontal: 20,
     paddingBottom: 80, // место под плавающий tab bar
   },
@@ -66,22 +65,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
   },
 
   searchWrapper: {
-    marginBottom: spacing.sm,
+    // marginBottom: spacing.xs,
   },
 
   section: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
 
   cloud: {
-    width: 320,
-    height: 320,
+    width: 300,
+    height: 300,
     alignSelf: "center",
-    marginTop: -65,
+    //marginTop: -65,
     resizeMode: "contain",
   },
 });

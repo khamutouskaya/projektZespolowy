@@ -15,7 +15,10 @@
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
+<<<<<<< HEAD
     "@tanstack/react-query": "^5.90.21",
+=======
+>>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)
     "axios": "^1.13.6",
     "expo": "~54.0.31",
     "expo-blur": "~15.0.8",
@@ -46,8 +49,11 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+<<<<<<< HEAD
     "@types/react-native": "^0.72.8",
     "babel-plugin-module-resolver": "^5.0.2",
+=======
+>>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"

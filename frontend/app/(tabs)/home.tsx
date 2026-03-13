@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -296,3 +297,9 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
   },
 });
+=======
+import { ThemedText } from "@/components/themed-text";
+export default function HomeScreen() {
+  return <ThemedText>Home</ThemedText>;
+}
+>>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)

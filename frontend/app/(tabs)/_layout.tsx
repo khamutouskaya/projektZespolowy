@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+<<<<<<< HEAD
 import { StyleSheet, ImageBackground } from "react-native";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 
@@ -46,3 +47,14 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
 });
+=======
+
+export default function TabLayout() {
+  return (
+    <Tabs>
+      <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="explore" options={{ title: "Explore" }} />
+    </Tabs>
+  );
+}
+>>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)

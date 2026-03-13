@@ -2,11 +2,16 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+<<<<<<< HEAD
     "baseUrl": ".",
     "jsx": "react-native",
     "paths": {
       "@/*": ["src/*"],
       "@assets/*": ["assets/*"]
+=======
+    "paths": {
+      "@/*": ["./*"]
+>>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]

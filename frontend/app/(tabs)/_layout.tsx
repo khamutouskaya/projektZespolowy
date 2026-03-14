@@ -1,6 +1,6 @@
+import LayoutContainer from "@/src/shared/layout/LayoutContainer";
 import { Tabs } from "expo-router";
-import { StyleSheet, ImageBackground } from "react-native";
-import LayoutContainer from "@/shared/layout/LayoutContainer";
+import { ImageBackground, StyleSheet } from "react-native";
 
 const TabBarBackground = () => (
   <ImageBackground

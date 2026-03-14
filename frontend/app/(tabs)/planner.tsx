@@ -1,4 +1,4 @@
 import { Text } from "react-native";
-export default function Planer() {
+export default function PlannerScreen() {
   return <Text>Planner</Text>;
 }

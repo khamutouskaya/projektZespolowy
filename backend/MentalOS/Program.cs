@@ -189,7 +189,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection(); //TODO, w produkcji powinno byæ w³¹czone, ale podczas lokalnego testowania mo¿e powodowaæ problemy z certyfikatami
 
 app.UseAuthentication();
 app.UseAuthorization();

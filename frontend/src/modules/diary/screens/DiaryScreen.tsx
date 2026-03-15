@@ -1,57 +1,71 @@
-import React from "react";
-import { Image, ScrollView, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 
-import DiaryHeader from "@/modules/diary/components/DiaryHeader";
-import DiarySection from "@/modules/diary/components/DiarySection";
-import DiarySearch from "@/modules/diary/components/DiarySearch";
-import AddEntryButton from "@/modules/diary/components/AddEntryButton";
+import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
+import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
+import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
+import DiarySection from "@/modules/diary/components/diaryScreen/DiarySection";
+
+import LayoutContainer from "@/shared/layout/LayoutContainer";
+import { spacing } from "@/shared/theme/spacing";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
+
 export default function DiaryScreen() {
-  const { entries } = useDiaryEntries();
+  const { entries, reload } = useDiaryEntries();
   const router = useRouter();
+
+  // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
 
   const today = entries.filter((e) => e.section === "today");
   const earlier = entries.filter((e) => e.section === "earlier");
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <Image
-        source={require("../../../../assets/images/cloud.png")}
-        style={styles.cloud}
-      />
-
-      <View style={styles.headerRow}>
-        <DiaryHeader />
-        <AddEntryButton
-          onPress={() => {
-            router.push("/(tabs)/home");
-          }}
+    <LayoutContainer>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Image
+          source={require("../../../../assets/images/cloud.png")}
+          style={styles.cloud}
         />
-      </View>
 
-      <View style={styles.searchWrapper}>
-        <DiarySearch />
-      </View>
+        <View style={styles.headerRow}>
+          <DiaryHeader />
+          <AddEntryButton
+            onPress={() => {
+              router.push("/(tabs)/diary/note");
+            }}
+          />
+        </View>
 
-      <View style={styles.section}>
-        <DiarySection title="Dzisiaj" entries={today} />
-      </View>
+        <View style={styles.searchWrapper}>
+          <DiarySearch />
+        </View>
 
-      <View style={styles.section}>
-        <DiarySection title="Wcześniej" entries={earlier} />
-      </View>
-    </ScrollView>
+        <View style={styles.section}>
+          <DiarySection title="Dzisiaj" entries={today} />
+        </View>
+
+        <View style={styles.section}>
+          <DiarySection title="Wcześniej" entries={earlier} />
+        </View>
+      </ScrollView>
+    </LayoutContainer>
   );
 }
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingTop: 60, // немного воздуха сверху
     paddingHorizontal: 20,
     paddingBottom: 80, // место под плавающий tab bar
   },
@@ -60,33 +74,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
 
   searchWrapper: {
-    marginBottom: 0,
-  },
-
-  buttonWrapper: {
-    marginBottom: 20,
+    // marginBottom: spacing.xs,
   },
 
   section: {
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
 
   cloud: {
-    width: 320,
-    height: 320,
+    width: 300,
+    height: 300,
     alignSelf: "center",
-    marginTop: -40, // 👈 поднимаем
-    marginBottom: 0,
+    //marginTop: -65,
     resizeMode: "contain",
-
-    shadowColor: "#686868",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
   },
 });

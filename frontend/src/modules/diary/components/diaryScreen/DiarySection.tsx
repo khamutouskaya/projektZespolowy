@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet } from "react-native";
 import DiaryEntryCard from "./DiaryEntryCard";
-import { DiaryEntry } from "../diary.types";
+import { DiaryEntry } from "../../diary.types";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
 
 type Props = {
   title: string;
@@ -25,16 +27,14 @@ export default function DiarySection({ title, entries }: Props) {
 const styles = StyleSheet.create({
   section: {
     marginTop: 24, // odstęp od góry – oddziela sekcję od poprzedniej
-    //paddingHorizontal: 16, // odstęp po bokach – żeby treść nie dotykała krawędzi
   },
 
   title: {
-    fontSize: 14, // rozmiar tekstu nagłówka
-    fontWeight: "600", // półpogrubiona czcionka
-    color: "#6B7A8C", // stonowany kolor tekstu
+    ...typography.title,
+    color: colors.text.tertiary, // stonowany kolor tekstu
     marginBottom: 12, // odstęp pod nagłówkiem
-    textTransform: "uppercase", // wielkie litery
-    letterSpacing: 0.5, // odstęp między literami
+    //  textTransform: "uppercase", // wielkie litery
+    //letterSpacing: 0.5, // odstęp między literami
   },
 
   list: {

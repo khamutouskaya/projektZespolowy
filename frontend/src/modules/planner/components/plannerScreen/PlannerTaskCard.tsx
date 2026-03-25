@@ -53,7 +53,7 @@ export default function PlannerTaskCard({
         useNativeDriver: false,
       }).start();
     }
-  }, [isCompletedCard, task.completed]);
+  }, [isCompletedCard, task.completed, strikeAnim]);
 
   const formatTaskDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -283,6 +283,13 @@ export default function PlannerTaskCard({
 
             <View style={styles.metaRow}>
               <Text style={styles.subtitle}>Zadanie</Text>
+
+              {task.category && (
+                <>
+                  <Text style={styles.dot}>•</Text>
+                  <Text style={styles.subtitle}>{task.category}</Text>
+                </>
+              )}
 
               {task.note.trim().length > 0 && (
                 <>

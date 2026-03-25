@@ -6,4 +6,5 @@ export type PlannerTask = {
   note: string;
   date: string | null;
   reminderDate: string | null;
+  category: string | null;
 };

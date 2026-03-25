@@ -5,26 +5,36 @@ import PlannerDateChip from "./PlannerDateChip";
 type Props = {
   value: string;
   onChangeText: (text: string) => void;
-  onOpenNote: () => void;
-  onOpenDate: () => void;
+  onOpenCategory: () => void;
   onOpenReminder: () => void;
+  onOpenDate: () => void;
+  onOpenNote: () => void;
+  categoryLabel: string | null;
   dateLabel: string | null;
   reminderLabel: string | null;
+  noteLabel: string | null; //dodalem
+  onClearCategory: () => void;
   onClearDate: () => void;
   onClearReminder: () => void;
+  onClearNote: () => void;
   onSubmit: () => void;
 };
 
 export default function PlannerInputBar({
   value,
   onChangeText,
-  onOpenNote,
-  onOpenDate,
+  onOpenCategory,
   onOpenReminder,
+  onOpenDate,
+  onOpenNote,
+  categoryLabel,
   dateLabel,
   reminderLabel,
+  noteLabel,
+  onClearCategory,
   onClearDate,
   onClearReminder,
+  onClearNote,
   onSubmit,
 }: Props) {
   return (
@@ -50,17 +60,25 @@ export default function PlannerInputBar({
           />
         </View>
 
+        {categoryLabel && (
+          <PlannerDateChip label={`Marker: ${categoryLabel}`} onClear={onClearCategory} />
+        )}
+
         {dateLabel && <PlannerDateChip label={dateLabel} onClear={onClearDate} />}
+
         {reminderLabel && (
           <PlannerDateChip label={reminderLabel} onClear={onClearReminder} />
         )}
+        {noteLabel && <PlannerDateChip label={noteLabel} onClear={onClearNote} />}
 
         <View style={styles.iconsRow}>
-          <Ionicons
-            name="home-outline"
-            size={24}
-            color="rgba(111,122,134,0.82)"
-          />
+          <Pressable onPress={onOpenCategory}>
+            <Ionicons
+              name="home-outline"
+              size={24}
+              color="rgba(111,122,134,0.82)"
+            />
+          </Pressable>
 
           <Pressable onPress={onOpenReminder}>
             <Ionicons

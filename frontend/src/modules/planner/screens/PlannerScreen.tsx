@@ -21,6 +21,7 @@ import PlannerDateModal from "../components/plannerScreen/PlannerDateModal";
 import PlannerCalendarModal from "../components/plannerScreen/PlannerCalendarModal";
 import PlannerReminderModal from "../components/plannerScreen/PlannerReminderModal";
 import PlannerReminderDateTimeModal from "../components/plannerScreen/PlannerReminderDateTimeModal";
+import PlannerCategoryModal from "../components/plannerScreen/PlannerCategoryModal";
 import { PlannerTask } from "../planner.types";
 
 type ReminderPreset = "today" | "tomorrow" | "nextWeek" | null;
@@ -33,6 +34,7 @@ export default function PlannerScreen() {
   const [taskNote, setTaskNote] = useState("");
   const [selectedTaskDate, setSelectedTaskDate] = useState<string | null>(null);
   const [selectedReminderDate, setSelectedReminderDate] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showCompleted, setShowCompleted] = useState(true);
@@ -40,6 +42,7 @@ export default function PlannerScreen() {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [showReminderDateTimeModal, setShowReminderDateTimeModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   const [reminderPreset, setReminderPreset] = useState<ReminderPreset>(null);
   const [reminderBaseDate, setReminderBaseDate] = useState<Date | null>(null);
@@ -164,6 +167,7 @@ export default function PlannerScreen() {
     setTaskNote("");
     setSelectedTaskDate(null);
     setSelectedReminderDate(null);
+    setSelectedCategory(null);
     setReminderPreset(null);
     setReminderBaseDate(null);
   };
@@ -183,6 +187,7 @@ export default function PlannerScreen() {
     setTaskNote(task.note);
     setSelectedTaskDate(task.date);
     setSelectedReminderDate(task.reminderDate);
+    setSelectedCategory(task.category);
     setReminderPreset(null);
     setReminderBaseDate(null);
   };
@@ -216,6 +221,7 @@ export default function PlannerScreen() {
                 note: taskNote,
                 date: selectedTaskDate,
                 reminderDate: selectedReminderDate,
+                category: selectedCategory,
               }
             : task
         )
@@ -230,6 +236,7 @@ export default function PlannerScreen() {
         note: taskNote,
         date: selectedTaskDate,
         reminderDate: selectedReminderDate,
+        category: selectedCategory,
       };
 
       setTasks((prev) => [newTask, ...prev]);
@@ -325,11 +332,6 @@ export default function PlannerScreen() {
     setShowCalendarModal(false);
   };
 
-  /* =========================
-     REMINDER PRESETS:
-     ustawiają datę bazową,
-     ale CZAS wybiera użytkownik
-     ========================= */
   const handleLaterTodayReminder = () => {
     const date = new Date();
     date.setSeconds(0, 0);
@@ -359,9 +361,6 @@ export default function PlannerScreen() {
     setShowReminderDateTimeModal(true);
   };
 
-  /* =========================
-     PEŁNY WYBÓR DATY I CZASU
-     ========================= */
   const handlePickReminderDateTime = () => {
     setReminderPreset(null);
     setReminderBaseDate(null);
@@ -381,6 +380,16 @@ export default function PlannerScreen() {
     setReminderPreset(null);
     setReminderBaseDate(null);
     setShowReminderModal(false);
+  };
+
+  const handleSelectCategory = (category: string) => {
+    setSelectedCategory(category);
+    setShowCategoryModal(false);
+  };
+
+  const handleClearCategory = () => {
+    setSelectedCategory(null);
+    setShowCategoryModal(false);
   };
 
   return (
@@ -439,9 +448,11 @@ export default function PlannerScreen() {
             <PlannerInputBar
               value={newTaskTitle}
               onChangeText={setNewTaskTitle}
+              onOpenCategory={() => setShowCategoryModal(true)}
               onOpenNote={handleOpenNote}
               onOpenDate={() => setShowDateModal(true)}
               onOpenReminder={() => setShowReminderModal(true)}
+              categoryLabel={selectedCategory}
               dateLabel={
                 selectedTaskDate ? formatChipDate(selectedTaskDate) : null
               }
@@ -450,8 +461,11 @@ export default function PlannerScreen() {
                   ? formatReminderChip(selectedReminderDate)
                   : null
               }
+              noteLabel={taskNote.trim() ? "Notatka" : null}
+              onClearCategory={handleClearCategory}
               onClearDate={() => setSelectedTaskDate(null)}
               onClearReminder={() => setSelectedReminderDate(null)}
+              onClearNote={() => setTaskNote("")}
               onSubmit={handleSubmitFromKeyboard}
             />
           ) : (
@@ -513,6 +527,14 @@ export default function PlannerScreen() {
           setReminderBaseDate(null);
         }}
         onConfirm={handleConfirmReminderDateTime}
+      />
+
+      <PlannerCategoryModal
+        visible={showCategoryModal}
+        selectedCategory={selectedCategory}
+        onClose={() => setShowCategoryModal(false)}
+        onSelectCategory={handleSelectCategory}
+        onClearCategory={handleClearCategory}
       />
     </LayoutContainer>
   );

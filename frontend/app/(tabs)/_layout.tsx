@@ -60,9 +60,9 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="reflection"
+        name="mentalSupport"
         options={{
-          title: "Refleksja",
+          title: "Mental Support",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="sunny-outline" size={size} color={color} />
           ),
@@ -82,13 +82,13 @@ export default function TabLayout() {
           ),
         }}
       />
-
+      {/* 
       <Tabs.Screen
         name="index"
         options={{
           href: null,
         }}
-      />
+      /> */}
     </Tabs>
   );
 }

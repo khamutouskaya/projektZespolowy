@@ -25,10 +25,10 @@ export default function DiaryScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Image
+        {/* <Image
           source={require("../../../../assets/images/cloud.png")}
           style={styles.cloud}
-        />
+        /> */}
 
         <View style={styles.headerRow}>
           <DiaryHeader />
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginTop: spacing.lg,
     marginBottom: spacing.lg,
   },
 

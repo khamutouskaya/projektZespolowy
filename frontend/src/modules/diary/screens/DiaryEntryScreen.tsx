@@ -17,17 +17,17 @@ import DiaryTextEditor from "../components/diaryEntry/DiaryTextEditor";
 export default function DiaryEntryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const inputAccessoryViewID = "toolbar";
-  const [text, setText] = useState((params.text as string) || "");
 
   const handleSave = () => {
     Keyboard.dismiss(); // закрываем клавиатуру
   };
 
+  const [text, setText] = useState((params.text as string) || "");
   const [textColor, setTextColor] = useState("#000");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+  const inputAccessoryViewID = "toolbar";
 
   return (
     <LayoutContainer>

@@ -29,7 +29,10 @@ export default function Login() {
       >
         <SafeAreaView style={styles.safe}>
           {/* ХМАРКА */}
-          <Image source={require("../assets/cloud.png")} style={styles.cloud} />
+          <Image
+            source={require("../assets/images/cloud.png")}
+            style={styles.cloud}
+          />
 
           {/* ТЕКСТ ПО ЦЕНТРУ */}
           <View style={styles.center}>
@@ -92,8 +95,8 @@ const styles = StyleSheet.create({
   cloud: {
     position: "absolute",
     top: 45, // було 20 — на iPhone з Dynamic Island краще нижче
-    width: 340,
-    height: 340,
+    width: 250,
+    height: 300,
     resizeMode: "contain",
   },
 

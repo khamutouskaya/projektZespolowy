@@ -1,17 +1,9 @@
-import React, { useState } from "react";
-import {
-  Image,
-  Modal,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Home() {
   const router = useRouter();

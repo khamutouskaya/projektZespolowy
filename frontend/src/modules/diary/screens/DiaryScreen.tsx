@@ -1,20 +1,29 @@
-import React from "react";
-import { Image, ScrollView, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 
-import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
-import DiarySection from "@/modules/diary/components/diaryScreen/DiarySection";
-import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
+import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
+import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
+import DiarySection from "@/modules/diary/components/diaryScreen/DiarySection";
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export default function DiaryScreen() {
-  const { entries } = useDiaryEntries();
+  const { entries, reload } = useDiaryEntries();
   const router = useRouter();
+
+  // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
 
   const today = entries.filter((e) => e.section === "today");
   const earlier = entries.filter((e) => e.section === "earlier");

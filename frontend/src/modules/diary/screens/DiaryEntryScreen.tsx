@@ -1,25 +1,31 @@
-import {
-  StyleSheet,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  View,
-  Text,
-  Pressable,
-} from "react-native";
-import { useState } from "react";
+import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import EditorToolbar from "../components/diaryEntry/EditorToolbar";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  InputAccessoryView,
+  Keyboard,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native";
 import DiaryEntryHeader from "../components/diaryEntry/DiaryEntryHeader.tsx";
 import DiaryTextEditor from "../components/diaryEntry/DiaryTextEditor";
+import EditorToolbar from "../components/diaryEntry/EditorToolbar";
 
 export default function DiaryEntryScreen() {
+  const { addEntry } = useDiaryEntries();
+  const [preview, setpreview] = useState("");
   const router = useRouter();
   const params = useLocalSearchParams();
 
   const handleSave = () => {
-    Keyboard.dismiss(); // закрываем клавиатуру
+    Keyboard.dismiss();
+    router.replace({
+      pathname: "/(tabs)/diary/note",
+      params: { text },
+    });
   };
 
   const [text, setText] = useState((params.text as string) || "");
@@ -50,14 +56,17 @@ export default function DiaryEntryScreen() {
             isUnderline={isUnderline}
             accessoryID={inputAccessoryViewID}
           />
-
-          {/* TOOLBAR */}
-          <EditorToolbar
-            toggleBold={() => setIsBold(!isBold)}
-            toggleItalic={() => setIsItalic(!isItalic)}
-            toggleUnderline={() => setIsUnderline(!isUnderline)}
-            setColor={setTextColor}
-          />
+          {Platform.OS === "ios" && (
+            <InputAccessoryView nativeID={inputAccessoryViewID}>
+              {/* TOOLBAR */}
+              <EditorToolbar
+                toggleBold={() => setIsBold(!isBold)}
+                toggleItalic={() => setIsItalic(!isItalic)}
+                toggleUnderline={() => setIsUnderline(!isUnderline)}
+                setColor={setTextColor}
+              />
+            </InputAccessoryView>
+          )}
         </ScrollView>
       </TouchableWithoutFeedback>
     </LayoutContainer>

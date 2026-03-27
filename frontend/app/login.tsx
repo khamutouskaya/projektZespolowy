@@ -1,6 +1,12 @@
+import {
+  useLoginMutation,
+  useRegisterMutation,
+} from "@/hooks/useAuthMutations";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   ImageBackground,
   Pressable,
@@ -16,6 +22,22 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const router = useRouter();
+
+  // Inicjalizujemy hooki
+  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
+
+  const handleLogin = () => {
+    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    loginMutation.mutate({ email, password });
+  };
+
+  const handleRegister = () => {
+    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    registerMutation.mutate({ email, password });
+  };
+
+  const isPending = loginMutation.isPending || registerMutation.isPending;
 
   return (
     <>
@@ -51,6 +73,7 @@ export default function Login() {
               style={styles.input}
               autoCapitalize="none"
               keyboardType="email-address"
+              editable={!isPending}
             />
 
             <Text style={styles.label}>Hasło</Text>
@@ -61,19 +84,32 @@ export default function Login() {
               placeholderTextColor="rgba(111,122,134,0.55)"
               secureTextEntry
               style={styles.input}
+              editable={!isPending}
             />
 
             <Pressable
               style={styles.button}
-              onPress={() => router.replace("/(tabs)/home")}
+              onPress={handleLogin}
+              disabled={isPending}
             >
-              <Text style={styles.buttonText}>Zaloguj się</Text>
+              {loginMutation.isPending ? (
+                <ActivityIndicator color="#355A7A" />
+              ) : (
+                <Text style={styles.buttonText}>Zaloguj się</Text>
+              )}
             </Pressable>
 
-            <Pressable>
-              <Text style={styles.link}>
-                Nie masz konta?{"\n"}Zarejestruj się
-              </Text>
+            <Pressable onPress={handleRegister} disabled={isPending}>
+              {registerMutation.isPending ? (
+                <ActivityIndicator
+                  color="rgba(111,122,134,0.70)"
+                  style={{ marginTop: 14 }}
+                />
+              ) : (
+                <Text style={styles.link}>
+                  Nie masz konta?{"\n"}Zarejestruj się (Test API)
+                </Text>
+              )}
             </Pressable>
           </View>
         </SafeAreaView>

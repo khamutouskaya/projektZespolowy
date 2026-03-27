@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Pressable, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
+import { Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   onSave: () => void;
@@ -8,7 +8,8 @@ type Props = {
 export default function DiaryEntryHeader({ onSave }: Props) {
   const router = useRouter();
   const handleSave = () => {
-    Keyboard.dismiss(); // закрываем клавиатуру
+    Keyboard.dismiss();
+    onSave(); // wywołanie props'a przekazanego z rodzica
   };
 
   return (

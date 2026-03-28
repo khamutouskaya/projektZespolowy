@@ -1,13 +1,13 @@
-import { useRouter } from "expo-router";
 import React from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { Image, ScrollView, View, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 
-import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
 import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
-import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import DiarySection from "@/modules/diary/components/diaryScreen/DiarySection";
+import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
+import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
@@ -66,8 +66,9 @@ export default function DiaryScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 80, // место под плавающий tab bar
+    //krzystof bez//
+    //paddingHorizontal: 20,
+    //paddingBottom: 80, // место под плавающий tab bar
   },
 
   headerRow: {

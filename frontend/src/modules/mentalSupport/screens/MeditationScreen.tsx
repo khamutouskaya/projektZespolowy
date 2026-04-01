@@ -3,6 +3,7 @@ import { View, StyleSheet, FlatList, Text } from "react-native";
 import { useState, useRef, useEffect } from "react";
 import { setAudioModeAsync } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
+import { useLocalSearchParams } from "expo-router";
 import { sections } from "@/modules/mentalSupport/data/meditation";
 
 import { colors } from "@/shared/theme/colors";
@@ -16,10 +17,27 @@ import MeditationCard from "../components/MeditationCard";
 export default function MeditationScreen() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null); //Ten stan steruje: czy pokazać player/jakie wideo odtwarzać
 
-  const player = useVideoPlayer(selectedVideo ?? "");
+  const { videoId } = useLocalSearchParams<{ videoId?: string }>();
+  const player = useVideoPlayer("");
   const flatListRef = useRef<any>(null);
 
   //[] → wykona się tylko raz po załadowaniu ekranu, ustawia tryb audio
+  useEffect(() => {
+    if (typeof videoId !== "string") return;
+
+    const initialVideo = sections
+      .flatMap((section) => section.data)
+      .find((video) => video.id === videoId);
+
+    if (!initialVideo) return;
+
+    setSelectedVideo(initialVideo.videoUrl);
+    flatListRef.current?.scrollToOffset({
+      offset: 0,
+      animated: true,
+    });
+  }, [videoId]);
+
   useEffect(() => {
     const setup = async () => {
       await setAudioModeAsync({
@@ -29,6 +47,13 @@ export default function MeditationScreen() {
 
     setup();
   }, []);
+
+  useEffect(() => {
+    if (!selectedVideo) return;
+
+    player.replace(selectedVideo);
+    player.play();
+  }, [player, selectedVideo]);
 
   return (
     <LayoutContainer>
@@ -73,7 +98,11 @@ export default function MeditationScreen() {
                   video={video}
                   isActive={selectedVideo === video.videoUrl}
                   onPress={() => {
-                    setSelectedVideo(video.videoUrl);
+                    if (selectedVideo === video.videoUrl) {
+                      player.play();
+                    } else {
+                      setSelectedVideo(video.videoUrl);
+                    }
                     flatListRef.current?.scrollToOffset({
                       offset: 0,
                       animated: true,

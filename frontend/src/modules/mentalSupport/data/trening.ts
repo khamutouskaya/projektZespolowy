@@ -4,7 +4,7 @@ export const sections = [
     data: [
       {
         id: "1",
-        title: "Łagodna Joga na Stres - Spokój i Relaks",
+        title: "Uspokój ciało i oddech w 10 min",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774470527/%C5%81agodna_Joga_na_Stres_-_Spok%C3%B3j_i_Relaks_zs3ylx.mp4",
         thumbnail:
@@ -12,7 +12,7 @@ export const sections = [
       },
       {
         id: "2",
-        title: "Joga w 10 minut dla całego ciała",
+        title: "Reset całego ciała w 10 minut",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774475382/Poranna_Medytacja_z_Afirmacjami_%EF%B8%8F_patylp.mp4",
         thumbnail:
@@ -20,7 +20,7 @@ export const sections = [
       },
       {
         id: "3",
-        title: "ozluźnij się po ciężkim dniu",
+        title: "Puść napięcie po ciężkim dniu",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774475741/Joga_na_Zdrowy_Kr%C4%99gos%C5%82up_i_Barki_enkmex.mp4",
         thumbnail:
@@ -28,7 +28,7 @@ export const sections = [
       },
       {
         id: "4",
-        title: "Uspokój ciało przed snem",
+        title: "Wycisz ciało przed snem",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774476118/Joga_na_Kr%C4%99gos%C5%82up_-_Zdrowe_Plecy_bez_B%C3%B3lu_ssxhke.mp4",
         thumbnail:
@@ -36,7 +36,7 @@ export const sections = [
       },
       {
         id: "5",
-        title: "Joga na stres i napięcie",
+        title: "Szybkie rozluźnienie i spokój",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774473498/Rozci%C4%85gaj%C4%85ca_joga_na_koniec_dnia_20_min_fxu1ev.mp4",
         thumbnail:
@@ -45,11 +45,11 @@ export const sections = [
     ],
   },
   {
-    title: "Na energię ",
+    title: "Na energię",
     data: [
       {
         id: "6",
-        title: "Energetyczna Power Joga",
+        title: "Obudź ciało i energię w 5 min",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774475382/Poranna_Medytacja_z_Afirmacjami_%EF%B8%8F_patylp.mp4",
         thumbnail:
@@ -57,7 +57,7 @@ export const sections = [
       },
       {
         id: "7",
-        title: "Szybka joga na poranek",
+        title: "Poranny start bez zmęczenia",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774470527/%C5%81agodna_Joga_na_Stres_-_Spok%C3%B3j_i_Relaks_zs3ylx.mp4",
         thumbnail:
@@ -65,7 +65,7 @@ export const sections = [
       },
       {
         id: "8",
-        title: "Joga, która od razu daje efekt",
+        title: "Natychmiastowy przypływ energii",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774476118/Joga_na_Kr%C4%99gos%C5%82up_-_Zdrowe_Plecy_bez_B%C3%B3lu_ssxhke.mp4",
         thumbnail:
@@ -73,7 +73,7 @@ export const sections = [
       },
       {
         id: "9",
-        title: "Obudź ciało w 5 minut",
+        title: "5 minut i czujesz różnicę",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774473498/Rozci%C4%85gaj%C4%85ca_joga_na_koniec_dnia_20_min_fxu1ev.mp4",
         thumbnail:
@@ -81,7 +81,7 @@ export const sections = [
       },
       {
         id: "10",
-        title: "Joga dla elastycznego ciała",
+        title: "Lekkość i elastyczność ciała",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774475741/Joga_na_Zdrowy_Kr%C4%99gos%C5%82up_i_Barki_enkmex.mp4",
         thumbnail:
@@ -94,7 +94,7 @@ export const sections = [
     data: [
       {
         id: "11",
-        title: "Odprężająca Joga Po Pracy",
+        title: "Zostaw stres po pracy",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774476118/Joga_na_Kr%C4%99gos%C5%82up_-_Zdrowe_Plecy_bez_B%C3%B3lu_ssxhke.mp4",
         thumbnail:
@@ -102,7 +102,7 @@ export const sections = [
       },
       {
         id: "12",
-        title: "Uspokój ciało przed",
+        title: "Wycisz emocje przed snem",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774475382/Poranna_Medytacja_z_Afirmacjami_%EF%B8%8F_patylp.mp4",
         thumbnail:
@@ -110,7 +110,7 @@ export const sections = [
       },
       {
         id: "13",
-        title: "Zrelaksuj się",
+        title: "Zatrzymaj się i odetchnij",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774475741/Joga_na_Zdrowy_Kr%C4%99gos%C5%82up_i_Barki_enkmex.mp4",
         thumbnail:
@@ -118,7 +118,7 @@ export const sections = [
       },
       {
         id: "14",
-        title: "Wyłącz głowę i oddychaj",
+        title: "Wyłącz myśli i uspokój głowę",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774470527/%C5%81agodna_Joga_na_Stres_-_Spok%C3%B3j_i_Relaks_zs3ylx.mp4",
         thumbnail:
@@ -126,7 +126,7 @@ export const sections = [
       },
       {
         id: "15",
-        title: "15 minut jogi = lekkość w ciele",
+        title: "15 minut do lekkości w ciele",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774473498/Rozci%C4%85gaj%C4%85ca_joga_na_koniec_dnia_20_min_fxu1ev.mp4",
         thumbnail:
@@ -135,11 +135,11 @@ export const sections = [
     ],
   },
   {
-    title: "Rozluznienie ciała",
+    title: "Rozluźnienie ciała",
     data: [
       {
         id: "17",
-        title: "Joga na koniec dnia ",
+        title: "Idealne zakończenie dnia",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774473498/Rozci%C4%85gaj%C4%85ca_joga_na_koniec_dnia_20_min_fxu1ev.mp4",
         thumbnail:
@@ -147,7 +147,7 @@ export const sections = [
       },
       {
         id: "18",
-        title: "Spokojna joga na wieczór ",
+        title: "Spokojny wieczór dla ciała",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774470527/%C5%81agodna_Joga_na_Stres_-_Spok%C3%B3j_i_Relaks_zs3ylx.mp4",
         thumbnail:
@@ -155,7 +155,7 @@ export const sections = [
       },
       {
         id: "19",
-        title: "Powolna joga dla relaksu",
+        title: "Powolny reset całego ciała",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774476118/Joga_na_Kr%C4%99gos%C5%82up_-_Zdrowe_Plecy_bez_B%C3%B3lu_ssxhke.mp4",
         thumbnail:
@@ -163,7 +163,7 @@ export const sections = [
       },
       {
         id: "16",
-        title: "Wyłącz głowę i oddychaj",
+        title: "Oddychaj i rozluźnij napięcie",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774476118/Joga_na_Kr%C4%99gos%C5%82up_-_Zdrowe_Plecy_bez_B%C3%B3lu_ssxhke.mp4",
         thumbnail:
@@ -171,7 +171,7 @@ export const sections = [
       },
       {
         id: "20",
-        title: "Uspokój ciało i umysł ",
+        title: "Spokój w ciele i głowie",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774476118/Joga_na_Kr%C4%99gos%C5%82up_-_Zdrowe_Plecy_bez_B%C3%B3lu_ssxhke.mp4",
         thumbnail:

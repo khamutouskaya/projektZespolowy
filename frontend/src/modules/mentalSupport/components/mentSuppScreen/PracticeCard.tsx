@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import {
+  Animated,
   Pressable,
   Text,
   Image,
@@ -7,9 +9,7 @@ import {
   ImageSourcePropType,
 } from "react-native";
 
-import { colors } from "@/shared/theme/colors";
 import { typography } from "@/shared/theme/typography";
-import { spacing } from "@/shared/theme/spacing";
 
 type Props = {
   title: string;
@@ -18,14 +18,32 @@ type Props = {
 };
 
 export default function PracticeCard({ title, image, onPress }: Props) {
-  return (
-    <Pressable style={styles.card} onPress={onPress}>
-      <Image source={image} style={styles.image} />
+  const scale = useRef(new Animated.Value(1)).current;
 
-      <View style={styles.overlay}>
-        <Text style={styles.text}>{title}</Text>
-      </View>
-    </Pressable>
+  const animateCard = (toValue: number) => {
+    Animated.spring(scale, {
+      toValue,
+      useNativeDriver: true,
+      friction: 6,
+      tension: 120,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={[styles.cardWrapper, { transform: [{ scale }] }]}>
+      <Pressable
+        style={[styles.card, styles.cardInner]}
+        onPress={onPress}
+        onPressIn={() => animateCard(1.06)}
+        onPressOut={() => animateCard(1)}
+      >
+        <Image source={image} style={styles.image} />
+
+        <View style={styles.overlay}>
+          <Text style={styles.text}>{title}</Text>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -70,5 +88,13 @@ const styles = StyleSheet.create({
 
     justifyContent: "center",
     alignItems: "center",
+  },
+  cardWrapper: {
+    width: "48%",
+    marginBottom: 15,
+  },
+  cardInner: {
+    width: "100%",
+    marginBottom: 0,
   },
 });

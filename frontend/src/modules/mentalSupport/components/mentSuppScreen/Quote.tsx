@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Pressable, Text, StyleSheet } from "react-native";
 import { typography } from "@/shared/theme/typography";
 
 import { colors } from "@/shared/theme/colors";
@@ -18,12 +19,64 @@ export default function Quote() {
     "Twoje emocje są ważne. Znajdź sposób, by je wyrazić.",
   ];
 
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(14)).current;
+  const scale = useRef(new Animated.Value(0.96)).current;
+  const pressScale = useRef(new Animated.Value(1)).current;
+  const randomQuote = useRef(
+    quotes[Math.floor(Math.random() * quotes.length)]
+  ).current;
+
+  const animatePressScale = (toValue: number) => {
+    Animated.spring(pressScale, {
+      toValue,
+      friction: 6,
+      tension: 120,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 7,
+        tension: 85,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [opacity, translateY, scale]);
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.quote}>{randomQuote}</Text>
-    </View>
+    <Pressable
+      onPressIn={() => animatePressScale(1.04)}
+      onPressOut={() => animatePressScale(1)}
+    >
+      <Animated.View
+        style={[
+          styles.card,
+          {
+            opacity,
+            transform: [
+              { translateY },
+              { scale: Animated.multiply(scale, pressScale) },
+            ],
+          },
+        ]}
+      >
+        <Text style={styles.quote}>{randomQuote}</Text>
+      </Animated.View>
+    </Pressable>
   );
 }
 

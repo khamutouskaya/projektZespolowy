@@ -11,10 +11,19 @@ import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButto
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export default function DiaryScreen() {
-  const { entries } = useDiaryEntries();
+  const { entries, reload } = useDiaryEntries();
   const router = useRouter();
+
+  // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
 
   const today = entries.filter((e) => e.section === "today");
   const earlier = entries.filter((e) => e.section === "earlier");
@@ -57,8 +66,9 @@ export default function DiaryScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 80, // место под плавающий tab bar
+    //krzystof bez//
+    //paddingHorizontal: 20,
+    //paddingBottom: 80, // место под плавающий tab bar
   },
 
   headerRow: {

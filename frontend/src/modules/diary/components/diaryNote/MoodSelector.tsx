@@ -1,32 +1,32 @@
-import { Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
+type Props = {
+  selectedEmoji: string | null;
+  onSelect: (emoji: string) => void;
+};
 
-export default function MoodSelector() {
-  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
-
+// To teraz wysyła emotkę w górę
+export default function MoodSelector({ selectedEmoji, onSelect }: Props) {
   const emojis = ["😊", "🙂", "😐", "😔", "😭", "😴", "😍"];
 
   return (
-    <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.emojiRow}
-      >
-        {emojis.map((emoji) => (
-          <Pressable
-            key={emoji}
-            onPress={() => setSelectedEmoji(emoji)}
-            style={[
-              styles.emojiButton,
-              selectedEmoji === emoji && styles.emojiSelected,
-            ]}
-          >
-            <Text style={styles.emoji}>{emoji}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-    </>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.emojiRow}
+    >
+      {emojis.map((emoji) => (
+        <Pressable
+          key={emoji}
+          onPress={() => onSelect(emoji)}
+          style={[
+            styles.emojiButton,
+            selectedEmoji === emoji && styles.emojiSelected,
+          ]}
+        >
+          <Text style={styles.emoji}>{emoji}</Text>
+        </Pressable>
+      ))}
+    </ScrollView>
   );
 }
 

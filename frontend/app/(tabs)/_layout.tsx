@@ -1,6 +1,6 @@
-import { Tabs } from "expo-router";
-import { StyleSheet, ImageBackground, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { ImageBackground, StyleSheet } from "react-native";
 
 const TabBarBackground = () => (
   <ImageBackground

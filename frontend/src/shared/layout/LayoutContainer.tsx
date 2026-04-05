@@ -1,6 +1,6 @@
+import React from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React from "react";
 //import { spacing } from "../theme/spacing";
 
 type Props = {

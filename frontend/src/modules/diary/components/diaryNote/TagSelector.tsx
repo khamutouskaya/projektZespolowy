@@ -1,10 +1,13 @@
-import { ScrollView, Text, Pressable, StyleSheet } from "react-native";
-import { useState } from "react";
 import { colors } from "@/shared/theme/colors";
+import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
-export default function TagSelector() {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+type Props = {
+  selectedTag: string | null;
+  onSelect: (tag: string) => void;
+};
+// służy to wysyłania stanu w górę
 
+export default function TagSelector({ selectedTag, onSelect }: Props) {
   const tags = [
     { label: "Spokój", icon: "💙" },
     { label: "Relaks", icon: "🌿" },
@@ -15,28 +18,23 @@ export default function TagSelector() {
   ];
 
   return (
-    <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.emojiRow}
-      >
-        {tags.map((tag) => (
-          <Pressable
-            key={tag.label}
-            onPress={() => setSelectedTag(tag.label)}
-            style={[
-              styles.tag,
-              selectedTag === tag.label && styles.tagSelected,
-            ]}
-          >
-            <Text style={styles.tagText}>
-              {tag.icon} {tag.label}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-    </>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.emojiRow}
+    >
+      {tags.map((tag) => (
+        <Pressable
+          key={tag.label}
+          onPress={() => onSelect(tag.label)}
+          style={[styles.tag, selectedTag === tag.label && styles.tagSelected]}
+        >
+          <Text style={styles.tagText}>
+            {tag.icon} {tag.label}
+          </Text>
+        </Pressable>
+      ))}
+    </ScrollView>
   );
 }
 

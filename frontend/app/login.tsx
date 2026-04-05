@@ -1,6 +1,12 @@
+import {
+  useLoginMutation,
+  useRegisterMutation,
+} from "@/hooks/useAuthMutations";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   ImageBackground,
   Pressable,
@@ -8,6 +14,8 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -17,68 +25,100 @@ export default function Login() {
 
   const router = useRouter();
 
+  // Inicjalizujemy hooki
+  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
+
+  const handleLogin = () => {
+    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    loginMutation.mutate({ email, password });
+  };
+
+  const handleRegister = () => {
+    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    registerMutation.mutate({ email, password });
+  };
+
+  const isPending = loginMutation.isPending || registerMutation.isPending;
+
   return (
-    <>
-      {/* Прибирає верхній хедер "login" + білу зону */}
-      <Stack.Screen options={{ headerShown: false }} />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        {/* Прибирає верхній хедер "login" + білу зону */}
+        <Stack.Screen options={{ headerShown: false }} />
 
-      <ImageBackground
-        source={require("../assets/background.png")}
-        style={styles.background}
-        resizeMode="cover"
-      >
-        <SafeAreaView style={styles.safe}>
-          {/* ХМАРКА */}
-          <Image
-            source={require("../assets/images/cloud.png")}
-            style={styles.cloud}
-          />
-
-          {/* ТЕКСТ ПО ЦЕНТРУ */}
-          <View style={styles.center}>
-            <Text style={styles.hey}>Hej!</Text>
-            <Text style={styles.title}>Zaloguj się</Text>
-          </View>
-
-          {/* КАРТКА ЗНИЗУ */}
-          <View style={styles.card}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              style={styles.input}
-              autoCapitalize="none"
-              keyboardType="email-address"
+        <ImageBackground
+          source={require("../assets/background.png")}
+          style={styles.background}
+          resizeMode="cover"
+        >
+          <SafeAreaView style={styles.safe}>
+            {/* ХМАРКА */}
+            <Image
+              source={require("../assets/images/cloud.png")}
+              style={styles.cloud}
             />
 
-            <Text style={styles.label}>Hasło</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              secureTextEntry
-              style={styles.input}
-            />
+            {/* ТЕКСТ ПО ЦЕНТРУ */}
+            <View style={styles.center}>
+              <Text style={styles.hey}>Hej!</Text>
+              <Text style={styles.title}>Zaloguj się</Text>
+            </View>
 
-            <Pressable
-              style={styles.button}
-              onPress={() => router.replace("/(tabs)/home")}
-            >
-              <Text style={styles.buttonText}>Zaloguj się</Text>
-            </Pressable>
+            {/* КАРТКА ЗНИЗУ */}
+            <View style={styles.card}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="you@example.com"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                style={styles.input}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!isPending}
+              />
 
-            <Pressable>
-              <Text style={styles.link}>
-                Nie masz konta?{"\n"}Zarejestruj się
-              </Text>
-            </Pressable>
-          </View>
-        </SafeAreaView>
-      </ImageBackground>
-    </>
+              <Text style={styles.label}>Hasło</Text>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                secureTextEntry
+                style={styles.input}
+                editable={!isPending}
+              />
+
+              <Pressable
+                style={styles.button}
+                onPress={handleLogin}
+                disabled={isPending}
+              >
+                {loginMutation.isPending ? (
+                  <ActivityIndicator color="#355A7A" />
+                ) : (
+                  <Text style={styles.buttonText}>Zaloguj się</Text>
+                )}
+              </Pressable>
+
+              <Pressable onPress={handleRegister} disabled={isPending}>
+                {registerMutation.isPending ? (
+                  <ActivityIndicator
+                    color="rgba(111,122,134,0.70)"
+                    style={{ marginTop: 14 }}
+                  />
+                ) : (
+                  <Text style={styles.link}>
+                    Nie masz konta?{"\n"}Zarejestruj się (Test API)
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </SafeAreaView>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 

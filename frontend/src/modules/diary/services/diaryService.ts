@@ -42,7 +42,7 @@ export const diaryService = {
       mood: data.mood ?? "",
       section: data.section ?? "today",
       content: data.content ?? "",
-      summaryText: data.summaryText ?? "",
+      // summaryText: data.summaryText ?? "",
       tags: data.tags ?? "[]",
       syncStatus: "pending",
       updatedAt: now,

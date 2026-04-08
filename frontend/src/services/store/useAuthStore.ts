@@ -3,6 +3,9 @@ import { create } from "zustand";
 import { UserPayload } from "../../types/auth.types";
 import { storage } from "../storage";
 
+//useAuthStore — twój globalny store, z którego pobierany jest token.
+// Ten store zarządza stanem autoryzacji użytkownika, przechowując token i dane usera zarówno w RAMie (stan aplikacji), jak i na dysku (SecureStore) dla trwałości sesji.
+
 interface AuthState {
   token: string | null;
   user: UserPayload | null;

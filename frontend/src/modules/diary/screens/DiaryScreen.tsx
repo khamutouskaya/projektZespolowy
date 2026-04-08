@@ -67,8 +67,8 @@ export default function DiaryScreen() {
 const styles = StyleSheet.create({
   scrollContent: {
     //krzystof bez//
-    //paddingHorizontal: 20,
-    //paddingBottom: 80, // место под плавающий tab bar
+    paddingHorizontal: 20,
+    paddingBottom: 80, // место под плавающий tab bar
   },
 
   headerRow: {

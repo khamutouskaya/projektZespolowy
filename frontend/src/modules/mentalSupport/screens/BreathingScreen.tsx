@@ -116,11 +116,11 @@ export default function BreathingScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
-    paddingTop: 10,
+
     paddingBottom: 90,
   },
 
   header: {
-    marginBottom: 15,
+    marginBottom: 5,
   },
 });

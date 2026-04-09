@@ -24,7 +24,7 @@ export default function Quote() {
   const scale = useRef(new Animated.Value(0.96)).current;
   const pressScale = useRef(new Animated.Value(1)).current;
   const randomQuote = useRef(
-    quotes[Math.floor(Math.random() * quotes.length)]
+    quotes[Math.floor(Math.random() * quotes.length)],
   ).current;
 
   const animatePressScale = (toValue: number) => {
@@ -82,7 +82,7 @@ export default function Quote() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.background.more,
+    backgroundColor: colors.background.glass,
     borderRadius: 20,
     padding: spacing.md,
     //marginTop: spacing.lg,
@@ -93,12 +93,6 @@ const styles = StyleSheet.create({
 
     borderWidth: 1.5,
     borderColor: "#d0c8da",
-
-    shadowColor: "#827e7e",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
   },
 
   quote: {

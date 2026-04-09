@@ -1,7 +1,7 @@
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Keyboard,
   Pressable,
@@ -16,27 +16,62 @@ import DiaryNoteHeader from "../components/diaryNote/DiaryNoteHeader";
 import MoodSelector from "../components/diaryNote/MoodSelector";
 import SummaryInput from "../components/diaryNote/SummaryInput";
 import TagSelector from "../components/diaryNote/TagSelector";
+import { useAuthStore } from "@/services/store/useAuthStore";
+import { diaryService } from "@/modules/diary/services/diaryService";
 
 export default function DiaryNoteScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const { addEntry } = useDiaryEntries();
+  const params = useLocalSearchParams<{ text?: string; id?: string }>();
+  const { addEntry, updateEntry } = useDiaryEntries();
+  const isEditing = !!params.id;
 
   const [preview, setpreview] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [noteText, setNoteText] = useState(params.text ?? "");
+  const user = useAuthStore((state) => state.user);
+  const startTimeRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    if (!params.id || !user?.id) return;
+    const existing = diaryService.getById(params.id, user.id);
+    if (!existing) return;
+
+    setNoteText(existing.content);
+    setpreview(existing.preview ?? "");
+    setSelectedMood(existing.mood ?? null);
+    setSelectedTag(JSON.parse(existing.tags || "[]")[0] ?? null);
+  }, [params.id]);
 
   const handleSave = () => {
-    addEntry({
-      content: (params.text as string) ?? "",
+    const elapsedMs = Date.now() - startTimeRef.current;
+    const elapsedMin = Math.round(elapsedMs / 60000);
+    const duration = elapsedMin < 1 ? "< 1 min" : `${elapsedMin} min`;
+    const existingDate =
+      isEditing && params.id && user?.id
+        ? diaryService.getById(params.id, user.id)?.date
+        : undefined;
+
+    const payload = {
+      content: noteText,
       preview,
       mood: selectedMood ?? "",
       icon: selectedMood ?? "📝",
       tags: selectedTag ? JSON.stringify([selectedTag]) : "[]",
-      title: new Date().toLocaleDateString("pl-PL"),
-      date: new Date().toLocaleDateString("pl-PL"),
-      section: "today",
-    });
+      title:
+        noteText.trim().slice(0, 40) || new Date().toLocaleDateString("pl-PL"),
+      date: existingDate ?? new Date().toLocaleDateString("pl-PL"),
+      section: "today" as const,
+      duration,
+    };
+
+    if (isEditing && params.id) {
+      updateEntry(params.id, payload);
+      // TODO: diaryApi.update(params.id, payload) — gdy backend gotowy
+    } else {
+      addEntry(payload);
+      // TODO: diaryApi.create(payload) — gdy backend gotowy
+    }
     router.back();
   };
 
@@ -60,11 +95,11 @@ export default function DiaryNoteScreen() {
           <View style={styles.inputCard}>
             <Text style={styles.title}>Jak minął Twój dzień?</Text>
             <DiaryInput
-              text={params.text as string} // pokazuje tekst zwrócony z DiaryEntryScreen
+              text={noteText}
               onPress={() =>
                 router.push({
                   pathname: "/(tabs)/diary/entry",
-                  params: { text: params.text }, // przekazuje aktualny tekst do edycji
+                  params: { text: noteText },
                 })
               }
             />

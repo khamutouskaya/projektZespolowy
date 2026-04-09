@@ -1,36 +1,65 @@
-import { colors } from "@/shared/theme/colors";
-import { cardStyles } from "@/shared/theme/styles";
-import { typography } from "@/shared/theme/typography";
-import { StyleSheet, Text, View } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { DiaryEntry } from "../../diary.types";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
+import { cardStyles } from "@/shared/theme/styles";
 
 type Props = {
   entry: DiaryEntry;
 };
+const TAG_MAP: Record<string, string> = {
+  Spokój: "💙",
+  Relaks: "🌿",
+  Energia: "⭐",
+  Produktywność: "🚀",
+  Radość: "🌞",
+  Zmęczenie: "😴",
+}; //NOTE: jesli jest to zmieniane, to nalezy tez to uwzglednic w TagSelector (w diaryNote)
+
+import { useRouter } from "expo-router";
 
 export default function DiaryEntryCard({ entry }: Props) {
   const tags = entry.tags ? JSON.parse(entry.tags) : [];
-
+  const router = useRouter();
   return (
-    <View style={cardStyles.card}>
-      {/* Icon + data */}
-      <View style={styles.header}>
-        <Text style={styles.icon}>{entry.icon}</Text>
-        <Text style={styles.title}>{entry.date}</Text>
-      </View>
+    <Pressable
+      onPress={() => router.push(`/(tabs)/diary/note?id=${entry.id}`)}
+      style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}
+    >
+      <View style={cardStyles.card}>
+        <View style={styles.header}>
+          <Text style={styles.icon}>{entry.icon}</Text>
 
-      {/* Streszczenie */}
-      {entry.preview ? (
-        <Text style={styles.preview} numberOfLines={2}>
-          {entry.preview}
-        </Text>
-      ) : null}
+          <Text style={styles.title}>{entry.title || entry.date}</Text>
+        </View>
 
-      {/* tag */}
-      <View style={styles.tagsRow}>
-        {tags[0] ? <Text style={styles.tag}>{tags[0]}</Text> : null}
+        {entry.preview ? (
+          <Text style={styles.preview} numberOfLines={2}>
+            {entry.preview}
+          </Text>
+        ) : null}
+
+        <View style={styles.footer}>
+          <Text style={styles.meta}>
+            {entry.date} {entry.duration ? `~ ${entry.duration}` : ""}
+          </Text>
+
+          {(() => {
+            const parsed: string[] = JSON.parse(entry.tags || "[]");
+            if (!parsed.length) return null;
+            return (
+              <View style={styles.tagsRow}>
+                {parsed.map((label) => (
+                  <Text key={label} style={styles.tag}>
+                    {TAG_MAP[label] ?? ""} {label}
+                  </Text>
+                ))}
+              </View>
+            );
+          })()}
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 const styles = StyleSheet.create({
@@ -39,6 +68,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginBottom: 6,
+  },
+  tagText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "rgba(70,80,90,0.75)",
   },
 
   icon: {
@@ -72,7 +106,7 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
   },
 
-  moodLabel: {
+  tagLabel: {
     ...typography.caption,
     color: colors.text.primary,
     marginLeft: 12,

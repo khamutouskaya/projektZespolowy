@@ -1,7 +1,10 @@
 import { router } from "expo-router";
+import { jwtDecode } from "jwt-decode"; // do spr czasu tokena
 import { create } from "zustand";
 import { UserPayload } from "../../types/auth.types";
 import { storage } from "../storage";
+import NetInfo from "@react-native-community/netinfo";
+import { canReachBackend } from "../network/networkUtils";
 
 interface AuthState {
   token: string | null;
@@ -47,13 +50,38 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const token = await storage.getToken();
       const userRaw = await storage.getUser();
-
+      if (token) {
+        // Do sprawdzenia czasu wygaśnięcia tokena, do testu czy nie ignoruje przeterminowanego tokenu
+        const decoded: any = jwtDecode(token);
+        console.log(
+          "[TOKEN] Wygasa:",
+          new Date(decoded.exp * 1000).toLocaleString(),
+        );
+      }
       if (token && userRaw) {
-        // Jeśli mamy i token i dane usera na dysku jesteśmy zalogowani
-        const user: UserPayload = JSON.parse(userRaw);
-        set({ token, user, isAuthenticated: true });
+        const decoded: any = jwtDecode(token);
+        const isExpired = decoded.exp * 1000 < Date.now();
+
+        if (isExpired) {
+          const reachable = await canReachBackend();
+          if (reachable) {
+            // Online + serwer działa + token wygasły → wyloguj
+            await storage.clearToken();
+            await storage.removeUser();
+          } else {
+            // Brak połączenia z serwerem → wpuść mimo wygasłego tokenu
+            const user: UserPayload = JSON.parse(userRaw);
+            set({ token, user, isAuthenticated: true });
+            console.warn(
+              "[TOKEN] Wygasły, ale serwer nieosiągalny — sesja tymczasowo aktywna",
+            );
+          }
+        } else {
+          // Token ważny — normalne logowanie
+          const user: UserPayload = JSON.parse(userRaw);
+          set({ token, user, isAuthenticated: true });
+        }
       } else {
-        // Zabezpieczenie: jeśli jest token, ale nie ma usera
         if (token || userRaw) {
           await storage.clearToken();
           await storage.removeUser();

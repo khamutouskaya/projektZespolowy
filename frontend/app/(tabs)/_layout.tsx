@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { ImageBackground, StyleSheet } from "react-native";
+import { ImageBackground, StyleSheet, Alert } from "react-native";
+import { useAuthStore } from "../../src/services/store/useAuthStore"; //TODO tymczasowe do wylogowywania
 
 const TabBarBackground = () => (
   <ImageBackground
@@ -11,6 +12,7 @@ const TabBarBackground = () => (
 );
 
 export default function TabLayout() {
+  const logout = useAuthStore((state) => state.logout); //TODO tymczasowe wylogowywanie
   return (
     <Tabs
       screenOptions={{
@@ -82,13 +84,14 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="index"
         options={{
           href: null,
         }}
       />
+      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen name="logout" options={{ href: null }} />
     </Tabs>
   );
 }

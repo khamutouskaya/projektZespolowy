@@ -1,7 +1,4 @@
-import {
-  useLoginMutation,
-  useRegisterMutation,
-} from "@/hooks/useAuthMutations";
+import { useRegisterMutation } from "@/hooks/useAuthMutations";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -18,39 +15,43 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const router = useRouter();
-
-  // Inicjalizujemy hooki
-  const loginMutation = useLoginMutation();
   const registerMutation = useRegisterMutation();
-
-  const handleLogin = () => {
-    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
-    loginMutation.mutate({ email, password });
-  };
 
   const handleRegister = () => {
     if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
-    registerMutation.mutate({ email, password });
+    if (password !== confirmPassword)
+      return Alert.alert("Błąd", "Hasła nie są identyczne");
+
+    registerMutation.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          router.back();
+        },
+      },
+    );
   };
 
   const handleGoogleLogin = () => {
-    Alert.alert("Google", "Tu będzie logowanie Google");
+    // TODO: useGoogleLoginMutation po integracji SDK
+    Alert.alert("Google", "Tu będzie logowanie/rejestracja Google");
   };
 
   const handleFacebookLogin = () => {
-    Alert.alert("Facebook", "Tu będzie logowanie Facebook");
+    // TODO: useFacebookLoginMutation po integracji SDK
+    Alert.alert("Facebook", "Tu będzie logowanie/rejestracja Facebook");
   };
 
-  const isPending = loginMutation.isPending || registerMutation.isPending;
+  const isPending = registerMutation.isPending;
 
   return (
     <>
-      {/* Прибирає верхній хедер "login" + білу зону */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <ImageBackground
@@ -59,16 +60,13 @@ export default function Login() {
         resizeMode="cover"
       >
         <SafeAreaView style={styles.safe}>
-          {/* ХМАРКА */}
           <Image source={require("../assets/cloud.png")} style={styles.cloud} />
 
-          {/* ТЕКСТ ПО ЦЕНТРУ */}
           <View style={styles.center}>
-            <Text style={styles.hey}>Hej!</Text>
-            <Text style={styles.title}>Zaloguj się</Text>
+            <Text style={styles.hey}>Dołącz!</Text>
+            <Text style={styles.title}>Zarejestruj się</Text>
           </View>
 
-          {/* КАРТКА ЗНИЗУ */}
           <View style={styles.card}>
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -92,16 +90,26 @@ export default function Login() {
               style={styles.input}
               editable={!isPending}
             />
+            <Text style={styles.label}>Potwierdź hasło</Text>
+            <TextInput
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="••••••••"
+              placeholderTextColor="rgba(111,122,134,0.55)"
+              secureTextEntry
+              style={styles.input}
+              editable={!isPending}
+            />
 
             <Pressable
               style={styles.button}
-              onPress={handleLogin}
+              onPress={handleRegister}
               disabled={isPending}
             >
-              {loginMutation.isPending ? (
+              {isPending ? (
                 <ActivityIndicator color="#355A7A" />
               ) : (
-                <Text style={styles.buttonText}>Zaloguj się</Text>
+                <Text style={styles.buttonText}>Utwórz konto</Text>
               )}
             </Pressable>
 
@@ -130,13 +138,8 @@ export default function Login() {
                 <Text style={styles.socialButtonTextLight}>Facebook</Text>
               </Pressable>
             </View>
-            <Pressable
-              onPress={() => router.push("./register")}
-              disabled={isPending}
-            >
-              <Text style={styles.link}>
-                Nie masz konta?{"\n"}Zarejestruj się
-              </Text>
+            <Pressable onPress={() => router.back()} disabled={isPending}>
+              <Text style={styles.link}>Masz już konto?{"\n"}Zaloguj się</Text>
             </Pressable>
           </View>
         </SafeAreaView>
@@ -146,33 +149,24 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-  safe: {
-    flex: 1,
-    alignItems: "center",
-  },
-
-  /* ХМАРКА */
+  background: { flex: 1 },
+  safe: { flex: 1, alignItems: "center" },
   cloud: {
     position: "absolute",
-    top: 45, // було 20 — на iPhone з Dynamic Island краще нижче
+    top: 45,
     width: 340,
     height: 340,
     resizeMode: "contain",
   },
-
-  /* ЦЕНТР */
   center: {
-    marginTop: 230, // було 200 — щоб текст не ліз на хмарку
+    marginTop: 230,
     alignItems: "center",
     paddingHorizontal: 24,
   },
   hey: {
     fontSize: 42,
     fontWeight: "800",
-    color: "#6F7A86", // темніший, “брендовий”
+    color: "#6F7A86",
   },
   title: {
     marginTop: 2,
@@ -180,23 +174,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#7B8794",
   },
-  subtitle: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "rgba(111,122,134,0.72)",
-    textAlign: "center",
-  },
-
-  /* КАРТКА */
   card: {
     position: "absolute",
-    bottom: 170, // поднять опустить панель
+    bottom: 80,
     width: "92%",
-    backgroundColor: "rgba(255,255,255,0.52)", // трішки прозоріше
+    backgroundColor: "rgba(255,255,255,0.52)",
     borderRadius: 28,
     padding: 18,
-
-    // легка тінь, щоб "скло" читалось
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 14,
@@ -214,19 +198,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     backgroundColor: "rgba(255,255,255,0.88)",
     borderWidth: 1,
-    borderColor: "rgba(170,190,210,0.38)", // трішки м’якше
+    borderColor: "rgba(170,190,210,0.38)",
     color: "rgba(70,80,90,0.95)",
   },
-
-  /* КНОПКА */
   button: {
     height: 52,
     borderRadius: 18,
-    backgroundColor: "#b6cce9", // kolor zaloguj sie
+    backgroundColor: "#b6cce9",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 16,
-
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -235,9 +216,8 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#355A7A", // кращий контраст
+    color: "#355A7A",
   },
-
   link: {
     marginTop: 14,
     textAlign: "center",
@@ -245,6 +225,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: "rgba(111,122,134,0.70)",
   },
+
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",

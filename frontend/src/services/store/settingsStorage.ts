@@ -1,15 +1,38 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// PO
+export interface NotificationSettings {
+  allEnabled: boolean;
+  diaryEnabled: boolean;
+  mutedUntil: string | null;
+  diaryHour: number;
+  diaryMinute: number;
+}
+
 const KEYS = {
-  notificationsEnabled: "settings_notifications_enabled",
+  notificationSettings: "settings_notifications",
+};
+
+const DEFAULTS: NotificationSettings = {
+  allEnabled: true,
+  diaryEnabled: true,
+  mutedUntil: null,
+  diaryHour: 21,
+  diaryMinute: 0,
 };
 
 export const settingsStorage = {
-  getNotificationsEnabled: async (): Promise<boolean> => {
-    const val = await AsyncStorage.getItem(KEYS.notificationsEnabled);
-    return val === null ? true : val === "true"; // domyślnie włączone
+  getNotificationSettings: async (): Promise<NotificationSettings> => {
+    const val = await AsyncStorage.getItem(KEYS.notificationSettings);
+    return val ? { ...DEFAULTS, ...JSON.parse(val) } : DEFAULTS;
   },
-  setNotificationsEnabled: async (enabled: boolean): Promise<void> => {
-    await AsyncStorage.setItem(KEYS.notificationsEnabled, String(enabled));
+  saveNotificationSettings: async (
+    settings: Partial<NotificationSettings>,
+  ): Promise<void> => {
+    const current = await settingsStorage.getNotificationSettings();
+    await AsyncStorage.setItem(
+      KEYS.notificationSettings,
+      JSON.stringify({ ...current, ...settings }),
+    );
   },
 };

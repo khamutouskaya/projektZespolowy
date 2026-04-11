@@ -1,30 +1,52 @@
 import { useCallback, useEffect, useState } from "react";
-import * as Notifications from "expo-notifications";
-import { settingsStorage } from "@/services/store/settingsStorage";
+import {
+  NotificationSettings,
+  settingsStorage,
+} from "@/services/store/settingsStorage";
 import { notificationService } from "@/services/notifications/notificationService";
 
 export const useNotificationSettings = () => {
-  const [enabled, setEnabled] = useState(true);
+  const [settings, setSettings] = useState<NotificationSettings>({
+    allEnabled: true,
+    diaryEnabled: true,
+    mutedUntil: null,
+    diaryHour: 21,
+    diaryMinute: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    settingsStorage.getNotificationsEnabled().then((val) => {
-      setEnabled(val);
+    settingsStorage.getNotificationSettings().then((s) => {
+      setSettings(s);
       setLoading(false);
     });
   }, []);
 
-  const toggle = useCallback(async () => {
-    const next = !enabled;
-    setEnabled(next);
-    await settingsStorage.setNotificationsEnabled(next);
+  const update = useCallback(
+    async (patch: Partial<NotificationSettings>) => {
+      const next = { ...settings, ...patch };
+      setSettings(next);
+      await settingsStorage.saveNotificationSettings(patch);
+      const granted = await notificationService.requestPermission();
+      if (granted) await notificationService.reschedule(next);
+    },
+    [settings],
+  );
 
-    if (next) {
-      await notificationService.requestPermissionAndSchedule();
-    } else {
-      await Notifications.cancelAllScheduledNotificationsAsync();
-    }
-  }, [enabled]);
+  // Czy aktualnie wyciszone tymczasowo
+  const isMutedTemporarily =
+    !!settings.mutedUntil && new Date(settings.mutedUntil) > new Date();
 
-  return { enabled, loading, toggle };
+  const muteUntil = useCallback(
+    async (date: Date) => {
+      await update({ mutedUntil: date.toISOString() });
+    },
+    [update],
+  );
+
+  const unmute = useCallback(async () => {
+    await update({ mutedUntil: null });
+  }, [update]);
+
+  return { settings, loading, update, isMutedTemporarily, muteUntil, unmute };
 };

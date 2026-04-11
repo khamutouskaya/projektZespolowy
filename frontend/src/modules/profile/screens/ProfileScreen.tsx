@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
+import NotificationsSettingsCard from "../components/profileScreen/NotificationsSettingsCard";
 import React from "react";
 import {
   Pressable,
@@ -95,9 +96,10 @@ export default function ProfileScreen() {
         </View>
 
         {/* Ustawienia */}
+        <NotificationsSettingsCard />
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Ustawienia</Text>
-          <NotificationsRow />
+          {/* Row icon="notifications-outline" usunięty — zastąpiony kartą wyżej */}
           <Row icon="lock-closed-outline" label="Zmień hasło" />
           <Row icon="download-outline" label="Eksport danych" />
           <Pressable onPress={handleDeleteAccount}>

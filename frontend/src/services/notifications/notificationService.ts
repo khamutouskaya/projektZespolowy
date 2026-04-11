@@ -1,46 +1,37 @@
 import * as Notifications from "expo-notifications";
-
-// Jak powiadomienia mają wyglądać gdy aplikacja jest otwarta
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+import { NotificationSettings } from "@/services/store/settingsStorage";
 
 export const notificationService = {
-  requestPermissionAndSchedule: async (): Promise<boolean> => {
+  requestPermission: async (): Promise<boolean> => {
     const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== "granted") return false;
-
-    await notificationService.scheduleDailyReminder();
-    return true;
+    return status === "granted";
   },
 
-  scheduleDailyReminder: async (): Promise<void> => {
-    // Anuluj poprzednie żeby nie duplikować
+  reschedule: async (settings: NotificationSettings): Promise<void> => {
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Jak minął Twój dzień? ☁️",
-        body: "Pamiętaj, żeby zapisać swoje przemyślenia w dzienniku.",
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour: 21,
-        minute: 0,
-      },
-    });
-  },
+    // Sprawdź czy ogólnie włączone
+    if (!settings.allEnabled) return;
 
-  sendLocal: async (title: string, body: string): Promise<void> => {
-    await Notifications.scheduleNotificationAsync({
-      content: { title, body },
-      trigger: null, // natychmiastowe
-    });
+    // Sprawdź czy wyciszone tymczasowo
+    if (settings.mutedUntil) {
+      const mutedUntil = new Date(settings.mutedUntil);
+      if (mutedUntil > new Date()) return;
+    }
+
+    // Zaplanuj przypomnienie dziennika
+    if (settings.diaryEnabled) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Jak minął Twój dzień? ☁️",
+          body: "Pamiętaj, żeby zapisać swoje przemyślenia w dzienniku.",
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour: settings.diaryHour,
+          minute: settings.diaryMinute,
+        },
+      });
+    }
   },
 };

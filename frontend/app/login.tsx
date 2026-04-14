@@ -14,6 +14,8 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,11 +35,6 @@ export default function Login() {
     loginMutation.mutate({ email, password });
   };
 
-  const handleRegister = () => {
-    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
-    registerMutation.mutate({ email, password });
-  };
-
   const handleGoogleLogin = () => {
     Alert.alert("Google", "Tu będzie logowanie Google");
   };
@@ -49,99 +46,79 @@ export default function Login() {
   const isPending = loginMutation.isPending || registerMutation.isPending;
 
   return (
-    <>
-      {/* Прибирає верхній хедер "login" + білу зону */}
-      <Stack.Screen options={{ headerShown: false }} />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        {/* Прибирає верхній хедер "login" + білу зону */}
+        <Stack.Screen options={{ headerShown: false }} />
 
-      <ImageBackground
-        source={require("../assets/background.png")}
-        style={styles.background}
-        resizeMode="cover"
-      >
-        <SafeAreaView style={styles.safe}>
-          {/* ХМАРКА */}
-          <Image source={require("../assets/cloud.png")} style={styles.cloud} />
-
-          {/* ТЕКСТ ПО ЦЕНТРУ */}
-          <View style={styles.center}>
-            <Text style={styles.hey}>Hej!</Text>
-            <Text style={styles.title}>Zaloguj się</Text>
-          </View>
-
-          {/* КАРТКА ЗНИЗУ */}
-          <View style={styles.card}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              style={styles.input}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              editable={!isPending}
+        <ImageBackground
+          source={require("../assets/background.png")}
+          style={styles.background}
+          resizeMode="cover"
+        >
+          <SafeAreaView style={styles.safe}>
+            {/* ХМАРКА */}
+            <Image
+              source={require("../assets/images/cloud.png")}
+              style={styles.cloud}
             />
 
-            <Text style={styles.label}>Hasło</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              secureTextEntry
-              style={styles.input}
-              editable={!isPending}
-            />
-
-            <Pressable
-              style={styles.button}
-              onPress={handleLogin}
-              disabled={isPending}
-            >
-              {loginMutation.isPending ? (
-                <ActivityIndicator color="#355A7A" />
-              ) : (
-                <Text style={styles.buttonText}>Zaloguj się</Text>
-              )}
-            </Pressable>
-
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>lub połącz za pomocą</Text>
-              <View style={styles.dividerLine} />
+            {/* ТЕКСТ ПО ЦЕНТРУ */}
+            <View style={styles.center}>
+              <Text style={styles.hey}>Hej!</Text>
+              <Text style={styles.title}>Zaloguj się</Text>
             </View>
 
-            <View style={styles.socialContainer}>
+            {/* КАРТКА ЗНИЗУ */}
+            <View style={styles.card}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="you@example.com"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                style={styles.input}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!isPending}
+              />
+
+              <Text style={styles.label}>Hasło</Text>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                secureTextEntry
+                style={styles.input}
+                editable={!isPending}
+              />
+
               <Pressable
-                style={[styles.socialButton, styles.googleButton]}
-                onPress={handleGoogleLogin}
+                style={styles.button}
+                onPress={handleLogin}
                 disabled={isPending}
               >
-                <Ionicons name="logo-google" size={20} color="#DB4437" />
-                <Text style={styles.socialButtonTextDark}>Google</Text>
+                {loginMutation.isPending ? (
+                  <ActivityIndicator color="#355A7A" />
+                ) : (
+                  <Text style={styles.buttonText}>Zaloguj się</Text>
+                )}
               </Pressable>
 
               <Pressable
-                style={[styles.socialButton, styles.facebookButton]}
-                onPress={handleFacebookLogin}
+                onPress={() => router.push("/register")}
                 disabled={isPending}
               >
-                <Ionicons name="logo-facebook" size={20} color="#fff" />
-                <Text style={styles.socialButtonTextLight}>Facebook</Text>
+                <Text style={styles.link}>
+                  Nie masz konta?{"\n"}Zarejestruj się
+                </Text>
               </Pressable>
             </View>
-            <Pressable
-              onPress={() => router.push("./register")}
-              disabled={isPending}
-            >
-              <Text style={styles.link}>
-                Nie masz konta?{"\n"}Zarejestruj się
-              </Text>
-            </Pressable>
-          </View>
-        </SafeAreaView>
-      </ImageBackground>
-    </>
+          </SafeAreaView>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -158,8 +135,8 @@ const styles = StyleSheet.create({
   cloud: {
     position: "absolute",
     top: 45, // було 20 — на iPhone з Dynamic Island краще нижче
-    width: 340,
-    height: 340,
+    width: 250,
+    height: 300,
     resizeMode: "contain",
   },
 

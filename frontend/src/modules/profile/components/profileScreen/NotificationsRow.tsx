@@ -11,10 +11,13 @@ import {
 import { useNotificationSettings } from "../../hooks/useNotificationSettings";
 
 export default function NotificationsRow() {
-  const { enabled, loading, toggle } = useNotificationSettings();
+  const { settings, loading, update } = useNotificationSettings();
 
   return (
-    <Pressable onPress={toggle} style={styles.row}>
+    <Pressable
+      onPress={() => update({ allEnabled: !settings.allEnabled })}
+      style={styles.row}
+    >
       <Ionicons
         name="notifications-outline"
         size={18}
@@ -25,8 +28,8 @@ export default function NotificationsRow() {
         <ActivityIndicator size="small" style={{ marginLeft: "auto" }} />
       ) : (
         <Switch
-          value={enabled}
-          onValueChange={toggle}
+          value={settings.allEnabled}
+          onValueChange={(val) => update({ allEnabled: val })}
           style={{ marginLeft: "auto" }}
           trackColor={{ true: "rgba(173,219,183,0.8)", false: undefined }}
         />

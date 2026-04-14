@@ -15,7 +15,6 @@ import { Alert } from "react-native";
 import { useProfileStats } from "../hooks/useProfileStats";
 import StatBox from "../components/profileScreen/StatBox";
 import { useCallback } from "react";
-import NotificationsRow from "../components/profileScreen/NotificationsRow";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -49,19 +48,6 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Nagłówek */}
-      <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons
-            name="chevron-back"
-            size={24}
-            color="rgba(70,90,110,0.75)"
-          />
-        </Pressable>
-        <Text style={styles.topBarTitle}>Profil</Text>
-        <View style={{ width: 40 }} />
-      </View>
-
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Avatar + email */}
         <View style={styles.avatarSection}>
@@ -150,30 +136,17 @@ function Row({
 }
 
 const styles = StyleSheet.create({
+  // PO
   safe: { flex: 1, backgroundColor: "#f0f4f8" },
 
   topBar: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.62)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  topBarTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "rgba(70,80,90,0.85)",
+    paddingTop: 16,
+    paddingBottom: 8,
   },
 
-  scroll: { padding: 16, gap: 14, paddingBottom: 40 },
+  scroll: { padding: 16, gap: 14, paddingBottom: 110 },
 
   avatarSection: { alignItems: "center", marginVertical: 12 },
   avatar: {

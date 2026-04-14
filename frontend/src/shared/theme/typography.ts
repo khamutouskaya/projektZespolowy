@@ -4,9 +4,19 @@ export const typography = {
     fontWeight: "700" as const,
   },
 
+  name: {
+    fontSize: 30, // крупные заголовки экранов (np. "Jak się dziś czujesz?")
+    fontWeight: "700" as const,
+  },
+
   title: {
     fontSize: 18, // подзаголовки или названия блоков (np. sekcja, karta)
     fontWeight: "600" as const,
+  },
+
+  titleSmall: {
+    fontSize: 14,
+    fontWeight: "500",
   },
 
   input: {

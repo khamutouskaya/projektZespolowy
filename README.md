@@ -76,6 +76,7 @@ Oryginalny typ został rozszerzony o nowe pola. Stare pola pozostały bez zmian.
               │  POST /api/diary       │
               └────────────────────────┘
 ```
+
 ```
 Komponent (np. login.tsx)
 │ wywołuje hook
@@ -91,6 +92,7 @@ client.ts (apiClient — axios)
 ▼
 Backend ASP.NET Core
 ```
+
 client.ts tworzy i konfiguruje klienta HTTP (axios). Dzięki interceptorom automatycznie doklejа token do każdego wychodzącego requestu i nasłuchuje odpowiedzi, jeśli backend zwróci 401, wylogowuje użytkownika.
 
 Zasadniczo dokleja znaczek i wpisuje adres serwera
@@ -102,6 +104,7 @@ Nie wie gdzie jest endpoint, ale wie jaki chce, wysyła żądanie które jest pr
 useAuthMutations.ts łączy odpowiedź backendu z lokalnym stanem aplikacji, zapisuje token na dysku, aktualizuje store i nawiguje użytkownika.
 
 Dla logowania flow wygląda mniej więcej tak:
+
 ```
 Użytkownik wpisuje email + hasło i klika "Zaloguj się"
 │
@@ -124,6 +127,7 @@ loginToStore(token, user) zapisuje sesję i przekierowuje do aplikacji
 
 Alert "Nieprawidłowy email lub hasło"
 ```
+
 ---
 
 ## Jak działa zapis wpisu
@@ -208,6 +212,7 @@ app/index.tsx               ← guard nawigacyjny (sprawdza isAuthenticated)
 ---
 
 ## Zależności
+
 ```
 npm install
 

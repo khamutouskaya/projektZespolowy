@@ -1,6 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { colors } from "@/shared/theme/colors";
 
 type Props = {
@@ -30,13 +36,20 @@ export function AssistantHeader({
     <View>
       <View style={styles.row}>
         <TouchableOpacity
-          style={[styles.iconButton, clearDisabled && styles.iconButtonDisabled]}
+          style={[
+            styles.iconButton,
+            clearDisabled && styles.iconButtonDisabled,
+          ]}
           onPress={onClearPress}
           disabled={clearDisabled}
           accessibilityRole="button"
           accessibilityLabel="Wyczyść czat"
         >
-          <Ionicons name="create-outline" size={30} color={colors.text.primary} />
+          <Ionicons
+            name="create-outline"
+            size={30}
+            color={colors.text.primary}
+          />
         </TouchableOpacity>
         <Text style={styles.title}>{title}</Text>
         <View style={styles.placeholder} />

@@ -309,7 +309,11 @@ export default function Home() {
               />
               <Text style={styles.sectionLabel}>Myśl chmurki</Text>
             </View>
-            <Text style={styles.thoughtText}>{thoughtOfTheDay}</Text>
+            <Text style={styles.thoughtText}>
+              <Text style={styles.thoughtQuote}>{"\u201C"}</Text>
+              {thoughtOfTheDay}
+              <Text style={styles.thoughtQuote}>{"\u201D"}</Text>
+            </Text>
           </View>
         </Animated.View>
       </LayoutContainer>
@@ -552,7 +556,7 @@ const styles = StyleSheet.create({
   },
 
   sectionLabel: {
-    ...typography.caption,
+    ...typography.small,
     color: colors.text.secondary,
     fontWeight: "600",
     marginBottom: spacing.sm,
@@ -569,7 +573,7 @@ const styles = StyleSheet.create({
   },
 
   statusText: {
-    ...typography.caption,
+    ...typography.titleSmall,
     fontWeight: "700",
     color: colors.text.secondary,
   },
@@ -627,10 +631,19 @@ const styles = StyleSheet.create({
   },
 
   thoughtText: {
-    ...typography.body,
+    ...typography.small,
     color: colors.text.secondary,
-    fontWeight: "600",
-    lineHeight: 22,
+    fontStyle: "italic",
+    lineHeight: 24,
+    letterSpacing: 0.2,
+  },
+
+  thoughtQuote: {
+    fontSize: 22,
+    fontStyle: "normal",
+    fontWeight: "700",
+    color: colors.text.tertiary,
+    lineHeight: 24,
   },
 
   modalRoot: {

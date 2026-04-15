@@ -3,10 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-<<<<<<< HEAD
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-=======
->>>>>>> origin/Krzysztof
 import { useAuthStore } from "../src/services/store/useAuthStore";
 
 const queryClient = new QueryClient();

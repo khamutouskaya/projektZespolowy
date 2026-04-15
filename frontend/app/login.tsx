@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  ScrollView,
   ImageBackground,
   Pressable,
   SafeAreaView,

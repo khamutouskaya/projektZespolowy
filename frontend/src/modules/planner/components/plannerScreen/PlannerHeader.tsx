@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { typography } from "@/shared/theme/typography";
 import { colors } from "@/shared/theme/colors";
+import { spacing } from "@/shared/theme/spacing";
 
 type Props = {
   title: string;
@@ -21,7 +22,7 @@ export default function PlannerHeader({
         <Text style={styles.title}>{title}</Text>
 
         {showDone && (
-          <Pressable onPress={onDone}>
+          <Pressable onPress={onDone} style={styles.doneBtn}>
             <Text style={styles.done}>Gotowe</Text>
           </Pressable>
         )}
@@ -35,31 +36,33 @@ export default function PlannerHeader({
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
-    paddingHorizontal: 24,
-    marginTop: 22,
-    marginBottom: 18,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
-
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   title: {
-    ...typography.heading1,
+    fontSize: 28,
+    fontWeight: "800",
     color: colors.text.primary,
   },
-
+  doneBtn: {
+    backgroundColor: colors.text.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
+  },
   done: {
-    ...typography.heading1,
-    color: colors.text.primary,
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#fff",
   },
-
   date: {
-    marginTop: 6,
-    fontSize: 18,
-    fontWeight: "500",
-    color: "rgba(111,122,134,0.82)",
+    marginTop: spacing.xs,
+    ...typography.title,
+    color: colors.text.secondary,
   },
 });

@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { colors } from "@/shared/theme/colors";
 
 type Props = {
   visible: boolean;
@@ -121,7 +122,7 @@ export default function PlannerCategoryModal({
                 value={customCategory}
                 onChangeText={setCustomCategory}
                 placeholder="Wpisz swój marker"
-                placeholderTextColor="rgba(111,122,134,0.68)"
+                placeholderTextColor={colors.text.secondary}
                 style={styles.input}
                 returnKeyType="done"
                 onSubmitEditing={handleFallbackCustomSave}

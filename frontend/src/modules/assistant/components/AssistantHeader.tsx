@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   title: {
     position: "absolute",
     left: 48,
-    right: 48,
+    right: 46,
     fontSize: 28,
     fontWeight: "800",
     color: colors.text.primary,

@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   UIManager,
+  View,
 } from "react-native";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import PlannerHeader from "../components/plannerScreen/PlannerHeader";
@@ -405,37 +406,53 @@ export default function PlannerScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <PlannerHeader
-            title="Mój dzień"
-            dateText={dateText}
-            showDone={isAdding}
-            onDone={handleDoneAdd}
-          />
+          <View style={styles.plannerHeader}>
+            <PlannerHeader
+              title="Mój dzień"
+              dateText={dateText}
+              showDone={isAdding}
+              onDone={handleDoneAdd}
+            />
+          </View>
 
-          {activeTasks.length === 0 ? (
-            <PlannerEmptyState />
+          {activeTasks.length === 0 && completedTasks.length > 0 ? (
+            <PlannerCompletedSection
+              tasks={completedTasks}
+              isExpanded={showCompleted}
+              onToggleExpanded={handleToggleCompletedSection}
+              onToggleComplete={handleToggleComplete}
+              onToggleImportant={handleToggleImportant}
+              onEditTask={handleEditTask}
+              onDelete={handleDeleteTask}
+            />
           ) : (
-            activeTasks.map((task) => (
-              <PlannerTaskCard
-                key={task.id}
-                task={task}
-                onPress={() => handleEditTask(task)}
-                onToggleComplete={() => handleToggleComplete(task.id)}
-                onToggleImportant={() => handleToggleImportant(task.id)}
-                onDelete={() => handleDeleteTask(task.id)}
-              />
-            ))
-          )}
+            <>
+              {activeTasks.length === 0 ? (
+                <PlannerEmptyState />
+              ) : (
+                activeTasks.map((task) => (
+                  <PlannerTaskCard
+                    key={task.id}
+                    task={task}
+                    onPress={() => handleEditTask(task)}
+                    onToggleComplete={() => handleToggleComplete(task.id)}
+                    onToggleImportant={() => handleToggleImportant(task.id)}
+                    onDelete={() => handleDeleteTask(task.id)}
+                  />
+                ))
+              )}
 
-          <PlannerCompletedSection
-            tasks={completedTasks}
-            isExpanded={showCompleted}
-            onToggleExpanded={handleToggleCompletedSection}
-            onToggleComplete={handleToggleComplete}
-            onToggleImportant={handleToggleImportant}
-            onEditTask={handleEditTask}
-            onDelete={handleDeleteTask}
-          />
+              <PlannerCompletedSection
+                tasks={completedTasks}
+                isExpanded={showCompleted}
+                onToggleExpanded={handleToggleCompletedSection}
+                onToggleComplete={handleToggleComplete}
+                onToggleImportant={handleToggleImportant}
+                onEditTask={handleEditTask}
+                onDelete={handleDeleteTask}
+              />
+            </>
+          )}
         </ScrollView>
 
         <Animated.View
@@ -546,7 +563,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   contentContainer: {
     paddingTop: 8,
@@ -554,8 +571,11 @@ const styles = StyleSheet.create({
   },
   bottomDock: {
     position: "absolute",
-    left: 16,
-    right: 16,
+    left: 20,
+    right: 20,
     bottom: 98,
+  },
+  plannerHeader: {
+    marginTop: -4,
   },
 });

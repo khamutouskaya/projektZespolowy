@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { colors } from "@/shared/theme/colors";
 
 type Props = {
   visible: boolean;
@@ -39,7 +40,7 @@ export default function PlannerNoteModal({
             value={value}
             onChangeText={onChangeText}
             placeholder="Dodaj notatkę"
-            placeholderTextColor="rgba(111,122,134,0.72)"
+            placeholderTextColor={colors.text.secondary}
             multiline
             autoFocus
             style={styles.input}
@@ -54,15 +55,12 @@ export default function PlannerNoteModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.08)",
+    backgroundColor: "#FFFFFF",
   },
 
   sheet: {
-    height: "82%",
+    flex: 1,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
     overflow: "hidden",
   },
 

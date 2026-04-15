@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { colors } from "@/shared/theme/colors";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -135,6 +136,7 @@ export default function PlannerReminderDateTimeModal({
             display="spinner"
             minuteInterval={1}
             is24Hour
+            textColor="#000000"
             onChange={(_, date) => {
               if (date) setSelectedDate(date);
             }}
@@ -180,7 +182,7 @@ const styles = StyleSheet.create({
   cancel: {
     fontSize: 17,
     fontWeight: "600",
-    color: "rgba(111,122,134,0.9)",
+    color: colors.text.secondary,
   },
   title: {
     fontSize: 20,

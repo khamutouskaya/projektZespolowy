@@ -15,7 +15,7 @@ namespace MentalOS.Domain
         public string Email { get; set; } = string.Empty;
         
         [Column("password_hash")]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string? PasswordHash { get; set; }
         
         [Column("first_name")]
         public string? FirstName { get; set; }
@@ -31,7 +31,10 @@ namespace MentalOS.Domain
         
         [Column("streak_active")]
         public bool StreakActive { get; set; } = false;
-        
+
+        [Column("last_activity_date")]
+        public DateTime? LastActivityDate { get; set; } // new 
+
         [Column("coins_balance")]
         public int CoinsBalance { get; set; } = 0;
         
@@ -64,10 +67,8 @@ namespace MentalOS.Domain
         [NotMapped]
         public string PersonalityType { get; set; } = "unknown";
         
-        [NotMapped]
         public string Provider { get; set; } = "local";
         
-        [NotMapped]
         public string? ProviderUserId { get; set; }
     }
 }

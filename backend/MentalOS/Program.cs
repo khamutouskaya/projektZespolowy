@@ -1,7 +1,9 @@
 using MentalOS.Data;
 using MentalOS.Domain;
 using MentalOS.Middleware;
+using MentalOS.Options;
 using MentalOS.Services;
+using MentalOS.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,15 +24,44 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
+// Blazor SSR and Interactive Server Components for Admin Panel
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 // Baza danych PostgreSQL z EF Core
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Serwisy autoryzacji i JWT
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IOAuthService, OAuthService>();
+builder.Services.AddScoped<IPasswordPolicy, DefaultPasswordPolicy>();
+builder.Services.AddScoped<IEmailService, GmailSmtpEmailService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddHttpClient();
+
+//Serwisy OpnAI i VoiceToText
+builder.Services.Configure<OpenAiOptions>(
+    builder.Configuration.GetSection("OpenAI"));
+
+builder.Services.AddHttpClient<ISpeechService, OpenAiSpeechService>();
+
+//Serwisy AI chat assystenta
+builder.Services.AddHttpClient<IAiChatService, OpenAiChatService>();
+
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IContextBuilder, ContextBuilder>();
+
+// Serwis w tle ds. wysy≥ania powiadomieÒ
+builder.Services.AddHostedService<DailySummaryNotificationService>();
+
+// Serwis w tle ds. zarzπdzania i archiwizacji danych bez blokowania API
+builder.Services.AddHostedService<DataArchivingService>();
+
+//Streak system
+builder.Services.AddScoped<IStreakService, StreakService>();
+builder.Services.AddScoped<IShopService, ShopService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]!;
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
@@ -113,27 +144,9 @@ try
 
         logger.LogInformation("Checking database connection...");
         db.Database.SetCommandTimeout(10);
-<<<<<<< HEAD
         
         var canConnect = db.Database.CanConnect();
         
-=======
-
-        bool canConnect;
-        try
-        {
-            canConnect = db.Database.CanConnect();
-            if (!canConnect)
-                logger.LogWarning("CanConnect returned false (no exception)");
-        }
-        catch (Exception connEx)
-        {
-            logger.LogError("CanConnect threw exception: {Message}", connEx.Message);
-            logger.LogError("Inner: {Inner}", connEx.InnerException?.Message);
-            canConnect = false;
-        }
-
->>>>>>> 34bd785 (Przywr√≥cenie wcze≈õniejszego stanu maina)
         if (canConnect)
         {
             logger.LogInformation("? Database connection successful!");
@@ -207,16 +220,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-<<<<<<< HEAD
-//TODO, na czas developmentu moøna zostawiÊ bez HTTPS, ale w produkcji warto to w≥πczyÊ i skonfigurowaÊ certyfikat
-//app.UseHttpsRedirection();
-=======
-//app.UseHttpsRedirection(); //TODO: W produkcji powinno byÊ w≥πczone, ale podczas lokalnego testowania moøe powodowaÊ problemy z certyfikatami
->>>>>>> 34bd785 (Przywr√≥cenie wcze≈õniejszego stanu maina)
+app.UseStaticFiles(); // new - obs≥uga statycznych plikÛw (np. awatary)
+app.UseAntiforgery(); // wymagane dla Blazora w .NET 8
+
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Mapowanie komponentÛw Blazor dla panelu Administratora
+app.MapRazorComponents<MentalOS.Components.App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

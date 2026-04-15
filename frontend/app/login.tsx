@@ -18,6 +18,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -34,9 +35,12 @@ export default function Login() {
     loginMutation.mutate({ email, password });
   };
 
-  const handleRegister = () => {
-    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
-    registerMutation.mutate({ email, password });
+  const handleGoogleLogin = () => {
+    Alert.alert("Google", "Tu będzie logowanie Google");
+  };
+
+  const handleFacebookLogin = () => {
+    Alert.alert("Facebook", "Tu będzie logowanie Facebook");
   };
 
   const isPending = loginMutation.isPending || registerMutation.isPending;
@@ -102,17 +106,13 @@ export default function Login() {
                 )}
               </Pressable>
 
-              <Pressable onPress={handleRegister} disabled={isPending}>
-                {registerMutation.isPending ? (
-                  <ActivityIndicator
-                    color="rgba(111,122,134,0.70)"
-                    style={{ marginTop: 14 }}
-                  />
-                ) : (
-                  <Text style={styles.link}>
-                    Nie masz konta?{"\n"}Zarejestruj się (Test API)
-                  </Text>
-                )}
+              <Pressable
+                onPress={() => router.push("/register")}
+                disabled={isPending}
+              >
+                <Text style={styles.link}>
+                  Nie masz konta?{"\n"}Zarejestruj się
+                </Text>
               </Pressable>
             </View>
           </SafeAreaView>
@@ -221,5 +221,56 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: "rgba(111,122,134,0.70)",
+  },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 14,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(111,122,134,0.2)",
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    fontSize: 12,
+    color: "rgba(111,122,134,0.70)",
+  },
+  socialContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  socialButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  googleButton: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "rgba(111,122,134,0.1)",
+  },
+  facebookButton: {
+    backgroundColor: "#1877F2",
+  },
+  socialButtonTextDark: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#7B8794",
+  },
+  socialButtonTextLight: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
   },
 });

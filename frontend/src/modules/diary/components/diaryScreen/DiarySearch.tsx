@@ -2,10 +2,17 @@ import { View, TextInput, StyleSheet } from "react-native";
 import { colors } from "@/shared/theme/colors";
 import { typography } from "@/shared/theme/typography";
 
-export default function DiarySearch() {
+type Props = {
+  value: string;
+  onChange: (text: string) => void;
+};
+
+export default function DiarySearch({ value, onChange }: Props) {
   return (
     <View style={styles.container}>
       <TextInput
+        value={value}
+        onChangeText={onChange}
         placeholder="Szukaj w zapisach..."
         placeholderTextColor="#999"
         style={styles.input}

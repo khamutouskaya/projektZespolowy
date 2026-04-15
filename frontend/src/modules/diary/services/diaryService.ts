@@ -14,7 +14,7 @@ const toEntry = (row: any): DiaryEntry => ({
 export const diaryService = {
   getAll: (userId: string): DiaryEntry[] => {
     const rows = db.getAllSync(
-      `SELECT * FROM diary_entries WHERE user_id = ? ORDER BY updated_at DESC`,
+      `SELECT * FROM diary_entries WHERE user_id = ? ORDER BY json_extract(content, '$.date') DESC`,
       [userId],
     );
     return rows.map(toEntry);

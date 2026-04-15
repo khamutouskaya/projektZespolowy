@@ -3,4 +3,5 @@ export interface UserPayload {
   email: string;
   personalityType: string;
   isAdmin: boolean;
+  createdAt?: string;
 }

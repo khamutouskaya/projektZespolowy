@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   },
 
   play: {
-    fontSize: 0,
+    fontSize: 1,
     opacity: 0,
     color: "transparent",
   },

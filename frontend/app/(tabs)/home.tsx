@@ -257,11 +257,22 @@ export default function Home() {
             },
           ]}
         >
+          {/* Przycisk profilu */}
+          <Pressable
+            style={styles.profileButton}
+            onPress={() => router.push("../profile")}
+          >
+            <Ionicons
+              name="person-outline"
+              size={22}
+              color="rgba(70,90,110,0.75)"
+            />
+          </Pressable>
+
           <Animated.Image
             source={require("../../assets/images/cloud.png")}
             style={[styles.cloud, { transform: [{ translateY: cloudFloat }] }]}
           />
-
           <View style={styles.header}>
             <Text style={styles.hey}>Hej!</Text>
             <Text style={styles.title}>Jak się dziś czujesz?</Text>
@@ -621,6 +632,46 @@ const styles = StyleSheet.create({
   thoughtCard: {
     width: "92%",
     marginTop: spacing.md,
+  },
+  profileButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(255,255,255,0.62)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  bottomText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "rgba(70,80,90,0.78)",
+    flexShrink: 1,
+    lineHeight: 22,
+  },
+
+  thoughtCard: {
+    width: "92%",
+    marginTop: spacing.md,
+  },
+  profileButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(255,255,255,0.62)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    zIndex: 10,
   },
 
   thoughtHeader: {

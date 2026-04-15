@@ -15,7 +15,7 @@ export default function TagSelector({ selectedTag, onSelect }: Props) {
     { label: "Produktywność", icon: "🚀" },
     { label: "Radość", icon: "🌞" },
     { label: "Zmęczenie", icon: "😴" },
-  ];
+  ]; //NOTE: jesli jest to zmieniane, to nalezy tez to uwzglednic w DiaryEntryCard (diaryScreen)
 
   return (
     <ScrollView

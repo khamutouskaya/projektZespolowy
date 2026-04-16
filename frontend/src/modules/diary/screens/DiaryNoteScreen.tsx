@@ -36,8 +36,7 @@ export default function DiaryNoteScreen() {
     if (!params.id || !user?.id) return;
     const existing = diaryService.getById(params.id, user.id);
     if (!existing) return;
-
-    setNoteText(existing.content);
+    setNoteText(params.text ?? existing.content);
     setpreview(existing.preview ?? "");
     setSelectedMood(existing.mood ?? null);
     setSelectedTag(JSON.parse(existing.tags || "[]")[0] ?? null);
@@ -72,7 +71,7 @@ export default function DiaryNoteScreen() {
       addEntry(payload);
       // TODO: diaryApi.create(payload) — gdy backend gotowy
     }
-    router.back();
+    router.replace("/(tabs)/diary");
   };
 
   return (
@@ -99,7 +98,7 @@ export default function DiaryNoteScreen() {
               onPress={() =>
                 router.push({
                   pathname: "/(tabs)/diary/entry",
-                  params: { text: noteText },
+                  params: { text: noteText, id: params.id },
                 })
               }
             />

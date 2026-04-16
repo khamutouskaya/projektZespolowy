@@ -19,12 +19,16 @@ export default function DiaryEntryScreen() {
   const [preview, setpreview] = useState("");
   const router = useRouter();
   const params = useLocalSearchParams();
+  const entryId = params.id as string | undefined;
 
   const handleSave = () => {
     Keyboard.dismiss();
     router.replace({
       pathname: "/(tabs)/diary/note",
-      params: { text },
+      params: {
+        text: text,
+        id: entryId,
+      },
     });
   };
 

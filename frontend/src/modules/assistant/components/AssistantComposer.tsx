@@ -1,38 +1,44 @@
 import { Ionicons } from "@expo/vector-icons";
+import { memo, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { colors } from "@/shared/theme/colors";
+
 type Props = {
   bottomOffset: number;
-  inputText: string;
   isLoading: boolean;
-  onChangeText: (value: string) => void;
-  onSendPress: () => void;
+  onSendPress: (text: string) => void;
   onVoicePress: () => void;
 };
 
-export function AssistantComposer({
+export const AssistantComposer = memo(function AssistantComposer({
   bottomOffset,
-  inputText,
   isLoading,
-  onChangeText,
   onSendPress,
   onVoicePress,
 }: Props) {
-  const isSendDisabled = !inputText.trim() || isLoading;
+  const [text, setText] = useState("");
+  const isSendDisabled = !text.trim() || isLoading;
+
+  const handleSend = () => {
+    const trimmed = text.trim();
+    if (!trimmed || isLoading) return;
+    setText("");
+    onSendPress(trimmed);
+  };
 
   return (
     <View style={[styles.inputRow, { marginBottom: bottomOffset }]}>
       <TextInput
         style={styles.input}
-        value={inputText}
-        onChangeText={onChangeText}
+        value={text}
+        onChangeText={setText}
         placeholder="Napisz wiadomość..."
         placeholderTextColor="rgba(49,66,77,0.45)"
         multiline
         textAlignVertical="top"
         returnKeyType="send"
         blurOnSubmit={false}
-        onSubmitEditing={onSendPress}
+        onSubmitEditing={handleSend}
       />
 
       <View style={styles.actions}>
@@ -51,7 +57,7 @@ export function AssistantComposer({
             styles.sendButton,
             isSendDisabled && styles.sendButtonDisabled,
           ]}
-          onPress={onSendPress}
+          onPress={handleSend}
           disabled={isSendDisabled}
           accessibilityRole="button"
           accessibilityLabel="Wyślij wiadomość"
@@ -61,7 +67,7 @@ export function AssistantComposer({
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   inputRow: {

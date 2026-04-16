@@ -78,7 +78,9 @@ export function AssistantScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+
   listContent: { paddingTop: 16, paddingBottom: 8, flexGrow: 1 },
+
   placeholder: {
     flex: 1,
     alignItems: "center",

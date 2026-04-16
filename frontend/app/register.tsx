@@ -18,25 +18,28 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 export default function Register() {
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const router = useRouter();
   const registerMutation = useRegisterMutation();
 
   const handleRegister = () => {
+    if (!firstName) return Alert.alert("Błąd", "Wpisz swoje imię");
     if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
-    if (password !== confirmPassword)
-      return Alert.alert("Błąd", "Hasła nie są identyczne");
-
     registerMutation.mutate(
-      { email, password },
+      { firstName, email, password },
       {
-        onSuccess: () => {
-          router.back();
+        onSuccess: (data) => {
+          router.replace({
+            pathname: "/onboarding",
+            params: {
+              token: data.token,
+              user: JSON.stringify(data.user),
+            },
+          });
         },
       },
     );
@@ -73,6 +76,17 @@ export default function Register() {
               </View>
 
               <View style={styles.card}>
+                <Text style={styles.label}>Imię</Text>
+                <TextInput
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  placeholder="Jan"
+                  placeholderTextColor="rgba(111,122,134,0.55)"
+                  style={styles.input}
+                  autoCapitalize="words"
+                  editable={!isPending}
+                />
+
                 <Text style={styles.label}>Email</Text>
                 <TextInput
                   value={email}
@@ -102,31 +116,6 @@ export default function Register() {
                   >
                     <Ionicons
                       name={showPassword ? "eye-off-outline" : "eye-outline"}
-                      size={20}
-                      color="rgba(111,122,134,0.6)"
-                    />
-                  </Pressable>
-                </View>
-
-                <Text style={styles.label}>Potwierdź hasło</Text>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    placeholder="••••••••"
-                    placeholderTextColor="rgba(111,122,134,0.55)"
-                    secureTextEntry={!showConfirmPassword}
-                    style={styles.inputInner}
-                    editable={!isPending}
-                  />
-                  <Pressable
-                    onPress={() => setShowConfirmPassword((v) => !v)}
-                    style={styles.eyeBtn}
-                  >
-                    <Ionicons
-                      name={
-                        showConfirmPassword ? "eye-off-outline" : "eye-outline"
-                      }
                       size={20}
                       color="rgba(111,122,134,0.6)"
                     />

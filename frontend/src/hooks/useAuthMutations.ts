@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "react-native";
-import { authApi, LoginRequest } from "../services/api/auth";
+import { authApi, LoginRequest, RegisterRequest } from "../services/api/auth";
 import { useAuthStore } from "../services/store/useAuthStore";
 
 // Hook do logowania
@@ -26,12 +26,9 @@ export const useLoginMutation = () => {
 // Hook do rejestracji
 export const useRegisterMutation = () => {
   return useMutation({
-    mutationFn: (credentials: LoginRequest) => authApi.register(credentials),
+    mutationFn: (credentials: RegisterRequest) => authApi.register(credentials),
     onSuccess: () => {
-      Alert.alert(
-        "Sukces!",
-        "Konto zostało utworzone. Możesz się teraz zalogować.",
-      );
+      // Komunikat pokazywany po zakończeniu onboardingu
     },
     onError: (error: any) => {
       Alert.alert(

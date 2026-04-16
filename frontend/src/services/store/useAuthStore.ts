@@ -15,6 +15,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string, user: UserPayload) => Promise<void>;
+  loginSilent: (token: string, user: UserPayload) => Promise<void>;
   logout: () => Promise<void>;
   hydrate: () => Promise<void>;
 }
@@ -26,16 +27,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true, // true na start, dopóki hydrate() nie skończy
 
   login: async (token: string, user: UserPayload) => {
-    // Zapis na dysku (SecureStore dla tokena, AsyncStorage/SecureStore dla usera)
     await storage.saveToken(token);
     await storage.saveUser(JSON.stringify(user));
-
-    set({
-      token,
-      user,
-      isAuthenticated: true,
-    });
+    set({ token, user, isAuthenticated: true });
     router.replace("/");
+  },
+
+  loginSilent: async (token: string, user: UserPayload) => {
+    await storage.saveToken(token);
+    await storage.saveUser(JSON.stringify(user));
+    set({ token, user, isAuthenticated: true });
   },
 
   logout: async () => {

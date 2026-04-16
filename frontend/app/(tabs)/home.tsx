@@ -12,6 +12,7 @@ import {
   Image,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -269,63 +270,128 @@ export default function Home() {
             />
           </Pressable>
 
-          <Animated.Image
-            source={require("../../assets/images/cloud.png")}
-            style={[styles.cloud, { transform: [{ translateY: cloudFloat }] }]}
-          />
-          <View style={styles.header}>
-            <Text style={styles.hey}>Hej!</Text>
-            <Text style={styles.title}>Jak się dziś czujesz?</Text>
-          </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <Animated.Image
+              source={require("../../assets/images/cloud.png")}
+              style={[
+                styles.cloud,
+                { transform: [{ translateY: cloudFloat }] },
+              ]}
+            />
+            <View style={styles.header}>
+              <Text style={styles.hey}>Hej!</Text>
+              <Text style={styles.title}>Jak się dziś czujesz?</Text>
+            </View>
 
-          {/* Status card */}
-          <View style={[cardStyles.card, styles.statusCard]}>
-            <Text style={styles.sectionLabel}>Twój stan emocjonalny</Text>
-            <View style={styles.statusPill}>
-              <Text style={styles.statusText}>2 dni z rzędu</Text>
-              <View style={styles.dot} />
-              <Text style={styles.statusText}>Dobra ciągłość</Text>
-              <View style={styles.sproutWrap}>
-                <Ionicons name="leaf" size={15} color="#6FAE7A" />
+            {/* Status card */}
+            <View style={[cardStyles.card, styles.statusCard]}>
+              <Text style={styles.sectionLabel}>Twój stan emocjonalny</Text>
+              <View style={styles.statusPill}>
+                <Text style={styles.statusText}>2 dni z rzędu</Text>
+                <View style={styles.dot} />
+                <Text style={styles.statusText}>Dobra ciągłość</Text>
+                <View style={styles.sproutWrap}>
+                  <Ionicons name="leaf" size={15} color="#6FAE7A" />
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Tiles row */}
-          <View style={styles.tilesRow}>
-            <UniverseTile
-              label={"Wszechświat"}
-              onPress={handleOracleOpen}
-              glowAnim={tileGlow}
-            />
-            <Tile
-              icon="diamond-outline"
-              label="Akcesoria"
-              onPress={() => router.push("../accessories")}
-            />
-            <Tile
-              icon="flower-outline"
-              label="Ogródek"
-              onPress={() => router.push("../garden")}
-            />
-          </View>
-
-          {/* Thought card */}
-          <View style={[cardStyles.card, styles.thoughtCard]}>
-            <View style={styles.thoughtHeader}>
-              <Ionicons
-                name="cloudy-outline"
-                size={15}
-                color={colors.text.tertiary}
+            {/* Tiles row */}
+            <View style={styles.tilesRow}>
+              <UniverseTile
+                label="Wszechświat"
+                sub="Zapytaj chmurkę"
+                iconBg="rgba(182,182,230,0.4)"
+                onPress={handleOracleOpen}
+                glowAnim={tileGlow}
               />
-              <Text style={styles.sectionLabel}>Myśl chmurki</Text>
+              <Tile
+                icon="diamond-outline"
+                label="Akcesoria"
+                sub="Twoje zasoby"
+                iconBg="rgba(245,220,150,0.4)"
+                onPress={() => router.push("../accessories")}
+              />
+              <Tile
+                icon="flower-outline"
+                label="Ogródek"
+                sub="Zadbaj o siebie"
+                iconBg="rgba(200,230,190,0.4)"
+                onPress={() => router.push("../garden")}
+              />
             </View>
-            <Text style={styles.thoughtText}>
-              <Text style={styles.thoughtQuote}>{"\u201C"}</Text>
-              {thoughtOfTheDay}
-              <Text style={styles.thoughtQuote}>{"\u201D"}</Text>
-            </Text>
-          </View>
+
+            {/* Thought card */}
+            <View style={[cardStyles.card, styles.thoughtCard]}>
+              <View style={styles.thoughtHeader}>
+                <Ionicons
+                  name="cloudy-outline"
+                  size={15}
+                  color={colors.text.tertiary}
+                />
+                <Text style={styles.sectionLabel}>Myśl chmurki</Text>
+              </View>
+              <Text style={styles.thoughtText}>
+                <Text style={styles.thoughtQuote}>{"\u201C"}</Text>
+                {thoughtOfTheDay}
+                <Text style={styles.thoughtQuote}>{"\u201D"}</Text>
+              </Text>
+            </View>
+
+            {/* Praca z psychologiem + Test psychotypu */}
+            <View style={styles.extraRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  cardStyles.card,
+                  styles.extraCard,
+                  pressed && { opacity: 0.85 },
+                ]}
+                onPress={() => {}}
+              >
+                <View
+                  style={[
+                    styles.extraIcon,
+                    { backgroundColor: "rgba(182,204,233,0.4)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="people-outline"
+                    size={24}
+                    color={colors.text.primary}
+                  />
+                </View>
+                <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
+                <Text style={styles.extraSub}>Umów konsultację online</Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  cardStyles.card,
+                  styles.extraCard,
+                  pressed && { opacity: 0.85 },
+                ]}
+                onPress={() => {}}
+              >
+                <View
+                  style={[
+                    styles.extraIcon,
+                    { backgroundColor: "rgba(233,182,204,0.4)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="clipboard-outline"
+                    size={24}
+                    color={colors.text.primary}
+                  />
+                </View>
+                <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
+                <Text style={styles.extraSub}>Poznaj swój profil</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
         </Animated.View>
       </LayoutContainer>
 
@@ -482,10 +548,14 @@ export default function Home() {
 
 function UniverseTile({
   label,
+  sub,
+  iconBg,
   onPress,
   glowAnim,
 }: {
   label: string;
+  sub: string;
+  iconBg: string;
   onPress: () => void;
   glowAnim: Animated.Value;
 }) {
@@ -498,10 +568,16 @@ function UniverseTile({
         pressed && { opacity: 0.85 },
       ]}
     >
-      <Animated.View style={{ transform: [{ scale: glowAnim }] }}>
-        <Ionicons name="planet-outline" size={26} color={colors.text.primary} />
+      <Animated.View
+        style={[
+          styles.tileIcon,
+          { backgroundColor: iconBg, transform: [{ scale: glowAnim }] },
+        ]}
+      >
+        <Ionicons name="planet-outline" size={22} color={colors.text.primary} />
       </Animated.View>
       <Text style={styles.tileText}>{label}</Text>
+      <Text style={styles.tileSub}>{sub}</Text>
     </Pressable>
   );
 }
@@ -509,10 +585,14 @@ function UniverseTile({
 function Tile({
   icon,
   label,
+  sub,
+  iconBg,
   onPress,
 }: {
   icon: any;
   label: string;
+  sub: string;
+  iconBg: string;
   onPress: () => void;
 }) {
   return (
@@ -524,8 +604,11 @@ function Tile({
         pressed && { opacity: 0.85 },
       ]}
     >
-      <Ionicons name={icon} size={26} color={colors.text.primary} />
+      <View style={[styles.tileIcon, { backgroundColor: iconBg }]}>
+        <Ionicons name={icon} size={22} color={colors.text.primary} />
+      </View>
       <Text style={styles.tileText}>{label}</Text>
+      <Text style={styles.tileSub}>{sub}</Text>
     </Pressable>
   );
 }
@@ -533,8 +616,11 @@ function Tile({
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
+  },
+
+  scrollContent: {
     alignItems: "center",
-    paddingBottom: 110,
+    paddingBottom: 120,
   },
 
   cloud: {
@@ -616,10 +702,18 @@ const styles = StyleSheet.create({
 
   tile: {
     flex: 1,
-    height: 90,
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 10,
+    gap: 8,
+  },
+
+  tileIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.sm,
   },
 
   tileText: {
@@ -629,20 +723,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
+  tileSub: {
+    fontSize: 10,
+    color: colors.text.secondary,
+    textAlign: "center",
+    opacity: 0.7,
+  },
+
   thoughtCard: {
     width: "92%",
     marginTop: spacing.md,
-  },
-  profileButton: {
-    position: "absolute",
-    top: 16,
-    right: 16,
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: "rgba(255,255,255,0.62)",
-    alignItems: "center",
-    justifyContent: "center",
   },
 
   bottomText: {
@@ -653,10 +743,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  thoughtCard: {
-    width: "92%",
-    marginTop: spacing.md,
-  },
   profileButton: {
     position: "absolute",
     top: 16,
@@ -695,6 +781,44 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.text.tertiary,
     lineHeight: 24,
+  },
+
+  extraRow: {
+    flexDirection: "row",
+    width: "92%",
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+
+  extraCard: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 10,
+    gap: 8,
+  },
+
+  extraIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  extraTitle: {
+    ...typography.caption,
+    fontWeight: "700",
+    color: colors.text.primary,
+    textAlign: "center",
+    lineHeight: 17,
+  },
+
+  extraSub: {
+    fontSize: 11,
+    color: colors.text.secondary,
+    textAlign: "center",
+    opacity: 0.7,
   },
 
   modalRoot: {

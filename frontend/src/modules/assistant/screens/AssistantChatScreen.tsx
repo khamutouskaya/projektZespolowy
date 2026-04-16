@@ -5,6 +5,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Keyboard,
+  PanResponder,
   StyleSheet,
   View,
 } from "react-native";
@@ -13,24 +14,34 @@ import { AssistantEmptyState } from "../components/AssistantEmptyState";
 import { AssistantHeader } from "../components/AssistantHeader";
 import { MessageBubble } from "../components/MessageBubble";
 import { AssistantTypingIndicator } from "../components/AssistantTypingIndicator";
+import { PersonalityDrawer } from "../components/PersonalityDrawer";
 import { useChat } from "../hooks/useChat";
 import { assistantStarterPrompts } from "../prompts/motivation";
+import type { Personality } from "../data/personalities";
 import type { Message } from "../types/assistant.types";
-//import { View } from "react-native-reanimated/lib/typescript/Animated";
 
 export function AssistantChatScreen() {
-  const {
-    messages,
-    inputText,
-    setInputText,
-    isLoading,
-    sendMessage,
-    clearChat,
-  } = useChat();
+  const { messages, isLoading, sendMessage, clearChat } = useChat();
   const flatListRef = useRef<FlatList<Message>>(null);
   const tabBarHeight = useBottomTabBarHeight();
   const hasMessages = messages.length > 0;
   const [isScrolled, setIsScrolled] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedPersonality, setSelectedPersonality] =
+    useState<Personality | null>(null);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const drawerOpenRef = useRef(drawerOpen);
+  drawerOpenRef.current = drawerOpen;
+
+  const edgePanResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, { dx, dy }) =>
+        !drawerOpenRef.current && dx > 8 && Math.abs(dx) > Math.abs(dy),
+      onPanResponderRelease: (_, { dx }) => {
+        if (!drawerOpenRef.current && dx > 40) setDrawerOpen(true);
+      },
+    })
+  ).current;
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -40,26 +51,40 @@ export function AssistantChatScreen() {
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
       flatListRef.current?.scrollToEnd({ animated: true });
     });
     const hide = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false);
       flatListRef.current?.scrollToEnd({ animated: true });
     });
-    return () => { show.remove(); hide.remove(); };
+    return () => {
+      show.remove();
+      hide.remove();
+    };
   }, []);
 
   return (
     <LayoutContainer>
-      <KeyboardAvoidingView
-        style={styles.root}
-        behavior="padding"
-      >
+      <PersonalityDrawer
+        visible={drawerOpen}
+        selectedId={selectedPersonality?.id ?? null}
+        onSelect={setSelectedPersonality}
+        onClose={() => setDrawerOpen(false)}
+      />
+
+      {/* Thin left-edge zone — swipe right here to open the drawer */}
+      <View style={styles.edgeZone} {...edgePanResponder.panHandlers} />
+
+      <KeyboardAvoidingView style={styles.root} behavior="padding">
         <View style={styles.header}>
           <AssistantHeader
             title="Asystent"
             scrolled={isScrolled}
             onClearPress={clearChat}
             clearDisabled={!hasMessages}
+            onMenuPress={() => setDrawerOpen(true)}
+            personalityEmoji={selectedPersonality?.emoji}
           />
         </View>
 
@@ -91,11 +116,12 @@ export function AssistantChatScreen() {
         {isLoading && <AssistantTypingIndicator />}
 
         <AssistantComposer
-          bottomOffset={tabBarHeight + 8}
-          inputText={inputText}
+          bottomOffset={keyboardVisible ? 14 : tabBarHeight + 20}
           isLoading={isLoading}
-          onChangeText={setInputText}
-          onSendPress={() => { void sendMessage(); Keyboard.dismiss(); }}
+          onSendPress={(text) => {
+            void sendMessage(text);
+            Keyboard.dismiss();
+          }}
           onVoicePress={() => {}}
         />
       </KeyboardAvoidingView>
@@ -129,5 +155,13 @@ const styles = StyleSheet.create({
   },
   listContentEmpty: {
     justifyContent: "center",
+  },
+  edgeZone: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 22,
+    zIndex: 10,
   },
 });

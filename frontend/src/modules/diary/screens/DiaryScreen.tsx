@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 
 import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
-import DiarySection from "@/modules/diary/components/diaryScreen/DiarySection";
+import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
 import { useDiarySummarySync } from "@/modules/diary/hooks/useDiarySummarySync";
 import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
@@ -16,7 +16,7 @@ import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 
 export default function DiaryScreen() {
-  const { entries, reload } = useDiaryEntries();
+  const { entries, reload, deleteEntry } = useDiaryEntries();
   const router = useRouter();
 
   //TODO:: Jak endpoint będzie to odkomentować GET /diary/{id}/summary
@@ -69,6 +69,19 @@ export default function DiaryScreen() {
     : entries;
   const today = filtered.filter((e) => e.date === todayDate);
   const earlier = filtered.filter((e) => e.date !== todayDate);
+  const DiarySection = ({
+    title,
+    entries: sectionEntries,
+  }: {
+    title: string;
+    entries: typeof entries;
+  }) => (
+    <DiaryEntriesSection
+      title={title}
+      entries={sectionEntries}
+      onDeleteEntry={deleteEntry}
+    />
+  );
 
   return (
     <LayoutContainer>

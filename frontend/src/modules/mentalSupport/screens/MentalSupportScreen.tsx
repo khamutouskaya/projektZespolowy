@@ -1,5 +1,4 @@
-import React from "react";
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 
 import Quote from "@/modules/mentalSupport/components/mentSuppScreen/Quote";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
@@ -14,12 +13,6 @@ import { useRouter } from "expo-router";
 
 export default function MentalSupportScreen() {
   const router = useRouter();
-  const practices = [
-    { id: "1", title: "oddechowe" },
-    { id: "2", title: "medytacje" },
-    { id: "3", title: "dzwiek natury" },
-    { id: "4", title: "trening" },
-  ];
 
   return (
     <LayoutContainer>
@@ -28,7 +21,7 @@ export default function MentalSupportScreen() {
           <Quote />
         </View>
 
-        <Text style={styles.sectionTitle}>Niedawno oglądane:</Text>
+        <Text style={styles.sectionTitle}>Polecane na dziś:</Text>
       </View>
 
       <View style={styles.video}>
@@ -80,31 +73,27 @@ const styles = StyleSheet.create({
     ...typography.title,
     color: colors.text.tertiary,
     paddingLeft: spacing.xs,
-    marginBottom: spacing.md,
-    //borderWidth: 1,
+    //marginBottom: spacing.md,
   },
 
   quote: {
     padding: spacing.xs,
     marginTop: spacing.lg,
     marginBottom: spacing.lg,
-    //marginRight: spacing.lg,
     shadowColor: colors.shadow.primary,
   },
 
   video: {
-    marginBottom: spacing.xxl,
-    //borderWidth: 1,
+    marginBottom: spacing.md,
   },
 
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    //borderWidth: 1,
-    // paddingHorizontal: 20,
-    //marginRight: spacing.md,
-    //marginLeft: spacing.md,
+
+    alignContent: "center",
+    marginTop: spacing.md,
   },
 
   overlay: {

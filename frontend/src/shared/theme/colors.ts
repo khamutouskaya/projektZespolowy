@@ -7,7 +7,7 @@ export const colors = {
   },
 
   background: {
-    glass: "rgba(255,255,255,0.4)", // стеклянные карточки / input
+    glass: "rgba(255, 255, 255, 0.7)", // стеклянные карточки / input
     more: "rgba(255,255,255,0.2)", // стеклянные карточки / input
   },
 

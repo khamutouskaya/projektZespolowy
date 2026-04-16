@@ -1,22 +1,23 @@
-import { ImageBackground, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
-//import { spacing } from "../theme/spacing";
+import { ImageBackground, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   children: React.ReactNode;
 };
 
 export default function LayoutContainer({ children }: Props) {
+  const insets = useSafeAreaInsets();
+
   return (
     <ImageBackground
       source={require("../../../assets/images/background.png")}
       style={styles.background}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-        <View style={styles.safeArea}>{children}</View>
-      </SafeAreaView>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        {children}
+      </View>
     </ImageBackground>
   );
 }
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  safeArea: {
+  container: {
     flex: 1,
   },
 });

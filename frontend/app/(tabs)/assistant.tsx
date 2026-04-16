@@ -1,8 +1,5 @@
-import { View, Text } from "react-native";
-export default function Assistant() {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Assistant screen</Text>
-    </View>
-  );
+import { AssistantChatScreen } from "@/modules/assistant/screens/AssistantChatScreen";
+
+export default function AssistantRoute() {
+  return <AssistantChatScreen />;
 }

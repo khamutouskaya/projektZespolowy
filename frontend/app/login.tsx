@@ -1,15 +1,25 @@
+import {
+  useLoginMutation,
+  useRegisterMutation,
+} from "@/hooks/useAuthMutations";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
+  ScrollView,
   ImageBackground,
   Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,68 +27,99 @@ export default function Login() {
 
   const router = useRouter();
 
+  // Inicjalizujemy hooki
+  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
+
+  const handleLogin = () => {
+    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    loginMutation.mutate({ email, password });
+  };
+
+  const handleGoogleLogin = () => {
+    Alert.alert("Google", "Tu będzie logowanie Google");
+  };
+
+  const handleFacebookLogin = () => {
+    Alert.alert("Facebook", "Tu będzie logowanie Facebook");
+  };
+
+  const isPending = loginMutation.isPending || registerMutation.isPending;
+
   return (
-    <>
-      {/* Прибирає верхній хедер "login" + білу зону */}
-      <Stack.Screen options={{ headerShown: false }} />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        {/* Прибирає верхній хедер "login" + білу зону */}
+        <Stack.Screen options={{ headerShown: false }} />
 
-      <ImageBackground
-        source={require("../assets/background.png")}
-        style={styles.background}
-        resizeMode="cover"
-      >
-        <SafeAreaView style={styles.safe}>
-          {/* ХМАРКА */}
-          <Image
-            source={require("../assets/images/cloud.png")}
-            style={styles.cloud}
-          />
-
-          {/* ТЕКСТ ПО ЦЕНТРУ */}
-          <View style={styles.center}>
-            <Text style={styles.hey}>Hej!</Text>
-            <Text style={styles.title}>Zaloguj się</Text>
-          </View>
-
-          {/* КАРТКА ЗНИЗУ */}
-          <View style={styles.card}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              style={styles.input}
-              autoCapitalize="none"
-              keyboardType="email-address"
+        <ImageBackground
+          source={require("../assets/background.png")}
+          style={styles.background}
+          resizeMode="cover"
+        >
+          <SafeAreaView style={styles.safe}>
+            {/* ХМАРКА */}
+            <Image
+              source={require("../assets/images/cloud.png")}
+              style={styles.cloud}
             />
 
-            <Text style={styles.label}>Hasło</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              secureTextEntry
-              style={styles.input}
-            />
+            {/* ТЕКСТ ПО ЦЕНТРУ */}
+            <View style={styles.center}>
+              <Text style={styles.hey}>Hej!</Text>
+              <Text style={styles.title}>Zaloguj się</Text>
+            </View>
 
-            <Pressable
-              style={styles.button}
-              onPress={() => router.replace("/(tabs)/home")}
-            >
-              <Text style={styles.buttonText}>Zaloguj się</Text>
-            </Pressable>
+            {/* КАРТКА ЗНИЗУ */}
+            <View style={styles.card}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="you@example.com"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                style={styles.input}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!isPending}
+              />
 
-            <Pressable>
-              <Text style={styles.link}>
-                Nie masz konta?{"\n"}Zarejestruj się
-              </Text>
-            </Pressable>
-          </View>
-        </SafeAreaView>
-      </ImageBackground>
-    </>
+              <Text style={styles.label}>Hasło</Text>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                secureTextEntry
+                style={styles.input}
+                editable={!isPending}
+              />
+
+              <Pressable
+                style={styles.button}
+                onPress={handleLogin}
+                disabled={isPending}
+              >
+                {loginMutation.isPending ? (
+                  <ActivityIndicator color="#355A7A" />
+                ) : (
+                  <Text style={styles.buttonText}>Zaloguj się</Text>
+                )}
+              </Pressable>
+
+              <Pressable
+                onPress={() => router.push("/register")}
+                disabled={isPending}
+              >
+                <Text style={styles.link}>
+                  Nie masz konta?{"\n"}Zarejestruj się
+                </Text>
+              </Pressable>
+            </View>
+          </SafeAreaView>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -181,5 +222,56 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: "rgba(111,122,134,0.70)",
+  },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 14,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(111,122,134,0.2)",
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    fontSize: 12,
+    color: "rgba(111,122,134,0.70)",
+  },
+  socialContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  socialButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  googleButton: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "rgba(111,122,134,0.1)",
+  },
+  facebookButton: {
+    backgroundColor: "#1877F2",
+  },
+  socialButtonTextDark: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#7B8794",
+  },
+  socialButtonTextLight: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
   },
 });

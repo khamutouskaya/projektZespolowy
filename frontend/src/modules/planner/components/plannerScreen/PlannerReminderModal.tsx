@@ -1,5 +1,6 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/shared/theme/colors";
 
 type Props = {
   visible: boolean;
@@ -79,7 +80,7 @@ export default function PlannerReminderModal({
             <Ionicons
               name="chevron-forward"
               size={24}
-              color="rgba(111,122,134,0.8)"
+              color={colors.text.secondary}
             />
           </Pressable>
 

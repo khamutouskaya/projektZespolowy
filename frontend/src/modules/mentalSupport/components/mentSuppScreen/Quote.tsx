@@ -82,7 +82,7 @@ export default function Quote() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.background.glass,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 20,
     padding: spacing.md,
     //marginTop: spacing.lg,

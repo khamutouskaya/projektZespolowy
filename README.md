@@ -1,6 +1,8 @@
 ## Dość ważne
 
 musicie mieć w folderze frontendu plik .env z linijką EXPO_PUBLIC_API_URL="http://10.0.2.2:5076/api"
+//10.0.2.2 - android symulator
+//z aplikacji expo go wpisujemy ipv4 addres computera (ipconfig)
 Albo inny adres, zależy od backendu, w razie czego przyjżyjcie się logom. Potem będzie to trzeba zastąpić rzeczywistym adresem backendu na serwerze i https, ale ten jest lokalny.
 
 Może nie działać jeśli korzystacie z telefonu zamiast emulatora z Android Studio, wtedy adres będzie inny (zamiast 10.0.2.2, rzeczywisty adres IP komputera w sieci i będziecie raczej musieli być na takiej samej sieci)
@@ -74,6 +76,7 @@ Oryginalny typ został rozszerzony o nowe pola. Stare pola pozostały bez zmian.
               │  POST /api/diary       │
               └────────────────────────┘
 ```
+
 ```
 Komponent (np. login.tsx)
 │ wywołuje hook
@@ -89,6 +92,7 @@ client.ts (apiClient — axios)
 ▼
 Backend ASP.NET Core
 ```
+
 client.ts tworzy i konfiguruje klienta HTTP (axios). Dzięki interceptorom automatycznie doklejа token do każdego wychodzącego requestu i nasłuchuje odpowiedzi, jeśli backend zwróci 401, wylogowuje użytkownika.
 
 Zasadniczo dokleja znaczek i wpisuje adres serwera
@@ -100,6 +104,7 @@ Nie wie gdzie jest endpoint, ale wie jaki chce, wysyła żądanie które jest pr
 useAuthMutations.ts łączy odpowiedź backendu z lokalnym stanem aplikacji, zapisuje token na dysku, aktualizuje store i nawiguje użytkownika.
 
 Dla logowania flow wygląda mniej więcej tak:
+
 ```
 Użytkownik wpisuje email + hasło i klika "Zaloguj się"
 │
@@ -122,6 +127,7 @@ loginToStore(token, user) zapisuje sesję i przekierowuje do aplikacji
 
 Alert "Nieprawidłowy email lub hasło"
 ```
+
 ---
 
 ## Jak działa zapis wpisu
@@ -206,6 +212,7 @@ app/index.tsx               ← guard nawigacyjny (sprawdza isAuthenticated)
 ---
 
 ## Zależności
+
 ```
 npm install
 

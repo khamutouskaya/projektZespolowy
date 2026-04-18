@@ -13,21 +13,18 @@ const createMessage = (role: Message["role"], text: string): Message => ({
 export function useChat() {
   // Список всех сообщений в чате
   const [messages, setMessages] = useState<Message[]>([]);
-  // Текст в поле ввода
-  const [inputText, setInputText] = useState("");
   // Идёт ли сейчас запрос (чтобы показать "печатает...")
   const [isLoading, setIsLoading] = useState(false);
   const requestVersionRef = useRef(0);
 
-  const sendMessage = async (draftText?: string) => {
+  const sendMessage = async (text: string) => {
     // Не отправляем пустое сообщение
-    const text = (draftText ?? inputText).trim();
-    if (!text || isLoading) return;
+    const trimmed = text.trim();
+    if (!trimmed || isLoading) return;
     const requestVersion = ++requestVersionRef.current;
 
     // 1. Сразу добавляем сообщение пользователя в чат
-    setMessages((prev) => [...prev, createMessage("user", text)]);
-    setInputText(""); // очищаем поле ввода
+    setMessages((prev) => [...prev, createMessage("user", trimmed)]);
     setIsLoading(true); // показываем "печатает..."
 
     try {
@@ -64,14 +61,11 @@ export function useChat() {
   const clearChat = () => {
     requestVersionRef.current += 1;
     setMessages([]);
-    setInputText("");
     setIsLoading(false);
   };
 
   return {
     messages,
-    inputText,
-    setInputText,
     isLoading,
     sendMessage,
     clearChat,

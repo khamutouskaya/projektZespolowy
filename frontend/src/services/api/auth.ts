@@ -6,10 +6,22 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+}
+
 export interface LoginResponse {
   token: string;
   user: UserPayload;
 }
+
+export const onboardingApi = {
+  saveAnswers: async (answers: Record<string, string[]>): Promise<void> => {
+    await apiClient.post("/users/me/onboarding", { answers });
+  },
+};
 
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
@@ -20,7 +32,7 @@ export const authApi = {
     return response.data;
   },
 
-  register: async (credentials: LoginRequest): Promise<LoginResponse> => {
+  register: async (credentials: RegisterRequest): Promise<LoginResponse> => {
     const response = await apiClient.post<LoginResponse>("/auth/register", {
       ...credentials,
       personalityType: "balanced",

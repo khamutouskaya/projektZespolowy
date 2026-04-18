@@ -7,17 +7,27 @@ import { typography } from "@/shared/theme/typography";
 type Props = {
   title: string;
   entries: DiaryEntry[];
+  onDeleteEntry: (id: string) => void;
 };
 
 //group od cards
-export default function DiarySection({ title, entries }: Props) {
+export default function DiarySection({
+  title,
+  entries,
+  onDeleteEntry,
+}: Props) {
   return (
     <View style={styles.section}>
       <Text style={styles.title}>{title}:</Text>
 
       <View style={styles.list}>
-        {entries.map((entry) => (
-          <DiaryEntryCard key={entry.id} entry={entry} />
+        {entries.map((entry, index) => (
+          <DiaryEntryCard
+            key={entry.id}
+            entry={entry}
+            onDelete={onDeleteEntry}
+            isLast={index === entries.length - 1}
+          />
         ))}
       </View>
     </View>

@@ -5,6 +5,7 @@ using MentalOS.Domain;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using MentalOS.Services.Interfaces;
 
 namespace MentalOS.Services
 {

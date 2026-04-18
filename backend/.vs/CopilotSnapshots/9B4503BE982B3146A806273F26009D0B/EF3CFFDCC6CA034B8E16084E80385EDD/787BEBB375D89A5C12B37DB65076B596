@@ -1,0 +1,157 @@
+﻿using MentalOS.Data;
+using MentalOS.Domain;
+using MentalOS.DTOs.JournalDTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace MentalOS.Controllers
+{
+    /// <summary>
+    /// Endpointy dla mechanizmów dziennika - pobieranie, dodawanie, edycja i usuwanie wpisów z dziennika
+    /// </summary>
+    [ApiController]
+    [Route("api/journal")]
+    [Authorize]
+    public class JournalController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+
+        public JournalController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        private Guid? GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim != null && Guid.TryParse(userIdClaim, out var userId))
+            {
+                return userId;
+            }
+            return null;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEntries()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entries = await _context.JournalEntries
+                .Where(j => j.UserId == userId)
+                .OrderByDescending(j => j.CreatedAt)
+                .Select(j => new JournalEntryDto
+                {
+                    Id = j.Id,
+                    Title = j.Title,
+                    Content = j.Content,
+                    MoodScore = j.MoodScore,
+                    CreatedAt = j.CreatedAt,
+                    UpdatedAt = j.UpdatedAt
+                })
+                .ToListAsync();
+
+            return Ok(entries);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEntry(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = await _context.JournalEntries
+                .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
+
+            if (entry == null) return NotFound(new { message = "Journal entry not found" });
+
+            return Ok(new JournalEntryDto
+            {
+                Id = entry.Id,
+                Title = entry.Title,
+                Content = entry.Content,
+                MoodScore = entry.MoodScore,
+                CreatedAt = entry.CreatedAt,
+                UpdatedAt = entry.UpdatedAt
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateEntry([FromBody] CreateJournalEntryDto dto)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = new JournalEntry
+            {
+                UserId = userId.Value,
+                Title = dto.Title,
+                Content = dto.Content,
+                MoodScore = dto.MoodScore,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.JournalEntries.Add(entry);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new JournalEntryDto
+            {
+                Id = entry.Id,
+                Title = entry.Title,
+                Content = entry.Content,
+                MoodScore = entry.MoodScore,
+                CreatedAt = entry.CreatedAt,
+                UpdatedAt = entry.UpdatedAt
+            });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateEntry(Guid id, [FromBody] UpdateJournalEntryDto dto)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = await _context.JournalEntries
+                .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
+
+            if (entry == null) return NotFound(new { message = "Journal entry not found" });
+
+            entry.Title = dto.Title;
+            entry.Content = dto.Content;
+            entry.MoodScore = dto.MoodScore;
+            entry.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new JournalEntryDto
+            {
+                Id = entry.Id,
+                Title = entry.Title,
+                Content = entry.Content,
+                MoodScore = entry.MoodScore,
+                CreatedAt = entry.CreatedAt,
+                UpdatedAt = entry.UpdatedAt
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEntry(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = await _context.JournalEntries
+                .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
+
+            if (entry == null) return NotFound(new { message = "Journal entry not found" });
+
+            _context.JournalEntries.Remove(entry);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Journal entry deleted successfully" });
+        }
+    }
+}

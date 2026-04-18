@@ -1,0 +1,190 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\domain\\journalentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\domain\\journalentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\services\\contextbuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\services\\contextbuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\domain\\plannertask.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\domain\\plannertask.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\services\\dataarchivingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\services\\dataarchivingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\components\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\components\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\components\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\components\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\components\\routes.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\components\\routes.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|c:\\users\\micha\u0142\\desktop\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main-20260323t163357z-1-001\\projektzespolowy-main\\backend\\mentalos\\components\\pages\\admin.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1A3E9AF7-B7F4-65B1-D157-9DB891B95EE9}|MentalOS\\MentalOS.csproj|solutionrelative:mentalos\\components\\pages\\admin.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 9,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Admin.razor",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\Pages\\Admin.razor",
+              "RelativeDocumentMoniker": "MentalOS\\Components\\Pages\\Admin.razor",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\Pages\\Admin.razor",
+              "RelativeToolTip": "MentalOS\\Components\\Pages\\Admin.razor",
+              "ViewState": "AgIAACcAAAAAAAAAAAAuwOUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-14T17:46:08.215Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Routes.razor",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\Routes.razor",
+              "RelativeDocumentMoniker": "MentalOS\\Components\\Routes.razor",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\Routes.razor",
+              "RelativeToolTip": "MentalOS\\Components\\Routes.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-14T17:45:57.511Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "App.razor",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\App.razor",
+              "RelativeDocumentMoniker": "MentalOS\\Components\\App.razor",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\App.razor",
+              "RelativeToolTip": "MentalOS\\Components\\App.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-14T17:45:51.133Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\_Imports.razor",
+              "RelativeDocumentMoniker": "MentalOS\\Components\\_Imports.razor",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\_Imports.razor",
+              "RelativeToolTip": "MentalOS\\Components\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-14T17:45:43.321Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DataArchivingService.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Services\\DataArchivingService.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Services\\DataArchivingService.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Services\\DataArchivingService.cs",
+              "RelativeToolTip": "MentalOS\\Services\\DataArchivingService.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAowEQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-14T17:40:56.474Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PlannerTask.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Domain\\PlannerTask.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Domain\\PlannerTask.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Domain\\PlannerTask.cs",
+              "RelativeToolTip": "MentalOS\\Domain\\PlannerTask.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-14T17:40:35.344Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ContextBuilder.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Services\\ContextBuilder.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Services\\ContextBuilder.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Services\\ContextBuilder.cs",
+              "RelativeToolTip": "MentalOS\\Services\\ContextBuilder.cs",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-23T16:24:59.089Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "MentalOS\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAJMAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-15T22:36:22.946Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "JournalEntry.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Domain\\JournalEntry.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Domain\\JournalEntry.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Domain\\JournalEntry.cs",
+              "RelativeToolTip": "MentalOS\\Domain\\JournalEntry.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAA3wDAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-15T22:36:05.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Program.cs",
+              "RelativeDocumentMoniker": "MentalOS\\Program.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Program.cs",
+              "RelativeToolTip": "MentalOS\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-14T15:30:48.859Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

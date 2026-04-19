@@ -15,10 +15,18 @@ import { Alert } from "react-native";
 import { useProfileStats } from "../hooks/useProfileStats";
 import StatBox from "../components/profileScreen/StatBox";
 import { useCallback } from "react";
+import { useState } from "react";
+import { Modal, TextInput } from "react-native";
+import { apiClient } from "../../../services/api/client";
 
 export default function ProfileScreen() {
-  const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const [editVisible, setEditVisible] = useState(false);
+  const [editFirstName, setEditFirstName] = useState(user?.firstName ?? "");
+  const [editLastName, setEditLastName] = useState(user?.lastName ?? "");
+  const loginSilent = useAuthStore((state) => state.loginSilent);
+  const token = useAuthStore((state) => state.token);
+  const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const { entryCount, memberSince, reload } = useProfileStats();
 
@@ -27,7 +35,25 @@ export default function ProfileScreen() {
       reload();
     }, [reload]),
   );
-
+  const handleSaveProfile = async () => {
+    try {
+      await apiClient.put("/users/me", {
+        firstName: editFirstName,
+        lastName: editLastName,
+      });
+      // Zaktualizuj store żeby UI się odświeżył
+      if (token && user) {
+        await loginSilent(token, {
+          ...user,
+          firstName: editFirstName,
+          lastName: editLastName,
+        });
+      }
+      setEditVisible(false);
+    } catch (e) {
+      Alert.alert("Błąd", "Nie udało się zapisać danych");
+    }
+  };
   const handleDeleteAccount = () => {
     Alert.alert(
       "Usuń konto",
@@ -50,12 +76,64 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Avatar + email */}
-        <View style={styles.avatarSection}>
+        <Pressable
+          style={styles.avatarSection}
+          onPress={() => {
+            setEditFirstName(user?.firstName ?? "");
+            setEditLastName(user?.lastName ?? "");
+            setEditVisible(true);
+          }}
+        >
           <View style={styles.avatar}>
             <Ionicons name="person" size={40} color="rgba(70,90,110,0.5)" />
           </View>
-          <Text style={styles.email}>{user?.email ?? "—"}</Text>
-        </View>
+          <Text style={styles.email}>
+            {user?.firstName ?? user?.email?.split("@")[0] ?? "—"}
+          </Text>
+          <Text
+            style={{ fontSize: 12, color: "rgba(70,90,110,0.4)", marginTop: 2 }}
+          >
+            Edytuj profil
+          </Text>
+        </Pressable>
+
+        {/* Modal edycji */}
+        <Modal visible={editVisible} transparent animationType="fade">
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setEditVisible(false)}
+          >
+            <Pressable style={styles.modalCard} onPress={() => {}}>
+              <Text style={styles.cardTitle}>Edytuj profil</Text>
+
+              <Text style={styles.label}>Imię</Text>
+              <TextInput
+                value={editFirstName}
+                onChangeText={setEditFirstName}
+                placeholder="Jan"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                style={styles.input}
+              />
+
+              <Text style={styles.label}>Nazwisko</Text>
+              <TextInput
+                value={editLastName}
+                onChangeText={setEditLastName}
+                placeholder="Kowalski"
+                placeholderTextColor="rgba(111,122,134,0.55)"
+                style={styles.input}
+              />
+
+              <Pressable style={styles.saveButton} onPress={handleSaveProfile}>
+                <Text style={styles.saveButtonText}>Zapisz</Text>
+              </Pressable>
+
+              <Pressable onPress={() => setEditVisible(false)}>
+                <Text style={styles.cancelText}>Anuluj</Text>
+              </Pressable>
+            </Pressable>
+          </Pressable>
+        </Modal>
 
         {/* Statystyki */}
         <View style={styles.card}>
@@ -66,21 +144,8 @@ export default function ProfileScreen() {
               label="Wpisów"
               value={String(entryCount)}
             />
-            <StatBox
-              icon="calendar-outline"
-              label="Członek od"
-              value={memberSince}
-            />
           </View>
         </View>
-
-        {/* Synchronizacja */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Synchronizacja</Text>
-          <Row icon="cloud-outline" label="Ostatnia synchronizacja" value="—" />
-          <Row icon="time-outline" label="Oczekujące wpisy" value="—" />
-        </View>
-
         {/* Ustawienia */}
         <NotificationsSettingsCard />
         <View style={styles.card}>
@@ -136,7 +201,52 @@ function Row({
 }
 
 const styles = StyleSheet.create({
-  // PO
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCard: {
+    width: "88%",
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    padding: 24,
+    gap: 8,
+  },
+  label: {
+    fontSize: 13,
+    color: "rgba(111,122,134,0.78)",
+    marginTop: 8,
+  },
+  input: {
+    height: 48,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(240,244,248,0.9)",
+    borderWidth: 1,
+    borderColor: "rgba(170,190,210,0.38)",
+    color: "rgba(70,80,90,0.95)",
+  },
+  saveButton: {
+    height: 50,
+    borderRadius: 16,
+    backgroundColor: "#b6cce9",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
+  },
+  saveButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#355A7A",
+  },
+  cancelText: {
+    textAlign: "center",
+    marginTop: 10,
+    fontSize: 13,
+    color: "rgba(111,122,134,0.6)",
+  },
   safe: { flex: 1, backgroundColor: "#f0f4f8" },
 
   topBar: {

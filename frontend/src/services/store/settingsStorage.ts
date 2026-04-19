@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// PO
 export interface NotificationSettings {
   allEnabled: boolean;
   diaryEnabled: boolean;

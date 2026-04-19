@@ -2,8 +2,7 @@ import * as SQLite from "expo-sqlite"; //lokalna baza danych wpisów
 
 const db = SQLite.openDatabaseSync("diary.db");
 
-export const initDiaryDb = () => {
-  db.execSync(`
+db.execSync(`
     CREATE TABLE IF NOT EXISTS diary_entries (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
@@ -13,6 +12,7 @@ export const initDiaryDb = () => {
       updated_at TEXT NOT NULL
     );
   `);
-};
+
+export const initDiaryDb = () => {};
 
 export default db;

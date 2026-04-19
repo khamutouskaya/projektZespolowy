@@ -18,6 +18,8 @@ import { useCallback } from "react";
 import { useState } from "react";
 import { Modal, TextInput } from "react-native";
 import { apiClient } from "../../../services/api/client";
+import * as ImagePicker from "expo-image-picker";
+import { Image } from "react-native";
 
 export default function ProfileScreen() {
   const user = useAuthStore((state) => state.user);
@@ -29,12 +31,86 @@ export default function ProfileScreen() {
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const { entryCount, memberSince, reload } = useProfileStats();
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordStep, setPasswordStep] = useState<"email" | "reset">("email");
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       reload();
     }, [reload]),
   );
+  const handleSendResetEmail = async () => {
+    if (!user?.email) return;
+    setIsSending(true);
+    try {
+      await apiClient.post("/auth/forgot-password", { email: user.email });
+      setPasswordStep("reset");
+    } catch (e: any) {
+      Alert.alert(
+        "Błąd",
+        e.response?.data?.message ?? "Nie udało się wysłać emaila",
+      );
+    } finally {
+      setIsSending(false);
+    }
+  };
+  const handleResetPassword = async () => {
+    if (!resetToken || !newPassword || !confirmPassword)
+      return Alert.alert("Błąd", "Wypełnij wszystkie pola");
+    if (newPassword !== confirmPassword)
+      return Alert.alert("Błąd", "Hasła nie są zgodne");
+    if (newPassword.length < 6)
+      return Alert.alert("Błąd", "Hasło musi mieć co najmniej 6 znaków");
+
+    try {
+      await apiClient.post("/auth/reset-password", {
+        token: resetToken,
+        newPassword,
+      });
+      Alert.alert("Sukces", "Hasło zostało zmienione");
+      setPasswordVisible(false);
+      setPasswordStep("email");
+      setResetToken("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (e: any) {
+      Alert.alert(
+        "Błąd",
+        e.response?.data?.message ?? "Nieprawidłowy lub wygasły token",
+      );
+    }
+  };
+  const handlePickAvatar = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Brak dostępu", "Zezwól na dostęp do zdjęć w ustawieniach.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0].base64) {
+      const base64 = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      try {
+        await apiClient.put("/users/me", { avatar: base64 });
+        if (token && user) {
+          await loginSilent(token, { ...user, avatar: base64 });
+        }
+      } catch (e) {
+        Alert.alert("Błąd", "Nie udało się zapisać avatara");
+      }
+    }
+  };
   const handleSaveProfile = async () => {
     try {
       await apiClient.put("/users/me", {
@@ -84,9 +160,20 @@ export default function ProfileScreen() {
             setEditVisible(true);
           }}
         >
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={40} color="rgba(70,90,110,0.5)" />
-          </View>
+          <Pressable onPress={handlePickAvatar} style={styles.avatarWrapper}>
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatar}>
+                <Ionicons name="person" size={40} color="rgba(70,90,110,0.5)" />
+              </View>
+            )}
+            {/* Ikona aparatu na avatarze */}
+            <View style={styles.cameraIcon}>
+              <Ionicons name="camera-outline" size={14} color="#355A7A" />
+            </View>
+          </Pressable>
+
           <Text style={styles.email}>
             {user?.firstName ?? user?.email?.split("@")[0] ?? "—"}
           </Text>
@@ -96,7 +183,6 @@ export default function ProfileScreen() {
             Edytuj profil
           </Text>
         </Pressable>
-
         {/* Modal edycji */}
         <Modal visible={editVisible} transparent animationType="fade">
           <Pressable
@@ -134,7 +220,111 @@ export default function ProfileScreen() {
             </Pressable>
           </Pressable>
         </Modal>
+        {/*Modal zmiany hasła */}
+        <Modal visible={passwordVisible} transparent animationType="fade">
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => {
+              setPasswordVisible(false);
+              setPasswordStep("email");
+              setResetToken("");
+              setNewPassword("");
+              setConfirmPassword("");
+            }}
+          >
+            <Pressable style={styles.modalCard} onPress={() => {}}>
+              {passwordStep === "email" ? (
+                <>
+                  <Text style={styles.cardTitle}>Zmień hasło</Text>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: "rgba(70,80,90,0.6)",
+                      marginTop: 4,
+                      lineHeight: 20,
+                    }}
+                  >
+                    Wyślemy link do zmiany hasła na adres:{"\n"}
+                    <Text
+                      style={{ fontWeight: "700", color: "rgba(70,80,90,0.8)" }}
+                    >
+                      {user?.email}
+                    </Text>
+                  </Text>
 
+                  <Pressable
+                    style={[styles.saveButton, { marginTop: 20 }]}
+                    onPress={handleSendResetEmail}
+                    disabled={isSending}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {isSending ? "Wysyłanie..." : "Wyślij email"}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable onPress={() => setPasswordVisible(false)}>
+                    <Text style={styles.cancelText}>Anuluj</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.cardTitle}>Ustaw nowe hasło</Text>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: "rgba(70,80,90,0.6)",
+                      marginTop: 4,
+                      lineHeight: 20,
+                    }}
+                  >
+                    Wpisz token z emaila i nowe hasło.
+                  </Text>
+
+                  <Text style={styles.label}>Token z emaila</Text>
+                  <TextInput
+                    value={resetToken}
+                    onChangeText={setResetToken}
+                    placeholder="Wklej token z emaila"
+                    placeholderTextColor="rgba(111,122,134,0.55)"
+                    style={styles.input}
+                    autoCapitalize="none"
+                  />
+
+                  <Text style={styles.label}>Nowe hasło</Text>
+                  <TextInput
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    placeholder="••••••••"
+                    placeholderTextColor="rgba(111,122,134,0.55)"
+                    secureTextEntry
+                    style={styles.input}
+                  />
+
+                  <Text style={styles.label}>Potwierdź nowe hasło</Text>
+                  <TextInput
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="••••••••"
+                    placeholderTextColor="rgba(111,122,134,0.55)"
+                    secureTextEntry
+                    style={styles.input}
+                  />
+
+                  <Pressable
+                    style={styles.saveButton}
+                    onPress={handleResetPassword}
+                  >
+                    <Text style={styles.saveButtonText}>Zmień hasło</Text>
+                  </Pressable>
+
+                  <Pressable onPress={() => setPasswordStep("email")}>
+                    <Text style={styles.cancelText}>Wróć</Text>
+                  </Pressable>
+                </>
+              )}
+            </Pressable>
+          </Pressable>
+        </Modal>
         {/* Statystyki */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Statystyki</Text>
@@ -147,17 +337,41 @@ export default function ProfileScreen() {
           </View>
         </View>
         {/* Ustawienia */}
-        <NotificationsSettingsCard />
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Ustawienia</Text>
-          {/* Row icon="notifications-outline" usunięty — zastąpiony kartą wyżej */}
-          <Row icon="lock-closed-outline" label="Zmień hasło" />
-          <Row icon="download-outline" label="Eksport danych" />
+          <Pressable onPress={() => setPasswordVisible(true)}>
+            <Row icon="lock-closed-outline" label="Zmień hasło" />
+          </Pressable>
           <Pressable onPress={handleDeleteAccount}>
             <Row icon="trash-outline" label="Usuń konto" destructive />
           </Pressable>
         </View>
-
+        {/* Kontakt */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Kontakt</Text>
+          <View style={styles.row}>
+            <Ionicons
+              name="mail-outline"
+              size={18}
+              color="rgba(70,90,110,0.6)"
+            />
+            <Text style={styles.rowLabel}>support@mentalos.app</Text>
+          </View>
+        </View>
+        {/* Bezpieczeństwo */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Bezpieczeństwo</Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: "rgba(70,80,90,0.6)",
+              lineHeight: 20,
+            }}
+          >
+            Twoje dane są szyfrowane i przechowywane bezpiecznie. Nigdy nie
+            udostępniamy ich osobom trzecim.
+          </Text>
+        </View>
         {/* Wylogowanie */}
         <Pressable style={styles.logoutButton} onPress={() => logout()}>
           <Ionicons name="log-out-outline" size={20} color="#c0504d" />
@@ -318,6 +532,30 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 20,
     backgroundColor: "rgba(255,255,255,0.62)",
+  },
+  avatarWrapper: {
+    position: "relative",
+    marginBottom: 10,
+  },
+  avatarImage: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+  },
+  cameraIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   logoutText: { fontSize: 15, fontWeight: "700", color: "#c0504d" },
 });

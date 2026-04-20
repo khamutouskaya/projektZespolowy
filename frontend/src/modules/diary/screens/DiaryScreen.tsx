@@ -14,20 +14,37 @@ import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
+import { diarySyncService } from "../services/diarySyncService";
+import { useAuthStore } from "@/services/store/useAuthStore";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function DiaryScreen() {
   const { entries, reload, deleteEntry } = useDiaryEntries();
   const router = useRouter();
+  const userId = useAuthStore((state) => state.user?.id);
 
-  //TODO:: Jak endpoint będzie to odkomentować GET /diary/{id}/summary
-  //useDiarySummarySync(reload);
+  useDiarySummarySync(reload);
+  useFocusEffect(
+    useCallback(() => {
+      const sync = async () => {
+        if (!userId) return;
 
+        const netState = await NetInfo.fetch();
+        if (netState.isConnected) {
+          await diarySyncService.fullSync(userId);
+        }
+        reload();
+      };
+      sync();
+    }, [userId, reload]),
+  );
   // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
   useFocusEffect(
     useCallback(() => {
       reload();
     }, [reload]),
   );
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const todayDate = new Date().toLocaleDateString("pl-PL");

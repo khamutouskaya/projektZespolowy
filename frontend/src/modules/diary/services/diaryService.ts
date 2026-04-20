@@ -96,4 +96,38 @@ export const diaryService = {
       [serverId, id],
     );
   },
+  getByServerId: (serverId: string, userId: string): DiaryEntry | null => {
+    const row = db.getFirstSync(
+      `SELECT * FROM diary_entries WHERE server_id = ? AND user_id = ?`,
+      [serverId, userId],
+    );
+    return row ? toEntry(row) : null;
+  },
+
+  createFromServer: (userId: string, data: any): void => {
+    const id = Crypto.randomUUID();
+    const now = new Date().toISOString();
+    const entry: DiaryEntry = {
+      id,
+      userId,
+      icon: "📝",
+      title: data.title ?? "",
+      preview: "",
+      date: new Date(data.entryDate).toLocaleDateString("pl-PL"),
+      duration: "0 min",
+      mood: data.emotions ?? "",
+      isSummary: data.isSummary ?? false,
+      section: "earlier",
+      content: data.content ?? "",
+      tags: "[]",
+      syncStatus: "synced",
+      serverId: data.id,
+      updatedAt: data.entryDate ?? now,
+    };
+    db.runSync(
+      `INSERT OR IGNORE INTO diary_entries (id, user_id, content, sync_status, server_id, updated_at)
+     VALUES (?, ?, ?, 'synced', ?, ?)`,
+      [id, userId, JSON.stringify(entry), data.id, entry.updatedAt],
+    );
+  },
 };

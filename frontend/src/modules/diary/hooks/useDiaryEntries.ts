@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { initDiaryDb } from "../db/diaryDb";
 import { DiaryEntry } from "../diary.types";
 import { diaryService } from "../services/diaryService";
+import { diarySyncService } from "../services/diarySyncService";
 
 export const useDiaryEntries = () => {
   const userId = useAuthStore((state) => state.user?.id ?? "");

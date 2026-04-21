@@ -22,6 +22,7 @@ export default function TagSelector({ selectedTag, onSelect }: Props) {
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.emojiRow}
+      style={{ overflow: "visible" }}
     >
       {tags.map((tag) => (
         <Pressable
@@ -41,8 +42,10 @@ export default function TagSelector({ selectedTag, onSelect }: Props) {
 const styles = StyleSheet.create({
   emojiRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     marginBottom: 15,
+    paddingLeft: 17,
+    paddingVertical: 6,
   },
 
   tagRow: {
@@ -56,6 +59,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 14,
     marginRight: 16,
+    borderWidth: 1.0,
+    borderColor: "transparent",
 
     shadowColor: colors.shadow.primary,
     shadowOpacity: 0.5,
@@ -64,12 +69,12 @@ const styles = StyleSheet.create({
   },
 
   tagSelected: {
-    backgroundColor: "#ede1fc",
-
-    shadowColor: colors.shadow.primary,
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
+    backgroundColor: "rgba(255,255,255,0.75)",
+    borderWidth: 1.0,
+    borderColor: "rgba(255,255,255,0.9)",
+    shadowOpacity: 0,
+    elevation: 0,
+    transform: [{ scale: 1.1 }],
   },
 
   tagText: {

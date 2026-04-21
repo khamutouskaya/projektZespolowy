@@ -32,11 +32,11 @@ export default function DiarySummary({ summary, onChangeSummary }: Props) {
 const styles = StyleSheet.create({
   card: {
     ...cardStyles.card,
-    minHeight: 170,
+    minHeight: 180,
   },
 
   text: {
-    ...typography.input,
+    ...typography.small,
     color: colors.text.tertiary,
     lineHeight: 22,
   },

@@ -1,26 +1,37 @@
 import { useRouter } from "expo-router";
 import { Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
+import { colors } from "@/shared/theme/colors";
+import { spacing } from "@/shared/theme/spacing";
 
 type Props = {
+  isEditing: boolean;
+  onEdit: () => void;
   onSave: () => void;
 };
 
-export default function DiaryEntryHeader({ onSave }: Props) {
+export default function DiaryEntryHeader({ isEditing, onEdit, onSave }: Props) {
   const router = useRouter();
-  const handleSave = () => {
-    Keyboard.dismiss();
-    onSave(); // wywołanie props'a przekazanego z rodzica
-  };
 
   return (
     <View style={styles.header}>
-      <Pressable onPress={() => router.back()}>
-        <Text style={styles.back}>← Powrót</Text>
+      <Pressable
+        onPress={() => {
+          Keyboard.dismiss();
+          router.back();
+        }}
+      >
+        <Text style={styles.note}>‹ Notatka</Text>
       </Pressable>
 
-      <Pressable onPress={handleSave}>
-        <Text style={styles.ok}>OK</Text>
-      </Pressable>
+      {isEditing ? (
+        <Pressable style={styles.saveButton} onPress={onSave}>
+          <Text style={styles.saveText}>Gotowe</Text>
+        </Pressable>
+      ) : (
+        <Pressable style={styles.editButton} onPress={onEdit}>
+          <Text style={styles.editText}>Edytuj ✏️</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -30,18 +41,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 5,
   },
 
-  back: {
-    fontSize: 16,
-    color: "#375a85",
+  note: {
+    fontSize: 18,
     fontWeight: "500",
+    color: colors.text.primary,
   },
 
-  ok: {
-    fontSize: 16,
-    color: "#375a85",
+  saveButton: {
+    backgroundColor: colors.text.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
+  },
+
+  saveText: {
+    fontSize: 15,
     fontWeight: "600",
+    color: "#fff",
+  },
+
+  editButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: colors.text.primary,
+  },
+
+  editText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.text.primary,
   },
 });

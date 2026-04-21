@@ -33,18 +33,23 @@ export default function MoodSelector({ selectedEmoji, onSelect }: Props) {
 const styles = StyleSheet.create({
   emojiRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+
     marginBottom: 10,
+    paddingLeft: 17,
   },
 
   emojiButton: {
-    padding: 5,
-    borderRadius: 10,
-    marginRight: 16,
+    padding: 8,
+    borderRadius: 14,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: "transparent",
   },
 
   emojiSelected: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: "rgba(255,255,255,0.75)",
+    borderColor: "rgba(255,255,255,0.9)",
   },
 
   emoji: {

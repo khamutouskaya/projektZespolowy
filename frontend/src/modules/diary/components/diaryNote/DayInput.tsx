@@ -20,12 +20,12 @@ export default function DiaryInput({ text, onPress }: Props) {
 const styles = StyleSheet.create({
   card: {
     ...cardStyles.card,
-    minHeight: 170,
+    minHeight: 180,
     padding: 16,
   },
 
   text: {
-    ...typography.input,
+    ...typography.small,
     color: colors.text.tertiary,
     lineHeight: 22,
   },

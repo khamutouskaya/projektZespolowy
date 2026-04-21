@@ -38,7 +38,7 @@ export default function PlannerEmptyState() {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    color: colors.text.quaternary,
+    color: "#8f9296",
     textAlign: "center",
     paddingHorizontal: 32,
   },

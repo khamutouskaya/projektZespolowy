@@ -1,19 +1,88 @@
-import React from "react";
-import { Image, ScrollView, View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  ScrollView,
+  View,
+  StyleSheet,
+  Text,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from "expo-router";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
+import { DiaryEntry } from "@/modules/diary/diary.types";
 
 import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
 import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
-import { useDiarySummarySync } from "@/modules/diary/hooks/useDiarySummarySync";
 import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
+
+function SearchEmpty({ query }: { query: string }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.82)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 520,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 6,
+        tension: 60,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -6,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        styles.searchEmpty,
+        { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+      ]}
+    >
+      <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
+        <Ionicons
+          name="search-outline"
+          size={56}
+          color={colors.text.quaternary}
+        />
+      </Animated.View>
+      <Text style={styles.searchEmptyTitle}>Brak wyników</Text>
+      <Text style={styles.searchEmptyHint}>
+        Nie znaleziono notatek dla „{query}"
+      </Text>
+    </Animated.View>
+  );
+}
 
 export default function DiaryScreen() {
   const { entries, reload, deleteEntry } = useDiaryEntries();
@@ -67,21 +136,15 @@ export default function DiaryScreen() {
           return 0;
         })
     : entries;
-  const today = filtered.filter((e) => e.date === todayDate);
-  const earlier = filtered.filter((e) => e.date !== todayDate);
-  const DiarySection = ({
-    title,
-    entries: sectionEntries,
-  }: {
-    title: string;
-    entries: typeof entries;
-  }) => (
-    <DiaryEntriesSection
-      title={title}
-      entries={sectionEntries}
-      onDeleteEntry={deleteEntry}
-    />
-  );
+  const sortByNewest = (a: DiaryEntry, b: DiaryEntry) =>
+    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+
+  const today = filtered.filter((e) => e.date === todayDate).sort(sortByNewest);
+  const earlier = filtered
+    .filter((e) => e.date !== todayDate)
+    .sort(sortByNewest);
+  const isSearching = searchQuery.trim().length > 0;
+  const noSearchResults = isSearching && filtered.length === 0;
 
   return (
     <LayoutContainer>
@@ -89,11 +152,6 @@ export default function DiaryScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* <Image
-          source={require("../../../../assets/images/cloud.png")}
-          style={styles.cloud}
-        /> */}
-
         <View style={styles.headerRow}>
           <DiaryHeader />
           <AddEntryButton
@@ -107,13 +165,37 @@ export default function DiaryScreen() {
           <DiarySearch value={searchQuery} onChange={setSearchQuery} />
         </View>
 
-        <View style={styles.section}>
-          <DiarySection title="Dzisiaj" entries={today} />
-        </View>
+        {noSearchResults ? (
+          <SearchEmpty query={searchQuery} />
+        ) : (
+          <>
+            <View style={styles.section}>
+              <DiaryEntriesSection
+                title="Dzisiaj"
+                entries={today}
+                onDeleteEntry={deleteEntry}
+                emptyPlaceholder={{
+                  iconName: "journal-outline",
+                  title: "Brak notatek na dziś",
+                  hint: "Opisz jak minął Ci dzień",
+                }}
+              />
+            </View>
 
-        <View style={styles.section}>
-          <DiarySection title="Wcześniej" entries={earlier} />
-        </View>
+            <View style={styles.section}>
+              <DiaryEntriesSection
+                title="Wcześniej"
+                entries={earlier}
+                onDeleteEntry={deleteEntry}
+                emptyPlaceholder={{
+                  iconName: "time-outline",
+                  title: "Brak wcześniejszych notatek",
+                  hint: "Twoje przeszłe wpisy pojawią się tutaj",
+                }}
+              />
+            </View>
+          </>
+        )}
       </ScrollView>
     </LayoutContainer>
   );
@@ -146,7 +228,25 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     alignSelf: "center",
-    //marginTop: -65,
     resizeMode: "contain",
+  },
+  searchEmpty: {
+    alignItems: "center",
+    paddingVertical: 48,
+    gap: 6,
+  },
+  searchEmptyEmoji: {
+    fontSize: 34,
+    marginBottom: 4,
+  },
+  searchEmptyTitle: {
+    ...typography.title,
+    color: colors.text.tertiary,
+    textAlign: "center",
+  },
+  searchEmptyHint: {
+    ...typography.body,
+    color: colors.text.secondary,
+    textAlign: "center",
   },
 });

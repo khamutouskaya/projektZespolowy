@@ -1,7 +1,9 @@
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
+import { diaryTextTransfer } from "@/modules/diary/services/diaryTextTransfer";
+import { testResultTransfer, TestResult } from "@/modules/diary/services/testResultTransfer";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState, useRef } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
   Keyboard,
   Pressable,
@@ -19,16 +21,18 @@ import TagSelector from "../components/diaryNote/TagSelector";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { diaryService } from "@/modules/diary/services/diaryService";
 
+
 export default function DiaryNoteScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ text?: string; id?: string }>();
+  const params = useLocalSearchParams<{ text?: string; id?: string; tag?: string; mood?: string; preview?: string }>();
   const { addEntry, updateEntry } = useDiaryEntries();
   const isEditing = !!params.id;
 
-  const [preview, setpreview] = useState("");
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [preview, setpreview] = useState(params.preview ?? "");
+  const [selectedMood, setSelectedMood] = useState<string | null>(params.mood ?? null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(params.tag ?? null);
   const [noteText, setNoteText] = useState(params.text ?? "");
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
   const user = useAuthStore((state) => state.user);
   const startTimeRef = useRef<number>(Date.now());
 
@@ -42,7 +46,26 @@ export default function DiaryNoteScreen() {
     setSelectedTag(JSON.parse(existing.tags || "[]")[0] ?? null);
   }, [params.id]);
 
+  useFocusEffect(
+    useCallback(() => {
+      const { text } = diaryTextTransfer.get();
+      if (text !== null) {
+        setNoteText(text);
+        diaryTextTransfer.clear();
+      }
+      const result = testResultTransfer.get();
+      if (result !== null) {
+        setTestResult(result);
+      }
+    }, []),
+  );
+
   const handleSave = () => {
+    if (!noteText.trim() && !preview.trim()) {
+      router.back();
+      return;
+    }
+
     const elapsedMs = Date.now() - startTimeRef.current;
     const elapsedMin = Math.round(elapsedMs / 60000);
     const duration = elapsedMin < 1 ? "< 1 min" : `${elapsedMin} min`;
@@ -57,8 +80,10 @@ export default function DiaryNoteScreen() {
       mood: selectedMood ?? "",
       icon: selectedMood ?? "📝",
       tags: selectedTag ? JSON.stringify([selectedTag]) : "[]",
-      title:
-        noteText.trim().slice(0, 40) || new Date().toLocaleDateString("pl-PL"),
+      title: (() => {
+        const firstLine = noteText.slice(0, noteText.indexOf("\n") === -1 ? undefined : noteText.indexOf("\n")).trim();
+        return firstLine || new Date().toLocaleDateString("pl-PL");
+      })(),
       date: existingDate ?? new Date().toLocaleDateString("pl-PL"),
       section: "today" as const,
       duration,
@@ -66,48 +91,69 @@ export default function DiaryNoteScreen() {
 
     if (isEditing && params.id) {
       updateEntry(params.id, payload);
-      // TODO: diaryApi.update(params.id, payload) — gdy backend gotowy
     } else {
       addEntry(payload);
-      // TODO: diaryApi.create(payload) — gdy backend gotowy
     }
-    router.replace("/(tabs)/diary");
+    router.back();
   };
 
   return (
     <LayoutContainer>
+      <View style={styles.stickyHeader}>
+        <DiaryNoteHeader
+          date={new Date().toLocaleDateString("pl-PL")}
+          onBack={() => router.back()}
+          onSave={handleSave}
+        />
+      </View>
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* HEADER */}
-          <View style={styles.header}>
-            <DiaryNoteHeader
-              date={new Date().toLocaleDateString("pl-PL")}
-              onBack={() => router.back()}
-              onTest={handleSave}
-            />
-          </View>
           {/* DAY TEXT */}
           <View style={styles.inputCard}>
-            <Text style={styles.title}>Jak minął Twój dzień?</Text>
             <DiaryInput
               text={noteText}
               onPress={() =>
                 router.push({
                   pathname: "/(tabs)/diary/entry",
-                  params: { text: noteText, id: params.id },
+                  params: {
+                    text: noteText,
+                    id: params.id,
+                    tag: selectedTag ?? "",
+                    mood: selectedMood ?? "",
+                    preview,
+                  },
                 })
               }
             />
           </View>
+
           {/* SUMMARY */}
           <View style={styles.inputCard}>
-            <Text style={styles.title}>Podsumowanie dnia</Text>
+            <View style={styles.summaryTitleRow}>
+              <Text style={styles.summaryTitle}>Podsumowanie dnia</Text>
+              <Pressable
+                style={styles.testChip}
+                onPress={() =>
+                  router.push(
+                    testResult
+                      ? "/(tabs)/diary/test?viewResult=1"
+                      : "/(tabs)/diary/test"
+                  )
+                }
+              >
+                <Text style={styles.testChipText}>
+                  {testResult ? "Podgląd testu ›" : "Zrób test ›"}
+                </Text>
+              </Pressable>
+            </View>
             <SummaryInput summary={preview} onChangeSummary={setpreview} />
           </View>
+
           {/* MOOD */}
           <Text style={styles.title}>Jak się dziś czułaś?</Text>
           <ScrollView style={styles.emojiTagRows}>
@@ -116,16 +162,12 @@ export default function DiaryNoteScreen() {
               onSelect={setSelectedMood}
             />
           </ScrollView>
+
           {/* TAGS */}
           <Text style={styles.title}>Tag dnia</Text>
           <ScrollView style={styles.emojiTagRows}>
             <TagSelector selectedTag={selectedTag} onSelect={setSelectedTag} />
           </ScrollView>
-
-          {/* SAVE BUTTON - DODANE: brak było przycisku zapisu całości */}
-          <Pressable style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Zapisz wpis</Text>
-          </Pressable>
         </ScrollView>
       </TouchableWithoutFeedback>
     </LayoutContainer>
@@ -134,47 +176,111 @@ export default function DiaryNoteScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: 0, // немного воздуха сверху
+    paddingTop: 0,
     paddingHorizontal: 20,
     paddingBottom: 80,
   },
-
-  header: {
-    marginBottom: 25,
-    paddingVertical: 10,
+  stickyHeader: {
+    paddingHorizontal: 20,
   },
-
+  header: {},
   title: {
     fontSize: 18,
     fontWeight: "600",
     color: "#375a85",
-    marginBottom: 16,
+    marginBottom: 15,
   },
-
   inputCard: {
     marginBottom: 25,
   },
-
   emojiTagRows: {
     marginHorizontal: -17,
-    // paddingHorizontal: -50,
   },
-  saveButton: {
-    marginHorizontal: 20,
-    marginTop: 24,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 18,
-    backgroundColor: "#b6cce9",
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#375a85",
+  },
+  summaryTitleRow: {
+    flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#355A7A",
+  testChip: {
+    backgroundColor: "hsl(253, 45%, 90%)",
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "hsl(200, 2%, 74%)",
+    shadowColor: "#375a85",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  testChipText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#375a85",
+  },
+  testResultCard: {
+    backgroundColor: "#f5f7fb",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: "#e0e6f0",
+  },
+  testResultHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  testResultTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#375a85",
+  },
+  testResultScoreBadge: {
+    backgroundColor: "hsl(253, 45%, 90%)",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  testResultScoreText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#375a85",
+  },
+  testZoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 10,
+  },
+  testZoneIcon: { fontSize: 16, width: 22 },
+  testZoneBarWrap: { flex: 1 },
+  testZoneLabel: {
+    fontSize: 11,
+    color: "#8a9ab0",
+    fontWeight: "600",
+    marginBottom: 3,
+  },
+  testZoneBarBg: {
+    height: 6,
+    backgroundColor: "#dde3ee",
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  testZoneBarFill: { height: "100%", borderRadius: 3 },
+  testZoneScore: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#8a9ab0",
+    width: 32,
+    textAlign: "right",
   },
 });

@@ -1,4 +1,5 @@
 import { View, TextInput, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/shared/theme/colors";
 import { typography } from "@/shared/theme/typography";
 
@@ -10,11 +11,12 @@ type Props = {
 export default function DiarySearch({ value, onChange }: Props) {
   return (
     <View style={styles.container}>
+      <Ionicons name="search-outline" size={18} color={colors.text.tertiary} style={styles.icon} />
       <TextInput
         value={value}
         onChangeText={onChange}
         placeholder="Szukaj w zapisach..."
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.text.tertiary}
         style={styles.input}
       />
     </View>
@@ -22,22 +24,28 @@ export default function DiarySearch({ value, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 44,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    backgroundColor: colors.background.glass,
+    shadowColor: colors.shadow.primary,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
+  },
+
+  icon: {
+    marginRight: 8,
+  },
 
   input: {
     ...typography.input,
-    height: 44,
-    paddingHorizontal: 15,
-    borderRadius: 14,
     flex: 1,
-
-    shadowColor: colors.shadow.primary,
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-
-    backgroundColor: colors.background.glass, // 👈 под твой стеклянный стиль
-    fontSize: 16,
+    color: colors.text.secondary,
+    fontSize: 15,
   },
 });

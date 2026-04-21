@@ -30,6 +30,8 @@ const TAG_MAP: Record<string, string> = {
   Zmęczenie: "😴",
 }; //NOTE: jesli jest to zmieniane, to nalezy tez to uwzglednic w TagSelector (w diaryNote)
 
+const DEFAULT_ICON = "📝";
+
 const DEFAULT_CARD_HEIGHT = 128;
 const CARD_SPACING = 10;
 
@@ -57,6 +59,8 @@ export default function DiaryEntryCard({
   const [cardHeight, setCardHeight] = useState(DEFAULT_CARD_HEIGHT);
   const title = entry.title?.trim() || entry.date;
   const tags = parseTags(entry.tags);
+  const newlineIdx = entry.content?.indexOf("\n") ?? -1;
+  const bodyText = newlineIdx !== -1 ? entry.content.slice(newlineIdx + 1).trim() : "";
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateXAnim = useRef(new Animated.Value(0)).current;
@@ -161,7 +165,8 @@ export default function DiaryEntryCard({
         renderRightActions={renderRightActions}
         overshootRight={false}
         overshootFriction={8}
-        containerStyle={{ overflow: "visible" }}
+        containerStyle={{ overflow: "hidden" }}
+        childrenContainerStyle={{ overflow: "visible" }}
         enabled={!isDeleting}
       >
         <Pressable
@@ -194,14 +199,14 @@ export default function DiaryEntryCard({
               ]}
             >
               <View style={styles.header}>
-                <Text style={styles.icon}>{entry.icon}</Text>
+                <Text style={styles.icon}>{entry.icon || DEFAULT_ICON}</Text>
 
                 <Text style={styles.title}>{title}</Text>
               </View>
 
-              {entry.preview ? (
+              {bodyText ? (
                 <Text style={styles.preview} numberOfLines={2}>
-                  {entry.preview}
+                  {bodyText}
                 </Text>
               ) : null}
 
@@ -210,7 +215,7 @@ export default function DiaryEntryCard({
                   {entry.date} {entry.duration ? `~ ${entry.duration}` : ""}
                 </Text>
 
-                {tags.length > 0 ? (
+                {tags.length > 0 && (
                   <View style={styles.tagsRow}>
                     {tags.map((label) => (
                       <Text key={label} style={styles.tag}>
@@ -218,7 +223,7 @@ export default function DiaryEntryCard({
                       </Text>
                     ))}
                   </View>
-                ) : null}
+                )}
               </View>
             </Animated.View>
           )}

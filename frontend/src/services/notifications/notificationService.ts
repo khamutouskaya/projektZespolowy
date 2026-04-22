@@ -1,25 +1,26 @@
 import * as Notifications from "expo-notifications";
 import { NotificationSettings } from "@/services/store/settingsStorage";
+import Constants from "expo-constants";
+
+const isExpoGo = Constants.appOwnership === "expo";
 
 export const notificationService = {
   requestPermission: async (): Promise<boolean> => {
+    if (isExpoGo) return false;
     const { status } = await Notifications.requestPermissionsAsync();
     return status === "granted";
   },
 
   reschedule: async (settings: NotificationSettings): Promise<void> => {
+    if (isExpoGo) return;
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    // Sprawdź czy ogólnie włączone
     if (!settings.allEnabled) return;
-
-    // Sprawdź czy wyciszone tymczasowo
     if (settings.mutedUntil) {
       const mutedUntil = new Date(settings.mutedUntil);
       if (mutedUntil > new Date()) return;
     }
 
-    // Zaplanuj przypomnienie dziennika
     if (settings.diaryEnabled) {
       await Notifications.scheduleNotificationAsync({
         content: {

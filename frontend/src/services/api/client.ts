@@ -8,8 +8,8 @@ const API_URL =
   envApiUrl && envApiUrl !== "undefined"
     ? envApiUrl
     : Platform.select({
-        ios: "http://172.20.10.2:5076/api",
-        android: "http://10.0.2.2:5076/api",
+        ios: "http://172.20.10.3:5076/api",
+        android: "http://10.0.2.3:5076/api",
         default: "http://localhost:5076/api",
       });
 

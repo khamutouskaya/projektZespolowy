@@ -16,6 +16,8 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { apiClient } from "@/services/api/client";
+import { useAuthStore } from "@/services/store/useAuthStore";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -26,20 +28,26 @@ export default function Register() {
   const router = useRouter();
   const registerMutation = useRegisterMutation();
 
+  const loginSilent = useAuthStore((state) => state.loginSilent);
+
   const handleRegister = () => {
     if (!firstName) return Alert.alert("Błąd", "Wpisz swoje imię");
     if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+
     registerMutation.mutate(
       { firstName, email, password },
       {
-        onSuccess: (data) => {
-          router.replace({
-            pathname: "/onboarding",
-            params: {
-              token: data.token,
-              user: JSON.stringify(data.user),
-            },
-          });
+        onSuccess: async (data) => {
+          await loginSilent(data.token, data.user);
+
+          try {
+            await apiClient.put("/users/me", { firstName });
+            await loginSilent(data.token, { ...data.user, firstName });
+          } catch (e) {
+            console.warn("Nie udało się zapisać imienia:", e);
+          }
+
+          router.replace({ pathname: "/onboarding" });
         },
       },
     );

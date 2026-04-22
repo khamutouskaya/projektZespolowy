@@ -84,16 +84,8 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* 
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      />
       <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="logout" options={{ href: null }} />
-      /> */}
     </Tabs>
   );
 }

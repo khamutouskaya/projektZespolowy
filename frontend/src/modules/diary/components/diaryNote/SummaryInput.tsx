@@ -18,6 +18,7 @@ export default function DiarySummary({ summary, onChangeSummary }: Props) {
           placeholder="Jak podsumowałbyś dzisiaj swój dzień?"
           placeholderTextColor={colors.text.secondary}
           multiline
+          scrollEnabled={false}
           style={styles.text}
         />
       ) : (

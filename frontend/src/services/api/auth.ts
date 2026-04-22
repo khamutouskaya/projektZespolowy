@@ -22,6 +22,16 @@ export const onboardingApi = {
     await apiClient.post("/users/me/onboarding", { answers });
   },
 };
+export const usersApi = {
+  updateProfile: async (data: {
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  }) => {
+    const response = await apiClient.put("/users/me", data);
+    return response.data;
+  },
+};
 
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {

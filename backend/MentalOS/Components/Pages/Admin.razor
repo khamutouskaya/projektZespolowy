@@ -1,0 +1,229 @@
+@page "/admin"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using MentalOS.Data
+@using MentalOS.Domain
+@using Microsoft.Extensions.DependencyInjection
+@inject IServiceScopeFactory ScopeFactory
+
+<PageTitle>Admin Panel - MentalOS</PageTitle>
+
+<div class="container mt-4">
+    <h1>Panel Administratora</h1>
+    <hr />
+    
+    @if (users == null)
+    {
+        <p><em>£adowanie danych...</em></p>
+    }
+    else
+    {
+        <h3>Uzytkownicy systemu (@users.Count)</h3>
+        <table class="table table-striped table-hover table-bordered mt-3 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Imie</th>
+                    <th>Role</th>
+                    <th>Monety</th>
+                    <th>Streak</th>
+                    <th>Status</th>
+                    <th>Rejestracja</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in users)
+                {
+                    var user = item.User;
+                    <tr>
+                        <td>@user.Id.ToString().Substring(0, 8)...</td>
+                        <td>@user.Email</td>
+                        <td>@(string.IsNullOrEmpty(user.FirstName) ? "Brak" : $"{user.FirstName} {user.LastName}")</td>
+                        <td>
+                            @if (item.Roles.Contains("admin"))
+                            {
+                                <span class="badge bg-primary me-1">Admin</span>
+                            }
+                            @if (item.Roles.Contains("specialist"))
+                            {
+                                <span class="badge bg-info text-dark me-1">Specjalista</span>
+                            }
+                            @if (!item.Roles.Contains("admin") && !item.Roles.Contains("specialist"))
+                            {
+                                <span class="badge bg-secondary">Uzytkownik</span>
+                            }
+                        </td>
+                        <td>
+                            @user.CoinsBalance
+                            <div class="mt-1 d-flex gap-1">
+                                <input type="number" class="form-control form-control-sm" style="width: 70px" @bind="item.CoinInput" />
+                                <button class="btn btn-sm btn-outline-success py-0 px-2" @onclick="@(() => ModCoins(user.Id, item.CoinInput))">Dodaj</button>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-2" @onclick="@(() => ModCoins(user.Id, -item.CoinInput))">Zabierz</button>
+                            </div>
+                        </td>
+                        <td>
+                            @user.StreakCount 
+                            <span class="badge @(user.StreakActive ? "bg-success" : "bg-secondary")">@(user.StreakActive ? "Aktywny" : "Nieaktywny")</span>
+                            <div class="mt-1 d-flex gap-1">
+                                <input type="number" class="form-control form-control-sm" style="width: 70px" @bind="item.StreakInput" />
+                                <button class="btn btn-sm btn-outline-success py-0 px-2" @onclick="@(() => ModStreak(user.Id, item.StreakInput))">Dodaj</button>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-2" @onclick="@(() => ModStreak(user.Id, -item.StreakInput))">Zabierz</button>
+                            </div>
+                        </td>
+                        <td>
+                            @if (user.DeletedAt.HasValue)
+                            {
+                                <span class="badge bg-danger">Zablokowany</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Aktywny</span>
+                            }
+                        </td>
+                        <td>@user.CreatedAt.ToShortDateString()</td>
+                        <td>
+                            <button class="btn btn-sm @(user.DeletedAt.HasValue ? "btn-success" : "btn-danger") mb-1" @onclick="() => ToggleUserStatus(user)">
+                                @(user.DeletedAt.HasValue ? "Przywróc" : "Zablokuj (Soft-Delete)")
+                            </button>
+                            <button class="btn btn-sm @(item.Roles.Contains("specialist") ? "btn-outline-warning" : "btn-warning") mb-1" @onclick="@(() => ToggleRole(user.Id, "specialist"))">
+                                @(item.Roles.Contains("specialist") ? "Odbierz status spec." : "Nadaj status spec.")
+                            </button>
+                            <button class="btn btn-sm @(item.Roles.Contains("admin") ? "btn-outline-primary" : "btn-primary") mb-1" @onclick="@(() => ToggleRole(user.Id, "admin"))">
+                                @(item.Roles.Contains("admin") ? "Odbierz admina" : "Nadaj admina")
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private class UserWithRoles
+    {
+        public User User { get; set; } = null!;
+        public List<string> Roles { get; set; } = new();
+        public int CoinInput { get; set; }
+        public int StreakInput { get; set; }
+    }
+
+    private List<UserWithRoles>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        // Pobilieramy uzytkowników, ignorujac filtr IsDeleted
+        var dbUsers = await db.Users.IgnoreQueryFilters().OrderByDescending(u => u.CreatedAt).ToListAsync();
+        var userIds = dbUsers.Select(u => u.Id).ToList();
+
+        var userRoles = await db.UserRoles
+            .Include(ur => ur.Role)
+            .Where(ur => userIds.Contains(ur.UserId))
+            .ToListAsync();
+
+        users = dbUsers.Select(u => new UserWithRoles
+        {
+            User = u,
+            Roles = userRoles.Where(ur => ur.UserId == u.Id && ur.Role != null).Select(ur => ur.Role!.Name).ToList()
+        }).ToList();
+    }
+
+    private async Task ToggleRole(Guid userId, string roleName)
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var role = await db.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+        if (role == null)
+        {
+            role = new Role { Name = roleName, Description = roleName };
+            db.Roles.Add(role);
+            await db.SaveChangesAsync();
+        }
+
+        var userRole = await db.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == role.Id);
+
+        if (userRole != null)
+        {
+            db.UserRoles.Remove(userRole);
+        }
+        else
+        {
+            db.UserRoles.Add(new UserRole { UserId = userId, RoleId = role.Id });
+        }
+
+        await db.SaveChangesAsync();
+        await LoadUsers();
+    }
+
+    private async Task ToggleUserStatus(User user)
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var dbUser = await db.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == user.Id);
+        if (dbUser != null)
+        {
+            if (dbUser.DeletedAt.HasValue)
+            {
+                dbUser.DeletedAt = null;
+                dbUser.DeletedBy = null;
+            }
+            else
+            {
+                dbUser.DeletedAt = DateTime.UtcNow;
+            }
+
+            db.Users.Update(dbUser);
+            await db.SaveChangesAsync();
+            await LoadUsers();
+        }
+    }
+
+    private async Task ModCoins(Guid userId, int amount)
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var u = await db.Users.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == userId);
+        if (u != null)
+        {
+            u.CoinsBalance += amount;
+            if (u.CoinsBalance < 0) u.CoinsBalance = 0;
+
+            db.Users.Update(u);
+            await db.SaveChangesAsync();
+            await LoadUsers();
+        }
+    }
+
+    private async Task ModStreak(Guid userId, int amount)
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var u = await db.Users.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == userId);
+        if (u != null)
+        {
+            u.StreakCount += amount;
+            if (u.StreakCount < 0) u.StreakCount = 0;
+            if (u.StreakCount > 0 && amount > 0) u.StreakActive = true;
+            if (u.StreakCount == 0) u.StreakActive = false;
+
+            db.Users.Update(u);
+            await db.SaveChangesAsync();
+            await LoadUsers();
+        }
+    }
+}

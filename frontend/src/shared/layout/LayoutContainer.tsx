@@ -15,7 +15,17 @@ export default function LayoutContainer({ children }: Props) {
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: insets.top, //53
+            //paddingBottom: insets.bottom, // отступ от нижней навигации
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          },
+        ]}
+      >
         {children}
       </View>
     </ImageBackground>

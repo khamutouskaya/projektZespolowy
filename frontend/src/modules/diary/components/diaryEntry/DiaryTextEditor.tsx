@@ -85,6 +85,7 @@ export default function DiaryTextEditor({
       <TextInput
         ref={bodyRef}
         multiline
+        scrollEnabled={false}
         defaultValue={initialBodyText}
         onChangeText={handleBodyChange}
         inputAccessoryViewID={accessoryID}

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,8 @@ import { useChat } from "../hooks/useChat";
 import { MessageBubble } from "../components/MessageBubble";
 
 export function AssistantScreen() {
-  const { messages, inputText, setInputText, isLoading, sendMessage } =
-    useChat();
+  const { messages, isLoading, sendMessage } = useChat();
+  const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
 
   return (
@@ -62,11 +62,11 @@ export function AssistantScreen() {
           onChangeText={setInputText}
           placeholder="Напиши сообщение..."
           multiline
-          onSubmitEditing={() => void sendMessage()}
+          onSubmitEditing={() => { void sendMessage(inputText); setInputText(""); }}
         />
         <TouchableOpacity
           style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
-          onPress={() => void sendMessage()}
+          onPress={() => { void sendMessage(inputText); setInputText(""); }}
           disabled={!inputText.trim() || isLoading}
         >
           <Text style={styles.sendBtnText}>↑</Text>

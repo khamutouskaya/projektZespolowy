@@ -8,6 +8,7 @@ export type DiaryEntry = {
   date: string; // data utworzenia
   duration?: string; // czas pisania
   mood?: string; // nazwa nastroju
+  isSummary?: boolean;
   section: "today" | "earlier"; // sekcja listy
   userId: string; // izolacja danych między użytkownikami, żeby nie wystarczyło się zalogowć dowolnym kontem żeby mieć dostęp
   content: string; // pełna treść wpisu

@@ -8,6 +8,11 @@ import { diaryService } from "../services/diaryService";
 export const useDiarySummarySync = (onSynced?: () => void) => {
   const user = useAuthStore((state) => state.user);
   const isSyncing = useRef(false);
+  const toIsoDate = (plDate: string): string => {
+    // "19.04.2026" → "2026-04-19T00:00:00.000Z"
+    const [day, month, year] = plDate.split(".");
+    return new Date(`${year}-${month}-${day}T00:00:00.000Z`).toISOString();
+  };
 
   const syncSummaries = async () => {
     if (!user?.id || isSyncing.current) return;
@@ -20,7 +25,7 @@ export const useDiarySummarySync = (onSynced?: () => void) => {
 
       for (const entry of needsSummary) {
         try {
-          const summary = await diaryApi.fetchSummary(entry.id);
+          const summary = await diaryApi.fetchSummary(toIsoDate(entry.date));
           if (summary) {
             diaryService.update(entry.id, user.id, { preview: summary });
             onSynced?.(); // odśwież widok po każdym sukcesie

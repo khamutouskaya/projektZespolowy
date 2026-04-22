@@ -1,0 +1,26 @@
+﻿namespace MentalOS.DTOs.JournalDTOs
+{
+    public class JournalEntryDto
+    {
+        public Guid Id { get; set; }
+        public string? Title { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int? MoodScore { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreateJournalEntryDto
+    {
+        public string? Title { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int? MoodScore { get; set; }
+    }
+
+    public class UpdateJournalEntryDto
+    {
+        public string? Title { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int? MoodScore { get; set; }
+    }
+}

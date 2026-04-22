@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     alignItems: "center",
-    paddingBottom: 120,
+    paddingBottom: 100,
   },
 
   cloud: {

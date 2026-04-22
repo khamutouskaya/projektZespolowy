@@ -422,3 +422,4 @@ Logs/
 
 # User secrets
 secrets.json
+appsettings.json

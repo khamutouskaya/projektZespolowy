@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { TextInput, StyleSheet, View } from "react-native";
 import { colors } from "@/shared/theme/colors";
 
@@ -18,92 +18,46 @@ export default function DiaryTextEditor({
   text,
   setText,
   textColor,
-  isBold,
-  isItalic,
-  isUnderline,
   accessoryID,
-  isNew = false,
   isEditing = false,
 }: Props) {
-  const bodyRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInput>(null);
+  const selectionRef = useRef({ start: 0, end: 0 });
 
   useEffect(() => {
     if (!isEditing) return;
-    const t = setTimeout(() => bodyRef.current?.focus(), 50);
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
     return () => clearTimeout(t);
   }, [isEditing]);
 
-  const newlineIndex = text.indexOf("\n");
-  const titleText = newlineIndex === -1 ? text : text.slice(0, newlineIndex);
-  const bodyText = newlineIndex === -1 ? "" : text.slice(newlineIndex + 1);
-
-  const titleTextRef = useRef(titleText);
-  titleTextRef.current = titleText;
-
-  const currentBodyRef = useRef(bodyText);
-
-  const [initialBodyText] = useState(bodyText);
-
-  const handleTitleChange = (value: string) => {
-    if (value.includes("\n")) {
-      const parts = value.split("\n");
-      const extra = parts.slice(1).join("\n");
-      const newBody = extra
-        ? extra + (currentBodyRef.current ? "\n" + currentBodyRef.current : "")
-        : currentBodyRef.current;
-      setText(parts[0] + "\n" + newBody);
-      bodyRef.current?.focus();
-    } else {
-      setText(
-        value +
-          (currentBodyRef.current.length > 0
-            ? "\n" + currentBodyRef.current
-            : ""),
-      );
+  const handleKeyPress = ({ nativeEvent }: { nativeEvent: { key: string } }) => {
+    if (nativeEvent.key === "Tab") {
+      const { start, end } = selectionRef.current;
+      setText(text.slice(0, start) + "\n" + text.slice(end));
     }
-  };
-
-  const handleBodyChange = (value: string) => {
-    currentBodyRef.current = value;
-    setText(titleTextRef.current + "\n" + value);
   };
 
   return (
     <View>
       <TextInput
-        value={titleText}
-        onChangeText={handleTitleChange}
-        inputAccessoryViewID={accessoryID}
-        returnKeyType="next"
-        onSubmitEditing={() => bodyRef.current?.focus()}
-        blurOnSubmit={false}
-        autoFocus={isNew}
-        editable={isEditing}
-        style={[styles.title, { color: textColor || colors.text.primary }]}
-      />
-      <View />
-      <TextInput
-        ref={bodyRef}
+        ref={inputRef}
         multiline
         scrollEnabled={false}
-        defaultValue={initialBodyText}
-        onChangeText={handleBodyChange}
+        value={text}
+        onChangeText={setText}
+        onSelectionChange={({ nativeEvent }) => {
+          selectionRef.current = nativeEvent.selection;
+        }}
+        onKeyPress={handleKeyPress}
         inputAccessoryViewID={accessoryID}
         editable={isEditing}
-        style={[styles.body, { color: textColor || colors.text.secondary }]}
+        style={[styles.body, { color: textColor || colors.text.primary }]}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 28,
-    fontWeight: "500",
-    lineHeight: 30,
-    letterSpacing: -0.5,
-    color: colors.text.tertiary,
-  },
   body: {
     fontSize: 17,
     fontWeight: "500",

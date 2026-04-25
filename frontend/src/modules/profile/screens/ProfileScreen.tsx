@@ -13,6 +13,7 @@ import {
   Alert,
   Image,
   ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../../services/store/useAuthStore";
@@ -41,6 +42,16 @@ export default function ProfileScreen() {
 
   const [contactExpanded, setContactExpanded] = useState(false);
   const [securityExpanded, setSecurityExpanded] = useState(false);
+  const [editStep, setEditStep] = useState<"main" | "password">("main");
+
+  const closeEditModal = () => {
+    setEditVisible(false);
+    setEditStep("main");
+    setPasswordStep("email");
+    setResetToken("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -158,14 +169,7 @@ export default function ProfileScreen() {
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <ScrollView contentContainerStyle={styles.scroll}>
           {/* Avatar + imię */}
-          <Pressable
-            style={styles.avatarSection}
-            onPress={() => {
-              setEditFirstName(user?.firstName ?? "");
-              setEditLastName(user?.lastName ?? "");
-              setEditVisible(true);
-            }}
-          >
+          <View style={styles.avatarSection}>
             <Pressable onPress={handlePickAvatar} style={styles.avatarWrapper}>
               {user?.avatar ? (
                 <Image
@@ -185,11 +189,20 @@ export default function ProfileScreen() {
                 <Ionicons name="camera-outline" size={14} color="#355A7A" />
               </View>
             </Pressable>
-            <Text style={styles.displayName}>
-              {user?.firstName ?? user?.email?.split("@")[0] ?? "—"}
-            </Text>
-            <Text style={styles.editHint}>Edytuj profil</Text>
-          </Pressable>
+
+            <TouchableOpacity
+              onPress={() => {
+                setEditFirstName(user?.firstName ?? "");
+                setEditLastName(user?.lastName ?? "");
+                setEditVisible(true);
+              }}
+            >
+              <Text style={styles.displayName}>
+                {user?.firstName ?? user?.email?.split("@")[0] ?? "—"}
+              </Text>
+              <Text style={styles.editHint}>Edytuj profil</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Statystyki */}
           <View style={styles.card}>
@@ -207,29 +220,59 @@ export default function ProfileScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Subskrypcja</Text>
             <View style={styles.subscriptionRow}>
-              <View style={styles.planBadge}>
-                <Text style={styles.planBadgeText}>
-                  {user?.isPremium ? "Premium" : "Darmowy"}
+              <View
+                style={[
+                  styles.planBadge,
+                  user?.isPremium && styles.planBadgePremium,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.planBadgeText,
+                    user?.isPremium && styles.planBadgeTextPremium,
+                  ]}
+                >
+                  {user?.isPremium ? "✦ Premium" : "Darmowy"}
                 </Text>
               </View>
               {!user?.isPremium && (
-                <Pressable style={styles.upgradeButton}>
-                  <Text style={styles.upgradeText}>Ulepsz do Premium</Text>
-                </Pressable>
+                <TouchableOpacity
+                  style={styles.upgradeButton}
+                  onPress={() =>
+                    Alert.alert(
+                      "Premium — wkrótce",
+                      "Płatne plany będą dostępne w kolejnej wersji aplikacji.",
+                      [{ text: "OK" }],
+                    )
+                  }
+                >
+                  <Text style={styles.upgradeText}>Ulepsz ↗</Text>
+                </TouchableOpacity>
               )}
             </View>
+
+            {/* Krótki opis planu */}
+            {user?.isPremium ? (
+              <Text style={styles.planDescription}>
+                Masz dostęp do wszystkich funkcji aplikacji. Dziękujemy za
+                wsparcie!
+              </Text>
+            ) : (
+              <Text style={styles.planDescription}>
+                Plan darmowy obejmuje podstawowe funkcje dziennika i asystenta.
+                Premium odblokuje zaawansowane analizy i nieograniczony dostęp
+                do AI.
+              </Text>
+            )}
           </View>
 
           {/* Ustawienia */}
           <NotificationsSettingsCard />
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Ustawienia</Text>
-            <Pressable onPress={() => setPasswordVisible(true)}>
-              <Row icon="lock-closed-outline" label="Zmień hasło" />
-            </Pressable>
-            <Pressable onPress={handleDeleteAccount}>
+            <TouchableOpacity onPress={handleDeleteAccount}>
               <Row icon="trash-outline" label="Usuń konto" destructive />
-            </Pressable>
+            </TouchableOpacity>
           </View>
 
           {/* Kontakt */}
@@ -285,56 +328,80 @@ export default function ProfileScreen() {
           </Pressable>
         </ScrollView>
       </SafeAreaView>
-
-      {/* Modal edycji profilu */}
       <Modal visible={editVisible} transparent animationType="fade">
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setEditVisible(false)}
-        >
+        <Pressable style={styles.modalOverlay} onPress={closeEditModal}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Edytuj profil</Text>
-            <Text style={styles.label}>Imię</Text>
-            <TextInput
-              value={editFirstName}
-              onChangeText={setEditFirstName}
-              placeholder="Jan"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              style={styles.input}
-            />
-            <Text style={styles.label}>Nazwisko</Text>
-            <TextInput
-              value={editLastName}
-              onChangeText={setEditLastName}
-              placeholder="Kowalski"
-              placeholderTextColor="rgba(111,122,134,0.55)"
-              style={styles.input}
-            />
-            <Pressable style={styles.saveButton} onPress={handleSaveProfile}>
-              <Text style={styles.saveButtonText}>Zapisz</Text>
-            </Pressable>
-            <Pressable onPress={() => setEditVisible(false)}>
-              <Text style={styles.cancelText}>Anuluj</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
-      {/* Modal zmiany hasła */}
-      <Modal visible={passwordVisible} transparent animationType="fade">
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => {
-            setPasswordVisible(false);
-            setPasswordStep("email");
-            setResetToken("");
-            setNewPassword("");
-            setConfirmPassword("");
-          }}
-        >
-          <Pressable style={styles.modalCard} onPress={() => {}}>
-            {passwordStep === "email" ? (
+            {editStep === "main" && (
               <>
+                <Text style={styles.modalTitle}>Edytuj profil</Text>
+
+                <Text style={styles.label}>Imię</Text>
+                <TextInput
+                  value={editFirstName}
+                  onChangeText={setEditFirstName}
+                  placeholder="Jan"
+                  placeholderTextColor="rgba(111,122,134,0.55)"
+                  style={styles.input}
+                />
+
+                <Text style={styles.label}>Nazwisko</Text>
+                <TextInput
+                  value={editLastName}
+                  onChangeText={setEditLastName}
+                  placeholder="Kowalski"
+                  placeholderTextColor="rgba(111,122,134,0.55)"
+                  style={styles.input}
+                />
+
+                <Pressable
+                  style={styles.saveButton}
+                  onPress={handleSaveProfile}
+                >
+                  <Text style={styles.saveButtonText}>Zapisz zmiany</Text>
+                </Pressable>
+
+                {/* Divider */}
+                <View style={styles.divider} />
+
+                {/* Zmień hasło jako wiersz */}
+                <Pressable
+                  style={styles.inlineRow}
+                  onPress={() => setEditStep("password")}
+                >
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={18}
+                    color="rgba(70,90,110,0.6)"
+                  />
+                  <Text style={styles.inlineRowLabel}>Zmień hasło</Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color="rgba(70,90,110,0.35)"
+                    style={{ marginLeft: "auto" }}
+                  />
+                </Pressable>
+
+                <Pressable onPress={closeEditModal}>
+                  <Text style={styles.cancelText}>Anuluj</Text>
+                </Pressable>
+              </>
+            )}
+
+            {editStep === "password" && passwordStep === "email" && (
+              <>
+                <Pressable
+                  onPress={() => setEditStep("main")}
+                  style={styles.backRow}
+                >
+                  <Ionicons
+                    name="chevron-back"
+                    size={18}
+                    color="rgba(70,90,110,0.6)"
+                  />
+                  <Text style={styles.backText}>Wróć</Text>
+                </Pressable>
+
                 <Text style={styles.modalTitle}>Zmień hasło</Text>
                 <Text style={styles.modalInfo}>
                   Wyślemy link do zmiany hasła na adres:{"\n"}
@@ -344,6 +411,7 @@ export default function ProfileScreen() {
                     {user?.email}
                   </Text>
                 </Text>
+
                 <Pressable
                   style={[styles.saveButton, { marginTop: 20 }]}
                   onPress={handleSendResetEmail}
@@ -353,16 +421,28 @@ export default function ProfileScreen() {
                     {isSending ? "Wysyłanie..." : "Wyślij email"}
                   </Text>
                 </Pressable>
-                <Pressable onPress={() => setPasswordVisible(false)}>
-                  <Text style={styles.cancelText}>Anuluj</Text>
-                </Pressable>
               </>
-            ) : (
+            )}
+
+            {editStep === "password" && passwordStep === "reset" && (
               <>
+                <Pressable
+                  onPress={() => setPasswordStep("email")}
+                  style={styles.backRow}
+                >
+                  <Ionicons
+                    name="chevron-back"
+                    size={18}
+                    color="rgba(70,90,110,0.6)"
+                  />
+                  <Text style={styles.backText}>Wróć</Text>
+                </Pressable>
+
                 <Text style={styles.modalTitle}>Ustaw nowe hasło</Text>
                 <Text style={styles.modalInfo}>
                   Wpisz token z emaila i nowe hasło.
                 </Text>
+
                 <Text style={styles.label}>Token z emaila</Text>
                 <TextInput
                   value={resetToken}
@@ -372,6 +452,7 @@ export default function ProfileScreen() {
                   style={styles.input}
                   autoCapitalize="none"
                 />
+
                 <Text style={styles.label}>Nowe hasło</Text>
                 <TextInput
                   value={newPassword}
@@ -381,6 +462,7 @@ export default function ProfileScreen() {
                   secureTextEntry
                   style={styles.input}
                 />
+
                 <Text style={styles.label}>Potwierdź nowe hasło</Text>
                 <TextInput
                   value={confirmPassword}
@@ -390,14 +472,12 @@ export default function ProfileScreen() {
                   secureTextEntry
                   style={styles.input}
                 />
+
                 <Pressable
                   style={styles.saveButton}
                   onPress={handleResetPassword}
                 >
                   <Text style={styles.saveButtonText}>Zmień hasło</Text>
-                </Pressable>
-                <Pressable onPress={() => setPasswordStep("email")}>
-                  <Text style={styles.cancelText}>Wróć</Text>
                 </Pressable>
               </>
             )}
@@ -445,7 +525,10 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   scroll: { padding: 16, gap: 14, paddingBottom: 110 },
 
-  avatarSection: { alignItems: "center", marginVertical: 16 },
+  avatarSection: {
+    alignItems: "center",
+    marginVertical: 16,
+  },
   avatarWrapper: { position: "relative", marginBottom: 10 },
   avatar: {
     width: 84,
@@ -530,6 +613,32 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     marginRight: 4,
   },
+  divider: {
+    height: 0.5,
+    backgroundColor: "rgba(170,190,210,0.4)",
+    marginVertical: 8,
+  },
+  inlineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 10,
+  },
+  inlineRowLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "rgba(70,80,90,0.75)",
+  },
+  backRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 12,
+  },
+  backText: {
+    fontSize: 14,
+    color: "rgba(70,90,110,0.6)",
+  },
 
   logoutButton: {
     flexDirection: "row",
@@ -586,5 +695,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 13,
     color: "rgba(111,122,134,0.6)",
+  },
+  planBadgePremium: {
+    backgroundColor: "rgba(255,215,100,0.3)",
+  },
+  planBadgeTextPremium: {
+    color: "#7A5A00",
+  },
+  planDescription: {
+    fontSize: 12,
+    color: "rgba(70,80,90,0.55)",
+    lineHeight: 18,
   },
 });

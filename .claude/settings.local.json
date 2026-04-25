@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(find src/shared/constants -type f)",
+      "Bash(find src *)",
+      "Bash(ipconfig)",
+      "Bash(cat appsettings.json)",
+      "Bash(cat appsettings.Development.json)"
+    ]
+  }
+}

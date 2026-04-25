@@ -14,7 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Konfiguracja Serilog - logowanie do konsoli i rotowanych plików dziennych
+// Konfiguracja Serilog - logowanie do konsoli i rotowanych plikï¿½w dziennych
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
@@ -53,10 +53,10 @@ builder.Services.AddHttpClient<IAiChatService, OpenAiChatService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IContextBuilder, ContextBuilder>();
 
-// Serwis w tle ds. wysy³ania powiadomieñ
+// Serwis w tle ds. wysyï¿½ania powiadomieï¿½
 builder.Services.AddHostedService<DailySummaryNotificationService>();
 
-// Serwis w tle ds. zarz¹dzania i archiwizacji danych bez blokowania API
+// Serwis w tle ds. zarzï¿½dzania i archiwizacji danych bez blokowania API
 builder.Services.AddHostedService<DataArchivingService>();
 
 //Streak system
@@ -85,7 +85,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// CORS - dostêp dla wszystkich Ÿróde³ (skonfigurowane dla aplikacji mobilnej)
+// CORS - dostï¿½p dla wszystkich ï¿½rï¿½deï¿½ (skonfigurowane dla aplikacji mobilnej)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -96,7 +96,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Swagger z autoryzacj¹ JWT Bearer
+// Swagger z autoryzacjï¿½ JWT Bearer
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -134,7 +134,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Inicjalizacja bazy danych - sprawdzenie po³¹czenia, utworzenie roli/u¿ytkownika admin jeœli potrzeba
+// Inicjalizacja bazy danych - sprawdzenie poï¿½ï¿½czenia, utworzenie roli/uï¿½ytkownika admin jeï¿½li potrzeba
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -165,7 +165,7 @@ try
                 logger.LogInformation("? Admin role created");
             }
             
-            // SprawdŸ czy istnieje admin user
+            // Sprawdï¿½ czy istnieje admin user
             var adminUser = db.Users.FirstOrDefault(u => u.Email == "admin@local");
             if (adminUser == null)
             {
@@ -220,17 +220,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-app.UseStaticFiles(); // new - obs³uga statycznych plików (np. awatary)
+app.UseStaticFiles(); // new - obsï¿½uga statycznych plikï¿½w (np. awatary)
 app.UseAntiforgery(); // wymagane dla Blazora w .NET 8
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Mapowanie komponentów Blazor dla panelu Administratora
+// Mapowanie komponentï¿½w Blazor dla panelu Administratora
 app.MapRazorComponents<MentalOS.Components.App>()
     .AddInteractiveServerRenderMode();
 

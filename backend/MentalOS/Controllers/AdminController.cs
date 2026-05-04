@@ -1,8 +1,10 @@
 ﻿using MentalOS.Data;
+using MentalOS.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using MentalOS.DTOs;
 
 namespace MentalOS.Controllers
 {
@@ -64,14 +66,18 @@ namespace MentalOS.Controllers
             }
 
             // Soft delete - ustawia timestamp deleted_at
-            user.DeletedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            //user.DeletedAt = DateTime.UtcNow;
+            //await _context.SaveChangesAsync();
+
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync(); 
 
             return NoContent();
         }
 
         [HttpGet("logs")]
-        public IActionResult GetLogs()
+        public IActionResult GetLogs([FromQuery] int lines = 100)
         {
             var logDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
 
@@ -91,9 +97,61 @@ namespace MentalOS.Controllers
             }
 
             var latestLog = logFiles.First();
-            var logContent = System.IO.File.ReadAllText(latestLog);
 
-            return Ok(new { fileName = Path.GetFileName(latestLog), content = logContent });
+            try
+            {
+                using var fileStream = new FileStream(latestLog, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var streamReader = new StreamReader(fileStream);
+
+                var allLines = new List<string>();
+                string? line;
+
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    allLines.Add(line);
+                }
+
+                var lastLines = allLines.TakeLast(Math.Min(lines, allLines.Count)).ToArray();
+                var logContent = string.Join(Environment.NewLine, lastLines);
+
+                return Ok(new
+                {
+                    fileName = Path.GetFileName(latestLog),
+                    totalLines = allLines.Count,
+                    displayedLines = lastLines.Length,
+                    content = logContent
+                });
+            }
+            catch (IOException ex)
+            {
+                return StatusCode(500, new { message = "Error reading log file", error = ex.Message });
+            }
+        }
+
+
+        [HttpPost("add-item")]
+        public async Task<IActionResult> AddItem([FromBody] CreateShopItemDto dto)
+        {
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return BadRequest("Name is required");
+
+            if (dto.Price < 0)
+                return BadRequest("Price must be >= 0");
+
+            var item = new ShopItem
+            {
+                Id = Guid.NewGuid(),
+                Name = dto.Name,
+                Type = dto.Type,
+                Price = dto.Price
+            };
+
+            _context.Set<ShopItem>().Add(item);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(item);
         }
     }
 }

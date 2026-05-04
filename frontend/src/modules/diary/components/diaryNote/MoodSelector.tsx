@@ -1,50 +1,55 @@
-import { Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
+type Props = {
+  selectedEmoji: string | null;
+  onSelect: (emoji: string) => void;
+};
 
-export default function MoodSelector() {
-  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
-
+// To teraz wysyła emotkę w górę
+export default function MoodSelector({ selectedEmoji, onSelect }: Props) {
   const emojis = ["😊", "🙂", "😐", "😔", "😭", "😴", "😍"];
 
   return (
-    <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.emojiRow}
-      >
-        {emojis.map((emoji) => (
-          <Pressable
-            key={emoji}
-            onPress={() => setSelectedEmoji(emoji)}
-            style={[
-              styles.emojiButton,
-              selectedEmoji === emoji && styles.emojiSelected,
-            ]}
-          >
-            <Text style={styles.emoji}>{emoji}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-    </>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.emojiRow}
+    >
+      {emojis.map((emoji) => (
+        <Pressable
+          key={emoji}
+          onPress={() => onSelect(emoji)}
+          style={[
+            styles.emojiButton,
+            selectedEmoji === emoji && styles.emojiSelected,
+          ]}
+        >
+          <Text style={styles.emoji}>{emoji}</Text>
+        </Pressable>
+      ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   emojiRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+
     marginBottom: 10,
+    paddingLeft: 17,
   },
 
   emojiButton: {
-    padding: 5,
-    borderRadius: 10,
-    marginRight: 16,
+    padding: 8,
+    borderRadius: 14,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: "transparent",
   },
 
   emojiSelected: {
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: "rgba(255,255,255,0.75)",
+    borderColor: "rgba(255,255,255,0.9)",
   },
 
   emoji: {

@@ -1,26 +1,27 @@
-import {
-  StyleSheet,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  View,
-  Text,
-  Pressable,
-} from "react-native";
-import { useState } from "react";
+import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
+import { diaryTextTransfer } from "@/modules/diary/services/diaryTextTransfer";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import EditorToolbar from "../components/diaryEntry/EditorToolbar";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useRef, useEffect, useState, useCallback } from "react";
+import {
+  InputAccessoryView,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
+
 import DiaryEntryHeader from "../components/diaryEntry/DiaryEntryHeader.tsx";
 import DiaryTextEditor from "../components/diaryEntry/DiaryTextEditor";
+import EditorToolbar from "../components/diaryEntry/EditorToolbar";
 
 export default function DiaryEntryScreen() {
-  const router = useRouter();
+  const { addEntry } = useDiaryEntries();
   const params = useLocalSearchParams();
-
-  const handleSave = () => {
-    Keyboard.dismiss(); // закрываем клавиатуру
-  };
+  const entryId = params.id as string | undefined;
+  const isNew = !entryId && !params.text;
 
   const [text, setText] = useState((params.text as string) || "");
   const [textColor, setTextColor] = useState("#000");
@@ -29,18 +30,55 @@ export default function DiaryEntryScreen() {
   const [isUnderline, setIsUnderline] = useState(false);
   const inputAccessoryViewID = "toolbar";
 
+  // New notes start in edit mode; existing notes start in read mode
+  const [isEditing, setIsEditing] = useState(isNew);
+
+  const scrollRef = useRef<ScrollView>(null);
+  const textRef = useRef(text);
+  useEffect(() => { textRef.current = text; }, [text]);
+
+  // Save on any exit: swipe right or ‹ Notatka button
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        diaryTextTransfer.set(textRef.current, entryId);
+      };
+    }, [entryId]),
+  );
+
+  // When keyboard hides (swipe-down), leave edit mode
+  useEffect(() => {
+    const event = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const sub = Keyboard.addListener(event, () => setIsEditing(false));
+    return () => sub.remove();
+  }, []);
+
+  const handleEdit = () => setIsEditing(true);
+  const handleSave = () => Keyboard.dismiss();
+
   return (
     <LayoutContainer>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+      >
+        {/* Header is OUTSIDE ScrollView — always visible */}
+        <View style={styles.headerWrap}>
+          <DiaryEntryHeader
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onSave={handleSave}
+          />
+        </View>
+
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         >
-          {/* HEADER */}
-          <DiaryEntryHeader onSave={handleSave} />
-
-          {/* TEXT INPUT */}
           <DiaryTextEditor
             text={text}
             setText={setText}
@@ -49,24 +87,33 @@ export default function DiaryEntryScreen() {
             isItalic={isItalic}
             isUnderline={isUnderline}
             accessoryID={inputAccessoryViewID}
+            isNew={isNew}
+            isEditing={isEditing}
           />
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-          {/* TOOLBAR */}
+      {Platform.OS === "ios" && (
+        <InputAccessoryView nativeID={inputAccessoryViewID}>
           <EditorToolbar
             toggleBold={() => setIsBold(!isBold)}
             toggleItalic={() => setIsItalic(!isItalic)}
             toggleUnderline={() => setIsUnderline(!isUnderline)}
             setColor={setTextColor}
           />
-        </ScrollView>
-      </TouchableWithoutFeedback>
+        </InputAccessoryView>
+      )}
     </LayoutContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  headerWrap: {
+    paddingHorizontal: 20,
+    paddingBottom: 4,
+  },
   content: {
     paddingHorizontal: 20,
-    paddingBottom: 80,
+    paddingBottom: 32,
   },
 });

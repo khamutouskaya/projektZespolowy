@@ -1,7 +1,9 @@
 using MentalOS.Data;
 using MentalOS.Domain;
 using MentalOS.Middleware;
+using MentalOS.Options;
 using MentalOS.Services;
+using MentalOS.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Konfiguracja Serilog - logowanie do konsoli i rotowanych plików dziennych
+// Konfiguracja Serilog - logowanie do konsoli i rotowanych plikï¿½w dziennych
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
@@ -22,15 +24,44 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
+// Blazor SSR and Interactive Server Components for Admin Panel
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 // Baza danych PostgreSQL z EF Core
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Serwisy autoryzacji i JWT
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IOAuthService, OAuthService>();
+builder.Services.AddScoped<IPasswordPolicy, DefaultPasswordPolicy>();
+builder.Services.AddScoped<IEmailService, GmailSmtpEmailService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddHttpClient();
+
+//Serwisy OpnAI i VoiceToText
+builder.Services.Configure<OpenAiOptions>(
+    builder.Configuration.GetSection("OpenAI"));
+
+builder.Services.AddHttpClient<ISpeechService, OpenAiSpeechService>();
+
+//Serwisy AI chat assystenta
+builder.Services.AddHttpClient<IAiChatService, OpenAiChatService>();
+
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IContextBuilder, ContextBuilder>();
+
+// Serwis w tle ds. wysyï¿½ania powiadomieï¿½
+builder.Services.AddHostedService<DailySummaryNotificationService>();
+
+// Serwis w tle ds. zarzï¿½dzania i archiwizacji danych bez blokowania API
+builder.Services.AddHostedService<DataArchivingService>();
+
+//Streak system
+builder.Services.AddScoped<IStreakService, StreakService>();
+builder.Services.AddScoped<IShopService, ShopService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]!;
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
@@ -54,7 +85,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// CORS - dostêp dla wszystkich Ÿróde³ (skonfigurowane dla aplikacji mobilnej)
+// CORS - dostï¿½p dla wszystkich ï¿½rï¿½deï¿½ (skonfigurowane dla aplikacji mobilnej)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -65,7 +96,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Swagger z autoryzacj¹ JWT Bearer
+// Swagger z autoryzacjï¿½ JWT Bearer
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -103,7 +134,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Inicjalizacja bazy danych - sprawdzenie po³¹czenia, utworzenie roli/u¿ytkownika admin jeœli potrzeba
+// Inicjalizacja bazy danych - sprawdzenie poï¿½ï¿½czenia, utworzenie roli/uï¿½ytkownika admin jeï¿½li potrzeba
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -134,7 +165,7 @@ try
                 logger.LogInformation("? Admin role created");
             }
             
-            // SprawdŸ czy istnieje admin user
+            // Sprawdï¿½ czy istnieje admin user
             var adminUser = db.Users.FirstOrDefault(u => u.Email == "admin@local");
             if (adminUser == null)
             {
@@ -189,11 +220,21 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-app.UseHttpsRedirection();
+app.UseStaticFiles(); // new - obsï¿½uga statycznych plikï¿½w (np. awatary)
+app.UseAntiforgery(); // wymagane dla Blazora w .NET 8
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Mapowanie komponentï¿½w Blazor dla panelu Administratora
+app.MapRazorComponents<MentalOS.Components.App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

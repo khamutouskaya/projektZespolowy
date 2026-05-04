@@ -1,5 +1,6 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/shared/theme/colors";
 
 type Props = {
   visible: boolean;
@@ -86,7 +87,7 @@ function OptionRow({
       </View>
 
       {withChevron ? (
-        <Ionicons name="chevron-forward" size={24} color="rgba(111,122,134,0.82)" />
+        <Ionicons name="chevron-forward" size={24} color={colors.text.secondary} />
       ) : (
         <Text style={styles.sideLabel}>{sideLabel}</Text>
       )}
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 6,
     borderRadius: 999,
-    backgroundColor: "rgba(111,122,134,0.55)",
+    backgroundColor: colors.text.secondary,
     marginTop: 10,
     marginBottom: 8,
   },
@@ -152,6 +153,6 @@ const styles = StyleSheet.create({
   },
   sideLabel: {
     fontSize: 16,
-    color: "rgba(111,122,134,0.82)",
+    color: colors.text.secondary,
   },
 });

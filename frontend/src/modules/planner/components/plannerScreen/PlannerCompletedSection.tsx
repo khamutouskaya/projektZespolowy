@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
 import PlannerTaskCard from "./PlannerTaskCard";
 import { PlannerTask } from "../../planner.types";
 
@@ -30,7 +32,7 @@ export default function PlannerCompletedSection({
         <Ionicons
           name={isExpanded ? "chevron-down" : "chevron-forward"}
           size={20}
-          color="white"
+          color={colors.text.primary}
         />
         <Text style={styles.headerText}>Zakończone</Text>
       </Pressable>
@@ -60,18 +62,17 @@ const styles = StyleSheet.create({
   },
   header: {
     alignSelf: "flex-start",
-    minHeight: 44,
+    minHeight: 40,
     paddingHorizontal: 16,
     borderRadius: 14,
-    backgroundColor: "rgba(70,90,110,0.72)",
+    backgroundColor: colors.background.glass,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
   headerText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "white",
+    ...typography.title,
+    color: colors.text.primary,
   },
   list: {
     marginTop: 12,

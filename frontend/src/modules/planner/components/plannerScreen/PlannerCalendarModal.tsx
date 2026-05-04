@@ -1,6 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/shared/theme/colors";
 
 type Props = {
   visible: boolean;
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 6,
     borderRadius: 999,
-    backgroundColor: "rgba(111,122,134,0.55)",
+    backgroundColor: colors.text.secondary,
     marginTop: 10,
     marginBottom: 8,
   },

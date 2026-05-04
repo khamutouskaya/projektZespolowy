@@ -1,0 +1,278 @@
+﻿using MentalOS.Data;
+using MentalOS.Domain;
+using MentalOS.DTOs.JournalDTOs;
+using MentalOS.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace MentalOS.Controllers
+{
+    /// <summary>
+    /// Endpointy dla mechanizmów dziennika - pobieranie, dodawanie, edycja i usuwanie wpisów z dziennika
+    /// </summary>
+    [ApiController]
+    [Route("api/journal")]
+    [Authorize]
+    public class JournalController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+        private readonly IAiChatService _aiChatService;
+
+        public JournalController(AppDbContext context, IAiChatService aiChatService)
+        {
+            _context = context;
+            _aiChatService = aiChatService;
+        }
+
+        private Guid? GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim != null && Guid.TryParse(userIdClaim, out var userId))
+            {
+                return userId;
+            }
+            return null;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEntries()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entries = await _context.JournalEntries
+                .Where(j => j.UserId == userId)
+                .OrderByDescending(j => j.CreatedAt)
+                .Select(j => new JournalEntryDto
+                {
+                    Id = j.Id,
+                    Title = j.Title,
+                    Content = j.Content,
+                    MoodScore = j.MoodScore,
+                    Emotions = j.Emotions,
+                    IsSummary = j.IsSummary,
+                    EntryDate = j.EntryDate,
+                    CreatedAt = j.CreatedAt,
+                    UpdatedAt = j.UpdatedAt
+                })
+                .ToListAsync();
+
+            return Ok(entries);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEntry(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = await _context.JournalEntries
+                .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
+
+            if (entry == null) return NotFound(new { message = "Journal entry not found" });
+
+            return Ok(new JournalEntryDto
+            {
+                Id = entry.Id,
+                Title = entry.Title,
+                Content = entry.Content,
+                MoodScore = entry.MoodScore,
+                Emotions = entry.Emotions,
+                IsSummary = entry.IsSummary,
+                EntryDate = entry.EntryDate,
+                CreatedAt = entry.CreatedAt,
+                UpdatedAt = entry.UpdatedAt
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateEntry([FromBody] CreateJournalEntryDto dto)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = new JournalEntry
+            {
+                UserId = userId.Value,
+                Title = dto.Title,
+                Content = dto.Content,
+                MoodScore = dto.MoodScore,
+                Emotions = dto.Emotions,
+                IsSummary = dto.IsSummary,
+                EntryDate = dto.EntryDate ?? DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.JournalEntries.Add(entry);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new JournalEntryDto
+            {
+                Id = entry.Id,
+                Title = entry.Title,
+                Content = entry.Content,
+                MoodScore = entry.MoodScore,
+                Emotions = entry.Emotions,
+                IsSummary = entry.IsSummary,
+                EntryDate = entry.EntryDate,
+                CreatedAt = entry.CreatedAt,
+                UpdatedAt = entry.UpdatedAt
+            });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateEntry(Guid id, [FromBody] UpdateJournalEntryDto dto)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = await _context.JournalEntries
+                .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
+
+            if (entry == null) return NotFound(new { message = "Journal entry not found" });
+
+            entry.Title = dto.Title;
+            entry.Content = dto.Content;
+            entry.MoodScore = dto.MoodScore;
+            entry.Emotions = dto.Emotions;
+            if (dto.EntryDate.HasValue) entry.EntryDate = dto.EntryDate.Value;
+            entry.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new JournalEntryDto
+            {
+                Id = entry.Id,
+                Title = entry.Title,
+                Content = entry.Content,
+                MoodScore = entry.MoodScore,
+                Emotions = entry.Emotions,
+                IsSummary = entry.IsSummary,
+                EntryDate = entry.EntryDate,
+                CreatedAt = entry.CreatedAt,
+                UpdatedAt = entry.UpdatedAt
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEntry(Guid id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entry = await _context.JournalEntries
+                .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
+
+            if (entry == null) return NotFound(new { message = "Journal entry not found" });
+
+            _context.JournalEntries.Remove(entry);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Journal entry deleted successfully" });
+        }
+
+        [HttpGet("summary/{date}")]
+        public async Task<IActionResult> GetDailySummary(DateTime date)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var startOfDay = date.Date.ToUniversalTime();
+            var endOfDay = startOfDay.AddDays(1);
+
+            var dailyEntries = await _context.JournalEntries
+                .Where(j => j.UserId == userId && j.EntryDate >= startOfDay && j.EntryDate < endOfDay)
+                .OrderBy(j => j.EntryDate)
+                .ToListAsync();
+
+            if (!dailyEntries.Any())
+            {
+                return Ok(new { message = "No entries for this date.", entryCount = 0 });
+            }
+
+            var avgMood = dailyEntries.Where(e => e.MoodScore.HasValue).Average(e => e.MoodScore);
+
+            return Ok(new
+            {
+                date = startOfDay.ToString("yyyy-MM-dd"),
+                entryCount = dailyEntries.Count,
+                averageMoodScore = avgMood,
+                entries = dailyEntries.Select(j => new JournalEntryDto
+                {
+                    Id = j.Id,
+                    Title = j.Title,
+                    Content = j.Content,
+                    MoodScore = j.MoodScore,
+                    Emotions = j.Emotions,
+                    IsSummary = j.IsSummary,
+                    EntryDate = j.EntryDate,
+                    CreatedAt = j.CreatedAt,
+                    UpdatedAt = j.UpdatedAt
+                })
+            });
+        }
+
+        [HttpPost("daily-summary/generate")]
+        public async Task<IActionResult> GenerateDailySummary([FromBody] GenerateSummaryRequestDto request)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var systemPrompt = "Jesteś asystentem AI w aplikacji dbania o zdrowie psychiczne. Twoim zadaniem jest na podstawie dostarczonych krótkich odpowiedzi użytkownika na pytania z testu dziennego wygenerować spersonalizowany opis dnia (podsumowanie). Podsumowanie powinno zawierać: interpretację wydarzeń, analizę samopoczucia, wykryte emocje dominujące, pochwałę i wsparcie oraz wskazówki dotyczące poprawy nastroju. Zwróć tekst jako czysty opis dnia z wydzielonymi akapitami.";
+
+            var messages = new List<object>
+            {
+                new { role = "system", content = systemPrompt },
+                new { role = "user", content = $"Moje odpowiedzi z dzisiaj:\n{request.DailyAnswers}" }
+            };
+
+            var aiResponse = await _aiChatService.GetResponseAsync(messages);
+
+            if (string.IsNullOrEmpty(aiResponse))
+            {
+                return StatusCode(500, new { message = "Failed to generate daily summary." });
+            }
+
+            var entryDate = request.Date ?? DateTime.UtcNow;
+
+            var journalEntry = new JournalEntry
+            {
+                UserId = userId.Value,
+                Title = "Podsumowanie Dnia",
+                Content = aiResponse,
+                IsSummary = true,
+                EntryDate = entryDate,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.JournalEntries.Add(journalEntry);
+
+            // Streak & Coins logic
+            var user = await _context.Users.FindAsync(userId.Value);
+            if (user != null)
+            {
+                // Simple logic: increase streak and coins if they did a summary
+                user.StreakActive = true;
+                user.StreakCount += 1;
+                user.CoinsBalance += user.StreakCount * 5; // e.g. 5x streak
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new JournalEntryDto
+            {
+                Id = journalEntry.Id,
+                Title = journalEntry.Title,
+                Content = journalEntry.Content,
+                IsSummary = journalEntry.IsSummary,
+                EntryDate = journalEntry.EntryDate,
+                CreatedAt = journalEntry.CreatedAt,
+                UpdatedAt = journalEntry.UpdatedAt
+            });
+        }
+    }
+}

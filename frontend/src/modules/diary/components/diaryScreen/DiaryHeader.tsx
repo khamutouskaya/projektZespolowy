@@ -13,10 +13,8 @@ export default function DiaryHeader() {
 const styles = StyleSheet.create({
   title: {
     ...typography.heading1,
-    color: colors.text.primary, // stonowany kolor tekstu
+    color: colors.text.primary,
     textAlign: "center",
     paddingHorizontal: 25,
-    //textTransform: "uppercase", // wielkie litery
-    //letterSpacing: 0.5, // odstęp między literami
   },
 });

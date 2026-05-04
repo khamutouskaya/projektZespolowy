@@ -1,0 +1,49 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MentalOS.Domain
+{
+    /// <summary>
+    /// Encja wpisu w dzienniku.
+    /// </summary>
+    [Table("journal_entries")]
+    public class JournalEntry
+    {
+        [Column("id")]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Column("user_id")]
+        public Guid UserId { get; set; }
+        
+        public User? User { get; set; }
+
+        [Column("title")]
+        public string? Title { get; set; }
+
+        [Column("content")]
+        public string Content { get; set; } = string.Empty;
+
+        [Column("mood_score")]
+        public int? MoodScore { get; set; }
+
+        [Column("emotions")]
+        public string? Emotions { get; set; }
+
+        [Column("is_summary")]
+        public bool IsSummary { get; set; } = false;
+
+        [Column("entry_date")]
+        public DateTime EntryDate { get; set; } = DateTime.UtcNow;
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("is_deleted")]
+        public bool IsDeleted { get; set; } = false;
+
+        [Column("archived_at")]
+        public DateTime? ArchivedAt { get; set; }
+    }
+}

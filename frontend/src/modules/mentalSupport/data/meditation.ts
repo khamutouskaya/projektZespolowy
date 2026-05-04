@@ -4,7 +4,7 @@ export const sections = [
     data: [
       {
         id: "2",
-        title: "Przenieś się do innego świata",
+        title: "Podróż do świata snu",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774449689/Przenie%C5%9B_si%C4%99_do_INNEGO_%C5%9AWIATA_Medytacja_na_SEN_-_Chod%C5%BA_na_s%C5%82%C3%B3wko_720p_h264_def81g.mp4",
         thumbnail:
@@ -12,7 +12,7 @@ export const sections = [
       },
       {
         id: "3",
-        title: "Wyłącz myśli i zaśnij",
+        title: "Uspokój myśli i zaśnij",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774464144/Wieczorna_Medytacja_na_Sen_loqg0y.mp4",
         thumbnail:
@@ -20,7 +20,7 @@ export const sections = [
       },
       {
         id: "4",
-        title: "Głęboki sen od pierwszej minuty",
+        title: "Głęboki sen od pierwszych chwil",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774464182/Medytacja_na_g%C5%82%C4%99boki_relaks_lub_sen_oddech_przeponowy_12_min_prowadzenia_bez_wybudzania_jnxipc.mp4",
         thumbnail:
@@ -28,7 +28,7 @@ export const sections = [
       },
       {
         id: "1",
-        title: "Relaksacja z Intencją Miłości i Spokoju",
+        title: "Miłość i spokój przed snem",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774437381/Metoda_oddechowa_Wima_Hofa_po_polsku_Poziom_I_-_Chod%C5%BA_na_s%C5%82%C3%B3wko_1080p_h264_bkozdq.mp4",
         thumbnail:
@@ -36,7 +36,7 @@ export const sections = [
       },
       {
         id: "5",
-        title: "Wyłącz głowę przed snem",
+        title: "Wyłącz głowę i odpocznij",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774466826/Oddech_na_sen_rytm_4_8_10_min_SOMA_Breath_1_llgwjp.mp4",
         thumbnail:
@@ -49,7 +49,7 @@ export const sections = [
     data: [
       {
         id: "6",
-        title: "Medytacja na lęk i stres",
+        title: "Ukojenie lęku i stresu",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774466840/20-minutowa_medytacja_prowadzona_na_l%C4%99k_i_stres_ivbxsu.mp4",
         thumbnail:
@@ -57,7 +57,7 @@ export const sections = [
       },
       {
         id: "7",
-        title: "Uspokój stres",
+        title: "Spokój zamiast napięcia",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774467201/Medytacja_na_stres_l%C4%99k_i_niepok%C3%B3j_15_minut_g%C5%82%C4%99bokiego_wyciszenia_dbajosiebie_afirmacje_tdrvqh.mp4",
         thumbnail:
@@ -65,7 +65,7 @@ export const sections = [
       },
       {
         id: "8",
-        title: "Obniż poziom kortyzolu",
+        title: "Uspokój ciało i umysł",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774467403/Obni%C5%BC_poziom_KORTYZOLU_Medytacja_na_stres_i_l%C4%99k_ruaq2w.mp4",
         thumbnail:
@@ -81,7 +81,7 @@ export const sections = [
       },
       {
         id: "10",
-        title: "Odpuść wszystko ",
+        title: "Odpuść i rozluźnij się",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774467752/Relaksacja_Jacobsona_-_Na_Stres_Niepok%C3%B3j_i_L%C4%99k_pgdtfq.mp4",
         thumbnail:
@@ -89,13 +89,12 @@ export const sections = [
       },
     ],
   },
-
   {
     title: "Relaks",
     data: [
       {
         id: "11",
-        title: "Relaksacja z Intencją Miłości i Spokoju",
+        title: "Miłość i wewnętrzny spokój",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468120/Relaksacja_na_Sen_i_na_Stres_1_qcgzti.mp4",
         thumbnail:
@@ -103,7 +102,7 @@ export const sections = [
       },
       {
         id: "12",
-        title: "Rozpuszaj stres i napięcie",
+        title: "Uwolnij napięcie i stres",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468133/Relaksacja_rozpuszczaj%C4%85ca_stres_i_napi%C4%99cie_Medytacja_na_sen_i_relaks_x5ukgr.mp4",
         thumbnail:
@@ -111,7 +110,7 @@ export const sections = [
       },
       {
         id: "13",
-        title: "Medytacja oazy spokoju",
+        title: "Oaza spokoju",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468294/Medytacja_oazy_spokoju_ql9a7j.mp4",
         thumbnail:
@@ -119,7 +118,7 @@ export const sections = [
       },
       {
         id: "14",
-        title: "Medytacja na wewnętrzną siłę",
+        title: "Wewnętrzna siła i energia",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468315/Medytacja_na_DOBRY_DZIE%C5%83_i_WEWN%C4%98TRZN%C4%84_SI%C5%81%C4%98_musbio.mp4",
         thumbnail:
@@ -127,7 +126,7 @@ export const sections = [
       },
       {
         id: "15",
-        title: "Wyłącz głowę przed snem",
+        title: "Cisza i wyciszenie umysłu",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774449689/Przenie%C5%9B_si%C4%99_do_INNEGO_%C5%9AWIATA_Medytacja_na_SEN_-_Chod%C5%BA_na_s%C5%82%C3%B3wko_720p_h264_def81g.mp4",
         thumbnail:
@@ -135,13 +134,12 @@ export const sections = [
       },
     ],
   },
-
   {
     title: "Różne",
     data: [
       {
         id: "17",
-        title: "Medytacja Uzdrawiająca",
+        title: "Medytacja uzdrawiająca",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468719/Medytacja_Uzdrawiaj%C4%85ca_-_Medytacja_Prowadzona_dla_Wszystkich_ahzkls.mp4",
         thumbnail:
@@ -149,7 +147,7 @@ export const sections = [
       },
       {
         id: "18",
-        title: "Medytacja na Nowe Początki ",
+        title: "Nowy początek i spokój",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468688/Medytacja_na_Nowe_Pocz%C4%85tki_i_Wewn%C4%99trzny_Spok%C3%B3j_plmhjy.mp4",
         thumbnail:
@@ -157,7 +155,7 @@ export const sections = [
       },
       {
         id: "19",
-        title: "Medytacja na chaos w głowie",
+        title: "Ucisz natłok myśli",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774464182/Medytacja_na_g%C5%82%C4%99boki_relaks_lub_sen_oddech_przeponowy_12_min_prowadzenia_bez_wybudzania_jnxipc.mp4",
         thumbnail:
@@ -165,7 +163,7 @@ export const sections = [
       },
       {
         id: "16",
-        title: "Krótka medytacja na wewnętrzny spokój",
+        title: "Krótka chwila spokoju",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468700/Kr%C3%B3tka_medytacja_na_WEWN%C4%98TRZNY_SPOK%C3%93J_ffrqls.mp4",
         thumbnail:
@@ -173,7 +171,7 @@ export const sections = [
       },
       {
         id: "20",
-        title: "Medytacja dla Wysoko Wrażliwych ",
+        title: "Wrażliwość i regeneracja",
         videoUrl:
           "https://res.cloudinary.com/dxsukcxzj/video/upload/v1774468797/Medytacja_dla_Wysoko_Wra%C5%BCliwych_Regeneracja_i_Granice_10_min_znj8h5.mp4",
         thumbnail:

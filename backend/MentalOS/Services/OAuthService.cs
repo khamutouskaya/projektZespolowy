@@ -1,6 +1,7 @@
 using Google.Apis.Auth;
 using MentalOS.Data;
 using MentalOS.Domain;
+using MentalOS.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -42,21 +43,49 @@ namespace MentalOS.Services
                     return null;
                 }
 
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
+                var provider = "google";
+                var providerUserId = payload.Subject;
+
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Provider == provider && u.ProviderUserId == providerUserId);
+
+                if (user == null)
+                {
+                    var existingByEmail = await _context.Users
+                        .FirstOrDefaultAsync(u => u.Email == payload.Email);
+
+                    if (existingByEmail != null)
+                    {
+                        if (existingByEmail.Provider != provider)
+                        {
+                            _logger.LogWarning(
+                                "Google login conflict. Email {Email} already belongs to provider {ExistingProvider}",
+                                payload.Email,
+                                existingByEmail.Provider
+                            );
+
+                            return null;
+                        }
+
+                        user = existingByEmail;
+                    }
+                }
 
                 if (user == null)
                 {
                     user = new User
                     {
                         Email = payload.Email,
+                        Provider = provider,
+                        ProviderUserId = providerUserId,
+                        PasswordHash = null,
                         CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow,
-                        PasswordHash = ""
+                        UpdatedAt = DateTime.UtcNow
                     };
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    
+
                     var userRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "user");
                     if (userRole != null)
                     {
@@ -67,17 +96,21 @@ namespace MentalOS.Services
                             CreatedAt = DateTime.UtcNow,
                             UpdatedAt = DateTime.UtcNow
                         });
+
                         await _context.SaveChangesAsync();
                     }
 
-                    _logger.LogInformation("New user registered via Google: {Email}", payload.Email);
+                    _logger.LogInformation("New user registered with Google: {Email}", payload.Email);
                 }
                 else
                 {
                     user.UpdatedAt = DateTime.UtcNow;
+                    user.Provider = provider;
+                    user.ProviderUserId = providerUserId;
+
                     await _context.SaveChangesAsync();
-                    
-                    _logger.LogInformation("User {Email} logged in via Google", payload.Email);
+
+                    _logger.LogInformation("User {Email} logged in with Google", payload.Email);
                 }
 
                 return user;
@@ -116,22 +149,49 @@ namespace MentalOS.Services
                     return null;
                 }
 
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userInfo.Email);
+                var provider = "facebook";
+                var providerUserId = userInfo.Id;
+
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Provider == provider && u.ProviderUserId == providerUserId);
+
+                if (user == null)
+                {
+                    var existingByEmail = await _context.Users
+                        .FirstOrDefaultAsync(u => u.Email == userInfo.Email);
+
+                    if (existingByEmail != null)
+                    {
+                        if (existingByEmail.Provider != provider)
+                        {
+                            _logger.LogWarning(
+                                "Facebook login conflict. Email {Email} already belongs to provider {ExistingProvider}",
+                                userInfo.Email,
+                                existingByEmail.Provider
+                            );
+
+                            return null;
+                        }
+
+                        user = existingByEmail;
+                    }
+                }
 
                 if (user == null)
                 {
                     user = new User
                     {
                         Email = userInfo.Email,
+                        Provider = provider,
+                        ProviderUserId = providerUserId,
+                        PasswordHash = null,
                         CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow,
-                        PasswordHash = ""
+                        UpdatedAt = DateTime.UtcNow
                     };
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
-                    
-                    // Dodaj domyœln¹ rolê "user"
+
                     var userRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "user");
                     if (userRole != null)
                     {
@@ -142,6 +202,7 @@ namespace MentalOS.Services
                             CreatedAt = DateTime.UtcNow,
                             UpdatedAt = DateTime.UtcNow
                         });
+
                         await _context.SaveChangesAsync();
                     }
 
@@ -150,8 +211,11 @@ namespace MentalOS.Services
                 else
                 {
                     user.UpdatedAt = DateTime.UtcNow;
+                    user.Provider = provider;
+                    user.ProviderUserId = providerUserId;
+
                     await _context.SaveChangesAsync();
-                    
+
                     _logger.LogInformation("User {Email} logged in via Facebook", userInfo.Email);
                 }
 

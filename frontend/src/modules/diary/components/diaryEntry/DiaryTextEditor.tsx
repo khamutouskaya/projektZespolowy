@@ -1,4 +1,6 @@
-import { TextInput, StyleSheet } from "react-native";
+import { useRef, useEffect } from "react";
+import { TextInput, StyleSheet, View } from "react-native";
+import { colors } from "@/shared/theme/colors";
 
 type Props = {
   text: string;
@@ -8,55 +10,61 @@ type Props = {
   isItalic: boolean;
   isUnderline: boolean;
   accessoryID: string;
+  isNew?: boolean;
+  isEditing?: boolean;
 };
 
 export default function DiaryTextEditor({
   text,
   setText,
   textColor,
-  isBold,
-  isItalic,
-  isUnderline,
   accessoryID,
+  isEditing = false,
 }: Props) {
+  const inputRef = useRef<TextInput>(null);
+  const selectionRef = useRef({ start: 0, end: 0 });
+
+  useEffect(() => {
+    if (!isEditing) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
+  }, [isEditing]);
+
+  const handleKeyPress = ({ nativeEvent }: { nativeEvent: { key: string } }) => {
+    if (nativeEvent.key === "Tab") {
+      const { start, end } = selectionRef.current;
+      setText(text.slice(0, start) + "\n" + text.slice(end));
+    }
+  };
+
   return (
-    <TextInput
-      multiline
-      //autoFocus
-      value={text}
-      onChangeText={setText}
-      placeholder="Napisz o swoim dniu..."
-      inputAccessoryViewID={accessoryID}
-      style={[
-        styles.input,
-        {
-          color: textColor,
-          fontWeight: isBold ? "bold" : "normal",
-          fontStyle: isItalic ? "italic" : "normal",
-          textDecorationLine: isUnderline ? "underline" : "none",
-        },
-      ]}
-    />
+    <View>
+      <TextInput
+        ref={inputRef}
+        multiline
+        scrollEnabled={false}
+        value={text}
+        onChangeText={setText}
+        onSelectionChange={({ nativeEvent }) => {
+          selectionRef.current = nativeEvent.selection;
+        }}
+        onKeyPress={handleKeyPress}
+        inputAccessoryViewID={accessoryID}
+        editable={isEditing}
+        style={[styles.body, { color: textColor || colors.text.primary }]}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  input: {
-    fontSize: 18,
-    lineHeight: 26,
-    minHeight: 400,
+  body: {
+    fontSize: 17,
+    fontWeight: "500",
+    lineHeight: 25,
+    letterSpacing: -0.1,
     textAlignVertical: "top",
-  },
-  toolbar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderTopWidth: 1,
-    borderColor: "rgba(0,0,0,0.05)",
+    marginBottom: 100,
+    color: colors.text.primary,
   },
 });

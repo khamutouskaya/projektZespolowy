@@ -24,11 +24,12 @@ import PlannerReminderModal from "../components/plannerScreen/PlannerReminderMod
 import PlannerReminderDateTimeModal from "../components/plannerScreen/PlannerReminderDateTimeModal";
 import PlannerCategoryModal from "../components/plannerScreen/PlannerCategoryModal";
 import { PlannerTask } from "../planner.types";
+import { usePlanner } from "../hooks/usePlanner";
 
 type ReminderPreset = "today" | "tomorrow" | "nextWeek" | null;
 
 export default function PlannerScreen() {
-  const [tasks, setTasks] = useState<PlannerTask[]>([]);
+  const { tasks, isLoading, addTask, updateTask, removeTask } = usePlanner();
   const [isAdding, setIsAdding] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -213,24 +214,16 @@ export default function PlannerScreen() {
     runSoftLayoutAnimation();
 
     if (editingTaskId) {
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === editingTaskId
-            ? {
-                ...task,
-                title: trimmed,
-                note: taskNote,
-                date: selectedTaskDate,
-                reminderDate: selectedReminderDate,
-                category: selectedCategory,
-              }
-            : task
-        )
-      );
+      updateTask(editingTaskId, {
+        title: trimmed,
+        note: taskNote,
+        date: selectedTaskDate,
+        reminderDate: selectedReminderDate,
+        category: selectedCategory,
+      });
       setEditingTaskId(null);
     } else {
-      const newTask: PlannerTask = {
-        id: Date.now().toString(),
+      addTask({
         title: trimmed,
         important: false,
         completed: false,
@@ -238,9 +231,7 @@ export default function PlannerScreen() {
         date: selectedTaskDate,
         reminderDate: selectedReminderDate,
         category: selectedCategory,
-      };
-
-      setTasks((prev) => [newTask, ...prev]);
+      });
     }
 
     resetDraftFields();
@@ -260,28 +251,22 @@ export default function PlannerScreen() {
 
   const handleToggleImportant = (id: string) => {
     runSoftLayoutAnimation();
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, important: !task.important } : task
-      )
-    );
+    const task = tasks.find((t) => t.id === id);
+    if (task) updateTask(id, { important: !task.important });
   };
 
   const handleToggleComplete = (id: string) => {
     setTimeout(() => {
       runSoftLayoutAnimation();
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === id ? { ...task, completed: !task.completed } : task
-        )
-      );
+      const task = tasks.find((t) => t.id === id);
+      if (task) updateTask(id, { completed: !task.completed });
     }, 40);
   };
 
   const handleDeleteTask = (id: string) => {
     setTimeout(() => {
       runSoftLayoutAnimation();
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      removeTask(id);
     }, 60);
 
     if (editingTaskId === id) {

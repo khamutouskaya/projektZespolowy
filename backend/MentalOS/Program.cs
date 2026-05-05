@@ -63,9 +63,9 @@ builder.Services.AddHostedService<DataArchivingService>();
 builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 
-var jwtKey = builder.Configuration["Jwt:Key"]!;
-var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
-var jwtAudience = builder.Configuration["Jwt:Audience"]!;
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "MentalOS_Super_Secret_Key_12345!@#_To_Generate_Signatures";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MentalOS";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MentalOS";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -146,11 +146,14 @@ try
         db.Database.SetCommandTimeout(10);
         
         var canConnect = db.Database.CanConnect();
-        
+
         if (canConnect)
         {
             logger.LogInformation("? Database connection successful!");
-            
+
+            logger.LogInformation("Applying migrations...");
+            db.Database.Migrate();
+
             var adminRole = db.Roles.FirstOrDefault(r => r.Name == "admin");
             if (adminRole == null)
             {
@@ -223,7 +226,7 @@ app.UseCors();
 app.UseStaticFiles(); // new - obs³uga statycznych plików (np. awatary)
 app.UseAntiforgery(); // wymagane dla Blazora w .NET 8
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

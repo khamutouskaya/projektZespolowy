@@ -15,10 +15,17 @@ export const useDiaryEntries = () => {
     setReady(true);
   }, []);
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     if (!userId || !ready) return;
-    const data = diaryService.getAll(userId);
-    setEntries(data);
+
+    setEntries(diaryService.getAll(userId));
+
+    try {
+      await diarySyncService.fullSync(userId);
+      setEntries(diaryService.getAll(userId));
+    } catch (err) {
+      console.warn("Failed to sync diary entries", err);
+    }
   }, [userId, ready]);
 
   useEffect(() => {
@@ -26,30 +33,55 @@ export const useDiaryEntries = () => {
   }, [load]);
 
   const addEntry = useCallback(
-    (data: Partial<DiaryEntry>) => {
+    async (data: Partial<DiaryEntry>) => {
       if (!userId) return;
       diaryService.create(userId, data);
-      load();
+      setEntries(diaryService.getAll(userId));
+
+      try {
+        await diarySyncService.syncPending(userId);
+        setEntries(diaryService.getAll(userId));
+      } catch (err) {
+        console.warn("Failed to push sync pending diary entries", err);
+      }
     },
-    [userId, load],
+    [userId],
   );
 
   const updateEntry = useCallback(
-    (id: string, data: Partial<DiaryEntry>) => {
+    async (id: string, data: Partial<DiaryEntry>) => {
       if (!userId) return;
       diaryService.update(id, userId, data);
-      load();
+      setEntries(diaryService.getAll(userId));
+
+      try {
+        await diarySyncService.syncPending(userId);
+        setEntries(diaryService.getAll(userId));
+      } catch (err) {
+        console.warn("Failed to push sync pending diary entries", err);
+      }
     },
-    [userId, load],
+    [userId],
   );
 
   const deleteEntry = useCallback(
-    (id: string) => {
+    async (id: string) => {
       if (!userId) return;
+
+      const entry = diaryService.getById(id, userId);
       diaryService.delete(id, userId);
-      load();
+      setEntries(diaryService.getAll(userId));
+
+      if (entry && entry.serverId) {
+        try {
+          const { apiClient } = await import("@/services/api/client");
+          await apiClient.delete(`/journal/${entry.serverId}`);
+        } catch (err) {
+          console.warn("Failed to delete entry on server", err);
+        }
+      }
     },
-    [userId, load],
+    [userId],
   );
 
   return { entries, addEntry, updateEntry, deleteEntry, reload: load };

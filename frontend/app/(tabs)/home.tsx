@@ -349,7 +349,7 @@ export default function Home() {
                   styles.extraCard,
                   pressed && { opacity: 0.85 },
                 ]}
-                onPress={() => {}}
+                onPress={() => router.push("../psychologists")}
               >
                 <View
                   style={[

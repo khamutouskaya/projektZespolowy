@@ -1,16 +1,25 @@
 import axios from "axios";
+import { Platform } from "react-native";
 import { useAuthStore } from "../store/useAuthStore";
 
-// const API_URL = 'https://localhost:7127/api';
-// 'http://localhost:5076/api'
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://localhost:7127";
-export const API_URL = `${BASE_URL}`;
-console.log("Adres API to:", API_URL);
+const envApiUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+
+const API_URL =
+  envApiUrl && envApiUrl !== "undefined"
+    ? envApiUrl
+    : Platform.select({
+        ios: "http://192.168.1.10:5076/api",
+        android: "http://192.168.1.10:5076/api",
+        default: "http://localhost:5076/api",
+      });
+// ios: "http://172.20.10.3:5076/api",
+//android: "http://10.0.2.3:5076/api",
 
 export const apiClient = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
 });
+console.log("API_URL:", API_URL);
 
 // Doklejanie tokena do każdego requestu
 apiClient.interceptors.request.use((config) => {
@@ -21,11 +30,11 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Obsługa 401 - wyloguj jeśli token wygasł
+// Wyloguj jeśli token wygasł
 apiClient.interceptors.response.use(
-  (response: any) => response,
+  (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && useAuthStore.getState().token) {
       useAuthStore.getState().logout();
     }
     return Promise.reject(error);

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 /*import { Link } from "expo-router";
-=======
-import { Link } from "expo-router";
->>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)
 import { StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -31,7 +27,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
 });
-<<<<<<< HEAD
 */
 
 import { View, Text } from "react-native";
@@ -43,5 +38,3 @@ export default function Modal() {
     </View>
   );
 }
-=======
->>>>>>> 34bd785 (Przywrócenie wcześniejszego stanu maina)

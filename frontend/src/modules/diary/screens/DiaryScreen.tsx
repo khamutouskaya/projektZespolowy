@@ -1,57 +1,210 @@
-import React from "react";
-import { Image, ScrollView, View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  ScrollView,
+  View,
+  StyleSheet,
+  Text,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from "expo-router";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
+import { DiaryEntry } from "@/modules/diary/diary.types";
+import { useDiarySummarySync } from "@/modules/diary/hooks/useDiarySummarySync";
 
-import DiaryHeader from "@/modules/diary/components/DiaryHeader";
-import DiarySection from "@/modules/diary/components/DiarySection";
-import DiarySearch from "@/modules/diary/components/DiarySearch";
-import AddEntryButton from "@/modules/diary/components/AddEntryButton";
-export default function DiaryScreen() {
-  const { entries } = useDiaryEntries();
-  const router = useRouter();
+import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
+import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
+import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
+import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
 
-  const today = entries.filter((e) => e.section === "today");
-  const earlier = entries.filter((e) => e.section === "earlier");
+import LayoutContainer from "@/shared/layout/LayoutContainer";
+import { spacing } from "@/shared/theme/spacing";
+import { colors } from "@/shared/theme/colors";
+import { typography } from "@/shared/theme/typography";
+import { useAuthStore } from "@/services/store/useAuthStore";
+
+function SearchEmpty({ query }: { query: string }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.82)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 520,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 6,
+        tension: 60,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -6,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
+    <Animated.View
+      style={[
+        styles.searchEmpty,
+        { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+      ]}
     >
-      <Image
-        source={require("../../../../assets/images/cloud.png")}
-        style={styles.cloud}
-      />
-
-      <View style={styles.headerRow}>
-        <DiaryHeader />
-        <AddEntryButton
-          onPress={() => {
-            router.push("/(tabs)/home");
-          }}
+      <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
+        <Ionicons
+          name="search-outline"
+          size={56}
+          color={colors.text.quaternary}
         />
-      </View>
+      </Animated.View>
+      <Text style={styles.searchEmptyTitle}>Brak wyników</Text>
+      <Text style={styles.searchEmptyHint}>
+        Nie znaleziono notatek dla „{query}"
+      </Text>
+    </Animated.View>
+  );
+}
 
-      <View style={styles.searchWrapper}>
-        <DiarySearch />
-      </View>
+export default function DiaryScreen() {
+  const { entries, reload, deleteEntry } = useDiaryEntries();
+  const router = useRouter();
+  const userId = useAuthStore((state) => state.user?.id);
 
-      <View style={styles.section}>
-        <DiarySection title="Dzisiaj" entries={today} />
-      </View>
+  useDiarySummarySync(reload);
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
 
-      <View style={styles.section}>
-        <DiarySection title="Wcześniej" entries={earlier} />
-      </View>
-    </ScrollView>
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const todayDate = new Date().toLocaleDateString("pl-PL");
+  const filtered = searchQuery.trim()
+    ? entries
+        .filter((e) => {
+          const q = searchQuery.toLowerCase();
+          return (
+            e.title?.toLowerCase().includes(q) ||
+            e.content?.toLowerCase().includes(q)
+          );
+        })
+        .sort((a, b) => {
+          const q = searchQuery.toLowerCase();
+          const aTitle = a.title?.toLowerCase() ?? "";
+          const bTitle = b.title?.toLowerCase() ?? "";
+          const aContent = a.content?.toLowerCase() ?? "";
+          const bContent = b.content?.toLowerCase() ?? "";
+
+          // Priorytet 1: fraza na początku tytułu
+          const aStartsTitle = aTitle.startsWith(q);
+          const bStartsTitle = bTitle.startsWith(q);
+          if (aStartsTitle && !bStartsTitle) return -1;
+          if (!aStartsTitle && bStartsTitle) return 1;
+
+          // Priorytet 2: fraza na początku treści
+          const aStartsContent = aContent.startsWith(q);
+          const bStartsContent = bContent.startsWith(q);
+          if (aStartsContent && !bStartsContent) return -1;
+          if (!aStartsContent && bStartsContent) return 1;
+
+          // Priorytet 3: pozycja frazy w tytule
+          const aIdx = aTitle.indexOf(q);
+          const bIdx = bTitle.indexOf(q);
+          if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+
+          return 0;
+        })
+    : entries;
+  const sortByNewest = (a: DiaryEntry, b: DiaryEntry) =>
+    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+
+  const today = filtered.filter((e) => e.date === todayDate).sort(sortByNewest);
+  const earlier = filtered
+    .filter((e) => e.date !== todayDate)
+    .sort(sortByNewest);
+  const isSearching = searchQuery.trim().length > 0;
+  const noSearchResults = isSearching && filtered.length === 0;
+
+  return (
+    <LayoutContainer>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerRow}>
+          <DiaryHeader />
+          <AddEntryButton
+            onPress={() => {
+              router.push("/(tabs)/diary/note");
+            }}
+          />
+        </View>
+
+        <View style={styles.searchWrapper}>
+          <DiarySearch value={searchQuery} onChange={setSearchQuery} />
+        </View>
+
+        {noSearchResults ? (
+          <SearchEmpty query={searchQuery} />
+        ) : (
+          <>
+            <View style={styles.section}>
+              <DiaryEntriesSection
+                title="Dzisiaj"
+                entries={today}
+                onDeleteEntry={deleteEntry}
+                emptyPlaceholder={{
+                  iconName: "journal-outline",
+                  title: "Brak notatek na dziś",
+                  hint: "Opisz jak minął Ci dzień",
+                }}
+              />
+            </View>
+
+            <View style={styles.section}>
+              <DiaryEntriesSection
+                title="Wcześniej"
+                entries={earlier}
+                onDeleteEntry={deleteEntry}
+                emptyPlaceholder={{
+                  iconName: "time-outline",
+                  title: "Brak wcześniejszych notatek",
+                  hint: "Twoje przeszłe wpisy pojawią się tutaj",
+                }}
+              />
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </LayoutContainer>
   );
 }
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingTop: 60, // немного воздуха сверху
+    //krzystof bez//
     paddingHorizontal: 20,
     paddingBottom: 80, // место под плавающий tab bar
   },
@@ -60,33 +213,41 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
   },
 
   searchWrapper: {
-    marginBottom: 0,
-  },
-
-  buttonWrapper: {
-    marginBottom: 20,
+    // marginBottom: spacing.xs,
   },
 
   section: {
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
 
   cloud: {
-    width: 320,
-    height: 320,
+    width: 300,
+    height: 300,
     alignSelf: "center",
-    marginTop: -40, // 👈 поднимаем
-    marginBottom: 0,
     resizeMode: "contain",
-
-    shadowColor: "#686868",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+  },
+  searchEmpty: {
+    alignItems: "center",
+    paddingVertical: 48,
+    gap: 6,
+  },
+  searchEmptyEmoji: {
+    fontSize: 34,
+    marginBottom: 4,
+  },
+  searchEmptyTitle: {
+    ...typography.title,
+    color: colors.text.tertiary,
+    textAlign: "center",
+  },
+  searchEmptyHint: {
+    ...typography.body,
+    color: colors.text.secondary,
+    textAlign: "center",
   },
 });

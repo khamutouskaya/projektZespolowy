@@ -16,7 +16,6 @@ export function useChat() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const requestVersionRef = useRef(0);
 
-  // Load history or initialize session later if null
   const initSession = async () => {
     if (sessionId) return sessionId;
     try {
@@ -50,11 +49,10 @@ export function useChat() {
       const backendMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
-      // Если что-то пошло не так — показываем ошибку в чате
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        text: "Что-то пошло не так. Попробуй ещё раз.",
+        text: "Nie mogę teraz połączyć się z asystentem. Spróbuj ponownie za chwilę.",
         createdAt: new Date(),
       };
       errorMessage.text =

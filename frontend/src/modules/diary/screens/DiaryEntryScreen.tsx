@@ -1,129 +1,119 @@
-import React from "react";
+import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
+import { diaryTextTransfer } from "@/modules/diary/services/diaryTextTransfer";
+import LayoutContainer from "@/shared/layout/LayoutContainer";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useRef, useEffect, useState, useCallback } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
+  InputAccessoryView,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
-  TextInput,
-  Pressable,
+  StyleSheet,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
+import DiaryEntryHeader from "../components/diaryEntry/DiaryEntryHeader.tsx";
+import DiaryTextEditor from "../components/diaryEntry/DiaryTextEditor";
+import EditorToolbar from "../components/diaryEntry/EditorToolbar";
 
 export default function DiaryEntryScreen() {
+  const { addEntry } = useDiaryEntries();
+  const params = useLocalSearchParams();
+  const entryId = params.id as string | undefined;
+  const isNew = !entryId && !params.text;
+
+  const [text, setText] = useState((params.text as string) || "");
+  const [textColor, setTextColor] = useState("#000");
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+  const inputAccessoryViewID = "toolbar";
+
+  // New notes start in edit mode; existing notes start in read mode
+  const [isEditing, setIsEditing] = useState(isNew);
+
+  const scrollRef = useRef<ScrollView>(null);
+  const textRef = useRef(text);
+  useEffect(() => { textRef.current = text; }, [text]);
+
+  // Save on any exit: swipe right or ‹ Notatka button
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        diaryTextTransfer.set(textRef.current, entryId);
+      };
+    }, [entryId]),
+  );
+
+  // When keyboard hides (swipe-down), leave edit mode
+  useEffect(() => {
+    const event = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const sub = Keyboard.addListener(event, () => setIsEditing(false));
+    return () => sub.remove();
+  }, []);
+
+  const handleEdit = () => setIsEditing(true);
+  const handleSave = () => Keyboard.dismiss();
+
   return (
-    <ImageBackground
-      source={require("../../../../assets/images/background.png")}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <SafeAreaView style={{ flex: 1 }}>
+    <LayoutContainer>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+      >
+        {/* Header is OUTSIDE ScrollView — always visible */}
+        <View style={styles.headerWrap}>
+          <DiaryEntryHeader
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onSave={handleSave}
+          />
+        </View>
+
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         >
-          {/* HEADER */}
-          <View style={styles.header}>
-            <Pressable>
-              <Text style={styles.back}>← Wszystkie</Text>
-            </Pressable>
-
-            <Text style={styles.date}>25.12.2025</Text>
-
-            <Pressable style={styles.testButton}>
-              <Text style={styles.testText}>Zobacz wyniki testu</Text>
-            </Pressable>
-          </View>
-
-          {/* MAIN TEXT — NO LIMIT */}
-          <View style={styles.card}>
-            <TextInput
-              multiline
-              placeholder="Jak minął Twój dzień?"
-              placeholderTextColor="#6b7280"
-              style={styles.textInput}
-              scrollEnabled={false} // 🔥 важно
-            />
-          </View>
-
-          {/* SUMMARY */}
-          <Text style={styles.sectionTitle}>Podsumowanie dnia:</Text>
-
-          <View style={styles.card}>
-            <TextInput
-              multiline
-              placeholder="Krótko podsumuj swój dzień..."
-              placeholderTextColor="#6b7280"
-              style={styles.textInput}
-              scrollEnabled={false}
-            />
-          </View>
+          <DiaryTextEditor
+            text={text}
+            setText={setText}
+            textColor={textColor}
+            isBold={isBold}
+            isItalic={isItalic}
+            isUnderline={isUnderline}
+            accessoryID={inputAccessoryViewID}
+            isNew={isNew}
+            isEditing={isEditing}
+          />
         </ScrollView>
-      </SafeAreaView>
-    </ImageBackground>
+      </KeyboardAvoidingView>
+
+      {Platform.OS === "ios" && (
+        <InputAccessoryView nativeID={inputAccessoryViewID}>
+          <EditorToolbar
+            toggleBold={() => setIsBold(!isBold)}
+            toggleItalic={() => setIsItalic(!isItalic)}
+            toggleUnderline={() => setIsUnderline(!isUnderline)}
+            setColor={setTextColor}
+          />
+        </InputAccessoryView>
+      )}
+    </LayoutContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
+  headerWrap: {
+    paddingHorizontal: 20,
+    paddingBottom: 4,
   },
-
   content: {
-    padding: 20,
-    paddingBottom: 60,
-  },
-
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-
-  back: {
-    fontSize: 14,
-    color: "#375a85",
-    fontWeight: "500",
-  },
-
-  date: {
-    fontSize: 13,
-    color: "#6b7280",
-  },
-
-  testButton: {
-    backgroundColor: "rgba(255,255,255,0.6)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-
-  testText: {
-    fontSize: 12,
-    color: "#375a85",
-    fontWeight: "500",
-  },
-
-  card: {
-    backgroundColor: "rgba(255,255,255,0.65)",
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 20,
-  },
-
-  textInput: {
-    fontSize: 15,
-    color: "#1f2937",
-    lineHeight: 22,
-    textAlignVertical: "top",
-  },
-
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#375a85",
-    marginBottom: 8,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
   },
 });

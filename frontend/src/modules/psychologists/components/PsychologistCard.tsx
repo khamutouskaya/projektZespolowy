@@ -4,7 +4,7 @@ import { cardStyles } from "@/shared/theme/styles";
 import { typography } from "@/shared/theme/typography";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Psychologist } from "../psychologists.types";
 
 interface Props {
@@ -24,6 +24,7 @@ export default function PsychologistCard({ psychologist, onPress }: Props) {
     experience,
     specializations,
     avatarColor,
+    photo,
     nextAvailable,
     availableToday,
   } = psychologist;
@@ -41,8 +42,12 @@ export default function PsychologistCard({ psychologist, onPress }: Props) {
     >
       <View style={styles.row}>
         {/* Avatar */}
-        <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
-          <Text style={styles.initials}>{initials}</Text>
+        <View style={[styles.avatar, { backgroundColor: photo ? "transparent" : avatarColor }]}>
+          {photo ? (
+            <Image source={photo} style={styles.avatarImage} />
+          ) : (
+            <Text style={styles.initials}>{initials}</Text>
+          )}
         </View>
 
         {/* Main info */}
@@ -129,6 +134,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 20,
   },
   initials: {
     fontSize: 20,

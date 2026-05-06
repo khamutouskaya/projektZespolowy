@@ -60,7 +60,7 @@ export default function DiaryNoteScreen() {
     }, []),
   );
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!noteText.trim() && !preview.trim()) {
       router.back();
       return;
@@ -90,9 +90,9 @@ export default function DiaryNoteScreen() {
     };
 
     if (isEditing && params.id) {
-      updateEntry(params.id, payload);
+      await updateEntry(params.id, payload);
     } else {
-      addEntry(payload);
+      await addEntry(payload);
     }
     router.back();
   };

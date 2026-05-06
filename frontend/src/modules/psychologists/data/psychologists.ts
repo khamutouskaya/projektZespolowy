@@ -5,6 +5,10 @@ export const psychologists: Psychologist[] = [
     id: "1",
     firstName: "Anna",
     lastName: "Kowalska",
+    photo: {
+      uri: "https://res.cloudinary.com/dxsukcxzj/image/upload/v1778088509/female_psychologist_2_ikvhu8.png",
+    },
+
     title: "dr n. med.",
     specialty: "Psycholog kliniczny · Psychoterapeuta CBT",
     bio: "Specjalizuję się w terapii poznawczo-behawioralnej osób zmagających się z depresją, zaburzeniami lękowymi oraz trudnościami emocjonalnymi. Ukończyłam Akademię Medyczną oraz 4-letnie szkolenie z psychoterapii CBT. Moje podejście jest ciepłe, empatyczne i oparte na dowodach naukowych. Wierzę, że każdy człowiek posiada zasoby potrzebne do zmiany — moją rolą jest pomóc je odkryć.",
@@ -70,6 +74,9 @@ export const psychologists: Psychologist[] = [
     id: "2",
     firstName: "Marek",
     lastName: "Wiśniewski",
+    photo: {
+      uri: "https://res.cloudinary.com/dxsukcxzj/image/upload/v1778088509/male_psychologist_2_jhofgm.png",
+    },
     title: "mgr",
     specialty: "Psychoterapeuta · Terapia par",
     bio: "Pracuję z parami i osobami indywidualnymi nad poprawą jakości relacji, komunikacji i rozwiązywaniem konfliktów. Ukończyłem szkolenie z Terapii Skoncentrowanej na Rozwiązaniach oraz Terapii Systemowej. Jestem przekonany, że każdy związek można wzmocnić przy odpowiednim wsparciu i zaangażowaniu obu stron.",
@@ -128,6 +135,9 @@ export const psychologists: Psychologist[] = [
     id: "3",
     firstName: "Katarzyna",
     lastName: "Nowak",
+    photo: {
+      uri: "https://res.cloudinary.com/dxsukcxzj/image/upload/v1778088509/female_psychologist_3_etjzql.png",
+    },
     title: "dr",
     specialty: "Psycholog dziecięcy · ADHD i neuroróżnorodność",
     bio: "Od ponad 10 lat pomagam dzieciom, młodzieży i ich rodzicom radzić sobie z ADHD, trudnościami szkolnymi, lękami i problemami emocjonalnymi. Ukończyłam specjalizację z psychologii klinicznej dziecka i rodziny. Moja praca opiera się na szacunku dla dziecka, ścisłej współpracy z rodzicami i systemowym podejściu do rodziny.",
@@ -193,6 +203,9 @@ export const psychologists: Psychologist[] = [
     id: "4",
     firstName: "Piotr",
     lastName: "Dąbrowski",
+    photo: {
+      uri: "https://res.cloudinary.com/dxsukcxzj/image/upload/v1778088509/male_psychologist_1_kmlotc.png",
+    },
     title: "mgr",
     specialty: "Psycholog biznesowy · Wypalenie zawodowe",
     bio: "Specjalizuję się w psychologii organizacji, wypaleniu zawodowym i zarządzaniu stresem w środowisku pracy. Przez 6 lat pracowałem jako psycholog korporacyjny, dlatego doskonale rozumiem wyzwania, przed którymi stają osoby na różnych szczeblach kariery. Pomagam odbudować motywację, wyznaczać granice i odzyskać równowagę między życiem zawodowym a prywatnym.",
@@ -252,6 +265,9 @@ export const psychologists: Psychologist[] = [
     id: "5",
     firstName: "Marta",
     lastName: "Zielińska",
+    photo: {
+      uri: "https://res.cloudinary.com/dxsukcxzj/image/upload/v1778088509/female_psychologist_1_earalj.png",
+    },
     title: "mgr",
     specialty: "Psychoterapeuta traumy · EMDR",
     bio: "Pracuję z osobami, które doświadczyły trudnych i traumatycznych wydarzeń — wypadków, straty bliskich, przemocy lub zaniedbania w dzieciństwie. Jestem certyfikowanym terapeutą EMDR, co pozwala mi pomagać w przetwarzaniu trudnych wspomnień w bezpieczny i skuteczny sposób. W swojej pracy kieruję się pełnym szacunkiem dla tempa pacjenta.",
@@ -310,6 +326,9 @@ export const psychologists: Psychologist[] = [
     id: "6",
     firstName: "Tomasz",
     lastName: "Lewandowski",
+    photo: {
+      uri: "https://res.cloudinary.com/dxsukcxzj/image/upload/v1778088509/male_psychologist_3_nr079w.png",
+    },
     title: "mgr",
     specialty: "Psycholog · Stres i Mindfulness",
     bio: "Pomagam osobom zmagającym się z chronicznym stresem, bezsennością i trudnościami w regulacji emocji. Łączę psychologię z praktyką uważności (Mindfulness), oferując skuteczne narzędzia do codziennego użytku. Prowadzę też grupy wsparcia i warsztaty redukcji stresu metodą MBSR. Wierzę, że zmiana zaczyna się od małych kroków.",

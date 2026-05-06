@@ -9,12 +9,10 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
-import NetInfo from "@react-native-community/netinfo";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 import { DiaryEntry } from "@/modules/diary/diary.types";
 import { useDiarySummarySync } from "@/modules/diary/hooks/useDiarySummarySync";
-import { diarySyncService } from "@/modules/diary/services/diarySyncService";
 
 import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
 import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
@@ -94,21 +92,6 @@ export default function DiaryScreen() {
   const userId = useAuthStore((state) => state.user?.id);
 
   useDiarySummarySync(reload);
-  useFocusEffect(
-    useCallback(() => {
-      const sync = async () => {
-        if (!userId) return;
-
-        const netState = await NetInfo.fetch();
-        if (netState.isConnected) {
-          await diarySyncService.fullSync(userId);
-        }
-        reload();
-      };
-      sync();
-    }, [userId, reload]),
-  );
-  // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
   useFocusEffect(
     useCallback(() => {
       reload();

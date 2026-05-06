@@ -51,6 +51,7 @@ export interface Psychologist {
   certifications: string[];
   education: Education[];
   avatarColor: string;
+  photo?: { uri: string } | number;
   nextAvailable: string;
   availableToday: boolean;
   filterCategory: FilterCategory;

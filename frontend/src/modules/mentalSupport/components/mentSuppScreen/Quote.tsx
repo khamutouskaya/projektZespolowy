@@ -7,16 +7,26 @@ import { spacing } from "@/shared/theme/spacing";
 
 export default function Quote() {
   const quotes = [
-    "Nie jesteś sam. Jesteśmy tu, by cię wspierać.",
-    "Każdy dzień to nowa szansa na lepsze jutro.",
-    "Twoje uczucia są ważne. Pozwól sobie je odczuwać.",
-    "Małe kroki prowadzą do wielkich zmian.",
-    "Jesteś silniejszy, niż myślisz.",
-    "Nie musisz być doskonały, by być wartościowy.",
-    "Twoja historia jest ważna. Podziel się nią, jeśli chcesz.",
-    "Każdy ma prawo do wsparcia i zrozumienia.",
-    "Nie bój się prosić o pomoc. To oznaka siły, nie słabości.",
-    "Twoje emocje są ważne. Znajdź sposób, by je wyrazić.",
+    "Oddychaj powoli. Nie musisz się spieszyć.",
+    "Pozwól sobie na chwilę ciszy.",
+    "Nawet krótki odpoczynek ma znaczenie.",
+    "Skup się na oddechu. Reszta może poczekać.",
+    "Twoje ciało zasługuje na spokój.",
+    "Zwolnij. Ten moment jest tylko dla ciebie.",
+    "Każdy spokojny oddech pomaga odzyskać równowagę.",
+    "Nie musisz mieć kontroli nad wszystkim.",
+    "Cisza też jest formą troski o siebie.",
+    "Odpoczynek nie jest stratą czasu.",
+    "Pozwól myślom przepływać bez oceniania.",
+    "Twoje samopoczucie jest ważniejsze niż pośpiech.",
+    "Daj sobie kilka spokojnych minut.",
+    "Tu możesz po prostu być.",
+    "Wdech. Wydech. Krok po kroku.",
+    "Nie wszystko trzeba rozwiązać od razu.",
+    "Spokój zaczyna się od jednego oddechu.",
+    "Twoje tempo też jest właściwe.",
+    "Zadbaj dziś również o swój umysł.",
+    "Czasem najlepsze, co możesz zrobić, to odpocząć.",
   ];
 
   const opacity = useRef(new Animated.Value(0)).current;

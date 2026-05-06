@@ -95,10 +95,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 12,
     right: 12,
-    bottom: 4,
+    bottom: 0,//4
     borderTopWidth: 0,
     backgroundColor: "transparent",
-    height: 78,
+    height: 85,//78
     borderRadius: 28,
     shadowColor: "#736b6b",
     shadowOpacity: 0.16,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
     paddingTop: 6,
-    paddingBottom: 6,
+    paddingBottom: 6,//6
   },
 
   tabBarLabel: {

@@ -1,30 +1,44 @@
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { GardenSlotType } from "../../garden.types";
 import GardenTree from "./GardenTree";
-import { getTreeStage } from "../../utils/getTreeStage";
+import { gardenService } from "../../garden.service";
 
 type Props = {
   slot: GardenSlotType;
+  onRefresh: () => void;
 };
 
 const getTreeScale = (row: number) => {
-  // легка перспектива (нижче = більше)
   if (row === 0) return 0.9;
   if (row === 1) return 1.0;
   if (row === 2) return 1.0;
   return 1;
 };
 
-export default function GardenSlot({ slot }: Props) {
-  const stage = slot.tree ? getTreeStage(slot.tree.plantedAt) : null;
+export default function GardenSlot({ slot, onRefresh }: Props) {
   const scale = getTreeScale(slot.y);
+  const hasTree = slot.treeState !== 0;
+
+  const handlePress = async () => {
+    try {
+      if (!hasTree) {
+        await gardenService.plantTree();
+      } else if (slot.treeState === 4) {
+        await gardenService.harvestTree(slot.id);
+      }
+
+      await onRefresh();
+    } catch (error) {
+      console.log("GARDEN SLOT ERROR:", error);
+    }
+  };
 
   return (
-    <View style={styles.slot}>
+    <Pressable onPress={handlePress} style={styles.slot}>
       <View style={styles.treeWrapper}>
-        {stage !== null && <GardenTree stage={stage} scale={scale} />}
+        {hasTree && <GardenTree stage={slot.treeState} scale={scale} />}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -36,10 +50,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   treeWrapper: {
     position: "absolute",
-    bottom: 20, // 🔥 вирівнює всі дерева по "землі"
+    bottom: 20,
     alignItems: "center",
   },
 });

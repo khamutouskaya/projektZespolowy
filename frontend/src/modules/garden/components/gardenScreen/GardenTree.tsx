@@ -17,6 +17,9 @@ export default function GardenTree({ stage, scale = 1 }: Props) {
         return require("../../../../../assets/garden/tree-stage-2.png");
       case 3:
         return require("../../../../../assets/garden/tree-stage-3.png");
+      case 4:
+        return require("../../../../../assets/garden/tree-stage-3.png");
+
       default:
         return require("../../../../../assets/garden/tree-stage-0.png");
     }

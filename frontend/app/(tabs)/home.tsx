@@ -22,6 +22,7 @@ export default function Home() {
   const router = useRouter();
 
   const [showOracle, setShowOracle] = useState(false);
+  const [showFruitModal, setShowFruitModal] = useState(false);
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
   const [isOracleThinking, setIsOracleThinking] = useState(false);
 
@@ -160,6 +161,15 @@ export default function Home() {
 
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
+  // STREAK MOCK (потім підключиш бек)
+  const streakDays = 2;
+
+  const hasJournalEntryToday = true;
+  const hasDailySummaryToday = true;
+
+  const progress = Number(hasJournalEntryToday) + Number(hasDailySummaryToday);
+
+  const isReady = progress === 2;
 
   const handleOracleOpen = () => {
     setShowOracle(true);
@@ -286,15 +296,49 @@ export default function Home() {
               <Text style={styles.title}>Jak się dziś czujesz?</Text>
             </View>
 
-            {/* Status card */}
+            {/* STREAK FRUIT CARD */}
             <View style={[cardStyles.card, styles.statusCard]}>
-              <Text style={styles.sectionLabel}>Twój stan emocjonalny</Text>
-              <View style={styles.statusPill}>
-                <Text style={styles.statusText}>2 dni z rzędu</Text>
-                <View style={styles.dot} />
-                <Text style={styles.statusText}>Dobra ciągłość</Text>
-                <View style={styles.sproutWrap}>
-                  <Ionicons name="leaf" size={15} color="#6FAE7A" />
+              <View style={styles.compactStreakRow}>
+                <Image
+                  source={require("../../assets/images/fruit.png")}
+                  style={[
+                    styles.compactFruit,
+                    {
+                      opacity:
+                        progress === 0 ? 0.25 : progress === 1 ? 0.55 : 1,
+                    },
+                  ]}
+                />
+
+                <View style={styles.compactStreakContent}>
+                  <View style={styles.compactStreakTop}>
+                    <Text style={styles.compactTitle}>Dzisiejszy owoc</Text>
+
+                    {progress === 2 ? (
+                      <Pressable
+                        style={styles.claimFruitMiniButton}
+                        onPress={() => setShowFruitModal(true)}
+                      >
+                        <Text style={styles.claimFruitMiniText}>
+                          Odbierz 🍎
+                        </Text>
+                      </Pressable>
+                    ) : (
+                      <Text style={styles.compactProgress}>{progress}/2</Text>
+                    )}
+                  </View>
+                  <View style={styles.progressBar}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${(progress / 2) * 100}%` },
+                      ]}
+                    />
+                  </View>
+
+                  <Text style={styles.compactSubtitle}>
+                    Wpis w dzienniku · Podsumowanie dnia
+                  </Text>
                 </View>
               </View>
             </View>
@@ -395,6 +439,41 @@ export default function Home() {
         </Animated.View>
       </LayoutContainer>
 
+      <Modal
+        visible={showFruitModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowFruitModal(false)}
+      >
+        <View style={styles.fruitModalRoot}>
+          <Pressable
+            style={styles.fruitModalBackdrop}
+            onPress={() => setShowFruitModal(false)}
+          />
+
+          <View style={styles.fruitModalCard}>
+            <Image
+              source={require("../../assets/images/fruit.png")}
+              style={styles.fruitModalImage}
+            />
+
+            <Text style={styles.fruitModalTitle}>Owoc dojrzał!</Text>
+            <Text style={styles.fruitModalText}>Co chcesz z nim zrobić?</Text>
+
+            <Pressable style={styles.fruitModalPlantButton}>
+              <Text style={styles.fruitModalPlantText}>
+                Zasadź w ogródku 
+              </Text>
+            </Pressable>
+
+            <Pressable style={styles.fruitModalExchangeButton}>
+              <Text style={styles.fruitModalExchangeText}>
+                Wymień na monety 
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       <Modal
         visible={showOracle}
         transparent
@@ -620,7 +699,7 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     alignItems: "center",
-    paddingBottom: 100,
+    paddingBottom: 100, //bylo 100
   },
 
   cloud: {
@@ -650,6 +729,8 @@ const styles = StyleSheet.create({
   statusCard: {
     width: "92%",
     marginTop: spacing.md,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
   },
 
   sectionLabel: {
@@ -890,7 +971,252 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     textAlign: "center",
   },
+  streakHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.sm,
+  },
 
+  streakSub: {
+    fontSize: 12,
+    color: colors.text.secondary,
+    opacity: 0.7,
+    paddingLeft: spacing.s,
+    marginTop: -4,
+  },
+
+  streakBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(173,219,183,0.35)",
+  },
+
+  streakBadgeText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: colors.text.secondary,
+  },
+
+  fruitRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+
+  fruitWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fruitImage: {
+    width: 62,
+    height: 62,
+    resizeMode: "contain",
+  },
+
+  tasksWrap: {
+    flex: 1,
+    gap: 8,
+  },
+
+  taskRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  taskText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.text.secondary,
+  },
+
+  progressText: {
+    marginTop: 2,
+    fontSize: 13,
+    fontWeight: "700",
+    color: "rgba(70,80,90,0.65)",
+  },
+
+  readyActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4,
+  },
+
+  actionButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.35)",
+    alignItems: "center",
+  },
+
+  actionButtonSecondary: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(245,220,150,0.45)",
+    alignItems: "center",
+  },
+
+  actionText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#4f7f58",
+  },
+
+  actionTextSecondary: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#7b6730",
+  },
+  compactStreakRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  compactFruit: {
+    width: 54,
+    height: 54,
+    resizeMode: "contain",
+  },
+
+  compactStreakContent: {
+    flex: 1,
+  },
+
+  compactStreakTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+
+  compactTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.text.secondary,
+  },
+
+  compactProgress: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "rgba(70,80,90,0.55)",
+  },
+
+  progressBar: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(70,80,90,0.10)",
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.55)",
+  },
+
+  compactSubtitle: {
+    marginTop: 7,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "rgba(70,80,90,0.55)",
+  },
+
+ claimFruitMiniButton: {
+  paddingHorizontal: 14,
+  height: 30,
+  borderRadius: 999,
+  backgroundColor: "rgba(111,174,122,0.28)",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+claimFruitMiniText: {
+  fontSize: 13,
+  fontWeight: "800",
+  color: "#4f7f58",
+},
+
+  fruitModalRoot: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fruitModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(30,40,60,0.55)",
+  },
+
+  fruitModalCard: {
+    width: "82%",
+    borderRadius: 28,
+    padding: 22,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+  },
+
+  fruitModalImage: {
+    width: 82,
+    height: 82,
+    resizeMode: "contain",
+    marginBottom: 8,
+  },
+
+  fruitModalTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.text.primary,
+    marginBottom: 6,
+  },
+
+  fruitModalText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text.secondary,
+    marginBottom: 16,
+  },
+
+  fruitModalPlantButton: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.28)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  fruitModalPlantText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#4f7f58",
+  },
+
+  fruitModalExchangeButton: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: "rgba(245,220,150,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fruitModalExchangeText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#7b6730",
+  },
   star: {
     position: "absolute",
     color: "rgba(80,100,160,0.65)",

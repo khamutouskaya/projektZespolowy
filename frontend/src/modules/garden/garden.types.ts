@@ -1,12 +1,8 @@
-export type GardenTreeStage = 0 | 1 | 2 | 3;
-
-export type GardenTreeType = {
-  plantedAt: string;
-};
+export type GardenTreeStage = 0 | 1 | 2 | 3 | 4;
 
 export type GardenSlotType = {
-  id: number;
-  tree: GardenTreeType | null;
+  id: string;
+  treeState: GardenTreeStage;
   x: number;
   y: number;
 };

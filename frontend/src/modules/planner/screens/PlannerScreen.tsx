@@ -250,7 +250,6 @@ export default function PlannerScreen() {
   };
 
   const handleToggleImportant = (id: string) => {
-    runSoftLayoutAnimation();
     const task = tasks.find((t) => t.id === id);
     if (task) updateTask(id, { important: !task.important });
   };

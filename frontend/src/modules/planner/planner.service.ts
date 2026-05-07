@@ -11,11 +11,17 @@ export const plannerService = {
     const { data } = await apiClient.post<any>("/planner", dto);
     return mapDtoToTask(data);
   },
-  updateTask: async (id: string, task: Partial<PlannerTask>): Promise<PlannerTask> => {
-    // Requires mapping the partial fields or fetching current task first
-    // In our case we always pass the full task on update in the UI but let's assume partial is possible
+  updateTask: async (id: string, updates: Partial<PlannerTask>): Promise<PlannerTask> => {
     const { data: existingDto } = await apiClient.get<any>(`/planner/${id}`);
-    const updatedDto = { ...existingDto, ...mapTaskToDto(task as PlannerTask) };
+    const partialDto: any = {};
+    if (updates.title !== undefined) partialDto.title = updates.title;
+    if (updates.note !== undefined) partialDto.description = updates.note;
+    if (updates.date !== undefined) partialDto.taskDate = updates.date ? new Date(updates.date).toISOString() : null;
+    if (updates.completed !== undefined) partialDto.isCompleted = updates.completed;
+    if (updates.important !== undefined) partialDto.priority = updates.important ? 2 : 0;
+    if (updates.reminderDate !== undefined) partialDto.reminderTime = updates.reminderDate ? new Date(updates.reminderDate).toISOString() : null;
+    if (updates.category !== undefined) partialDto.category = updates.category;
+    const updatedDto = { ...existingDto, ...partialDto };
     const { data } = await apiClient.put<any>(`/planner/${id}`, updatedDto);
     return mapDtoToTask(data);
   },

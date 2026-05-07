@@ -63,6 +63,14 @@ builder.Services.AddHostedService<DataArchivingService>();
 builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 
+// Serwisy do ogroda
+builder.Services.AddScoped<IGardenService, GardenService>();
+
+// Serwisy do BigFiveTest
+builder.Services.AddSingleton<IQuestionProvider, JsonQuestionProvider>();
+builder.Services.AddScoped<PersonalityService>();
+
+
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "MentalOS_Super_Secret_Key_12345!@#_To_Generate_Signatures";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MentalOS";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MentalOS";
@@ -226,10 +234,7 @@ app.UseCors();
 app.UseStaticFiles(); // new - obs�uga statycznych plik�w (np. awatary)
 app.UseAntiforgery(); // wymagane dla Blazora w .NET 8
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -240,4 +245,5 @@ app.MapControllers();
 app.MapRazorComponents<MentalOS.Components.App>()
     .AddInteractiveServerRenderMode();
 
-app.Run();
+//app.Run();
+app.Run("http://0.0.0.0:5076");

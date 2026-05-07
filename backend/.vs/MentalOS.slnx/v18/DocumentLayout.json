@@ -60,7 +60,7 @@
               "RelativeDocumentMoniker": "MentalOS\\Components\\Pages\\Admin.razor",
               "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Components\\Pages\\Admin.razor",
               "RelativeToolTip": "MentalOS\\Components\\Pages\\Admin.razor",
-              "ViewState": "AgIAACcAAAAAAAAAAAAuwOUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADAAAAAAAAAAAAAuwOUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-04-14T17:46:08.215Z",
               "EditorCaption": ""
@@ -75,7 +75,8 @@
               "RelativeToolTip": "MentalOS\\Components\\Routes.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-14T17:45:57.511Z"
+              "WhenOpened": "2026-04-14T17:45:57.511Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -87,7 +88,8 @@
               "RelativeToolTip": "MentalOS\\Components\\App.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-14T17:45:51.133Z"
+              "WhenOpened": "2026-04-14T17:45:51.133Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -99,7 +101,8 @@
               "RelativeToolTip": "MentalOS\\Components\\_Imports.razor",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-14T17:45:43.321Z"
+              "WhenOpened": "2026-04-14T17:45:43.321Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -111,7 +114,8 @@
               "RelativeToolTip": "MentalOS\\Services\\DataArchivingService.cs",
               "ViewState": "AgIAACMAAAAAAAAAAAAowEQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T17:40:56.474Z"
+              "WhenOpened": "2026-04-14T17:40:56.474Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -123,7 +127,8 @@
               "RelativeToolTip": "MentalOS\\Domain\\PlannerTask.cs",
               "ViewState": "AgIAADMAAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T17:40:35.344Z"
+              "WhenOpened": "2026-04-14T17:40:35.344Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -135,7 +140,8 @@
               "RelativeToolTip": "MentalOS\\Services\\ContextBuilder.cs",
               "ViewState": "AgIAAHEAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-23T16:24:59.089Z"
+              "WhenOpened": "2026-03-23T16:24:59.089Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -147,7 +153,8 @@
               "RelativeToolTip": "MentalOS\\Data\\AppDbContext.cs",
               "ViewState": "AgIAAJMAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-15T22:36:22.946Z"
+              "WhenOpened": "2026-03-15T22:36:22.946Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -157,9 +164,10 @@
               "RelativeDocumentMoniker": "MentalOS\\Domain\\JournalEntry.cs",
               "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main-20260323T163357Z-1-001\\projektZespolowy-main\\backend\\MentalOS\\Domain\\JournalEntry.cs",
               "RelativeToolTip": "MentalOS\\Domain\\JournalEntry.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAA3wDAAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAABYAAAAAAAAAAAAkwDAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-15T22:36:05.253Z"
+              "WhenOpened": "2026-03-15T22:36:05.253Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",

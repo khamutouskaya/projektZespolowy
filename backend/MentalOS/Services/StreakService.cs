@@ -14,7 +14,7 @@ namespace MentalOS.Services
             _context = context;
         }
 
-        public async Task HandleDailyActivity(Guid userId) // добавить проверку дейликов 
+        public async Task HandleDailyActivity(Guid userId)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -22,19 +22,36 @@ namespace MentalOS.Services
             if (user == null)
                 throw new Exception("User not found");
 
+            await CheckStreak(userId);
+
             var today = DateTime.UtcNow.Date;
 
-            if (user.LastActivityDate.HasValue && user.LastActivityDate.Value.Date == today)
-                return;
+            var lastJournalActivity = await _context.JournalEntries
+                .Where(j => j.UserId == userId)
+                .OrderByDescending(j => j.CreatedAt)
+                .Select(j => j.CreatedAt.Date)
+                .FirstOrDefaultAsync();
 
-            if (user.LastActivityDate.HasValue && user.LastActivityDate.Value.Date == today.AddDays(-1))
-                user.CoinsBalance++;
-            //else
-               // user.CoinsBalance = 1;
+            var lastPlannerActivity = await _context.PlannerTasks
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => p.CreatedAt.Date)
+                .FirstOrDefaultAsync();
 
-            user.LastActivityDate = today;
+            bool isDailyActivityDone =
+                lastJournalActivity == today &&
+                lastPlannerActivity == today;
 
-            await AddInternal(user, 1, "daily");
+            if (isDailyActivityDone)
+            {
+                if (user.LastActivityDate.HasValue && user.LastActivityDate.Value.Date == today)
+                    return;
+
+
+                await AddInternal(user, 1, "daily");
+
+                user.LastActivityDate = today;
+            }
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -53,37 +70,26 @@ namespace MentalOS.Services
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
-
-        public async Task Spend(Guid userId, int amount, string action)
+        
+        public async Task AddBalance(User user, int amount, string action)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var newBalance = user.CoinsBalance + amount;
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-                throw new Exception("User not found");
+            if (newBalance < 0)
+                throw new Exception("Balance cannot be negative");
 
-            if (amount <= 0)
-                throw new Exception("Amount must be greater than zero");
+            user.CoinsBalance = newBalance;
 
-            if (user.CoinsBalance < amount)
-                throw new Exception("Not enough balance");
-
-            await AddInternal(user, -amount, action);
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-
-        public async Task<int> GetBalance(Guid userId)
-        {
-            var user = await _context.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-                throw new Exception("User not found");
-
-            return user.CoinsBalance;
+            _context.StreakHistories.Add(new StreakHistory
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Date = DateTime.UtcNow.Date,
+                StreakValue = user.StreakCount,
+                BalanceAfter = newBalance,
+                Action = action,
+                CreatedAt = DateTime.UtcNow
+            });
         }
 
         public async Task<int> GetCurrentStreak(Guid userId)
@@ -95,15 +101,19 @@ namespace MentalOS.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            return user.CoinsBalance;
+            CheckStreak(userId).Wait();
+
+            return user.StreakCount;
         }
 
         private async Task AddInternal(User user, int change, string action)
         {
-            var newBalance = user.CoinsBalance + change;
+            var newStreak = user.StreakCount + change;
+            var newBalance = user.CoinsBalance + user.StreakCount;
 
-            if (newBalance < 0)
-                throw new Exception("Balance cannot be negative");
+            if (newStreak < 0 || newBalance < 0)
+                throw new Exception("Streak and balance cannot be negative");
+            user.StreakCount = newStreak;
             user.CoinsBalance = newBalance;
 
             _context.StreakHistories.Add(new StreakHistory
@@ -111,11 +121,32 @@ namespace MentalOS.Services
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 Date = DateTime.UtcNow.Date,
-                StreakValue = change,
+                StreakValue = newStreak,
                 BalanceAfter = newBalance,
                 Action = action,
                 CreatedAt = DateTime.UtcNow
             });
+        }
+
+        public async Task CheckStreak(Guid userId)
+        {
+            var today = DateTime.UtcNow.Date;
+            var yesterday = today.AddDays(-1);
+
+            var lastStreakUpdates = await _context.StreakHistories
+                .Where(sh => sh.CreatedAt.Date == today || sh.CreatedAt.Date == yesterday)
+                .FirstOrDefaultAsync();
+
+            if (lastStreakUpdates == null)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                    throw new Exception("User not found");
+
+                AddInternal(user, 0, "streak losted");
+
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

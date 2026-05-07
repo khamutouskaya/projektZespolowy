@@ -14,13 +14,10 @@ namespace MentalOS.Controllers
     [Authorize]
     public class ShopController : ControllerBase
     {
-        // add endpoint for coin_transactions, balance cheack, change payment controller, 
-        // split coin_balnce and streak -> two diffrent values, adding coins after day, adding streak amount. 
-        // add logic for streak (adding amount to streak per a day, saving streak for 2 days (pausing), on day_change event)  + check s
+        // change payment controller, 
         // isActive change, while it using and isActive - false while it dont
 
-
-        // password chaker 
+        // password checker 
 
         private readonly IShopService _shopService;
         private readonly AppDbContext _context;
@@ -74,6 +71,17 @@ namespace MentalOS.Controllers
             return Ok(new { message = "Purchased successfully" });
         }
 
+        [HttpGet("purchase-history")]
+        public async Task<IActionResult> GetPurchaseHistory()
+        {
+            var userId = GetUserId();
+            var transactions = await _context.CoinTransactions
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+            return Ok(transactions);
+        }
+
         [HttpGet("my-items")]
         public async Task<IActionResult> GetUserItems()
         {
@@ -84,6 +92,24 @@ namespace MentalOS.Controllers
             return Ok(items);
         }
 
-        
+        [HttpPost("equip-item")]
+        public async Task<IActionResult> EquipItem(Guid itemId)
+        {
+            var userId = GetUserId();
+
+            await _shopService.EquipItem(userId, itemId);
+
+            return Ok();
+        }
+
+        [HttpPost("unequip-item")]
+        public async Task<IActionResult> UnequipItem(Guid itemId)
+        {
+            var userId = GetUserId();
+
+            await _shopService.UnequipItem(userId, itemId);
+
+            return Ok();
+        }
     }
 }

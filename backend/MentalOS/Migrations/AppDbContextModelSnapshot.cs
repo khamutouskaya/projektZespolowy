@@ -112,6 +112,50 @@ namespace MentalOS.Migrations
                     b.ToTable("coin_transaction", (string)null);
                 });
 
+            modelBuilder.Entity("MentalOS.Domain.Garden", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Gardens");
+                });
+
+            modelBuilder.Entity("MentalOS.Domain.GardenBed", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GardenId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("PlantedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TreeState")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("X")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Y")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GardenId", "X", "Y")
+                        .IsUnique();
+
+                    b.ToTable("GardenBeds");
+                });
+
             modelBuilder.Entity("MentalOS.Domain.JournalEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -665,13 +709,23 @@ namespace MentalOS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MentalOS.Domain.GardenBed", b =>
+                {
+                    b.HasOne("MentalOS.Domain.Garden", "Garden")
+                        .WithMany("GardenBeds")
+                        .HasForeignKey("GardenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Garden");
+                });
+
             modelBuilder.Entity("MentalOS.Domain.JournalEntry", b =>
                 {
                     b.HasOne("MentalOS.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -681,8 +735,7 @@ namespace MentalOS.Migrations
                     b.HasOne("MentalOS.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -692,8 +745,7 @@ namespace MentalOS.Migrations
                     b.HasOne("MentalOS.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -703,8 +755,7 @@ namespace MentalOS.Migrations
                     b.HasOne("MentalOS.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -735,8 +786,7 @@ namespace MentalOS.Migrations
                     b.HasOne("MentalOS.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Role");
 
@@ -746,6 +796,11 @@ namespace MentalOS.Migrations
             modelBuilder.Entity("MentalOS.Domain.ChatSession", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("MentalOS.Domain.Garden", b =>
+                {
+                    b.Navigation("GardenBeds");
                 });
 #pragma warning restore 612, 618
         }

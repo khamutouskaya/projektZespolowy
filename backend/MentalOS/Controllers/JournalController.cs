@@ -138,6 +138,7 @@ namespace MentalOS.Controllers
             _context.JournalEntries.Add(entry);
             await _context.SaveChangesAsync();
 
+
             return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new JournalEntryDto
             {
                 Id = entry.Id,

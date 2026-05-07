@@ -33,7 +33,7 @@ export default function PlannerAddBar({ onPress }: Props) {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
 
     animation.start();
@@ -101,13 +101,13 @@ const styles = StyleSheet.create({
   bar: {
     minHeight: 76,
     borderRadius: 24,
-    backgroundColor: colors.background.glass,
+    backgroundColor: "rgb(255, 255, 255)",
     paddingHorizontal: 20,
     justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.text.quaternary,
     shadowColor: colors.shadow.primary,
-    shadowOpacity: 0,
+    shadowOpacity: 0.5,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,

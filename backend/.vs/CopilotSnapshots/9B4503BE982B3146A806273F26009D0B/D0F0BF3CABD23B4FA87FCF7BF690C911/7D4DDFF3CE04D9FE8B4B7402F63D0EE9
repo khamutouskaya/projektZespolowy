@@ -1,0 +1,46 @@
+﻿namespace MentalOS.DTOs.JournalDTOs
+{
+    public class JournalEntryDto
+    {
+        public Guid Id { get; set; }
+        public string? Title { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int? MoodScore { get; set; }
+        public string? Emotions { get; set; }
+        public bool IsSummary { get; set; }
+        public DateTime EntryDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreateJournalEntryDto
+    {
+        public string? Title { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int? MoodScore { get; set; }
+        public string? Emotions { get; set; }
+        public bool IsSummary { get; set; }
+        public DateTime? EntryDate { get; set; }
+    }
+
+    public class UpdateJournalEntryDto
+    {
+        public string? Title { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public int? MoodScore { get; set; }
+        public string? Emotions { get; set; }
+        public DateTime? EntryDate { get; set; }
+    }
+
+    public class GenerateSummaryRequestDto
+    {
+        public string DailyAnswers { get; set; } = string.Empty;
+        public DateTime? Date { get; set; }
+    }
+
+    public class GenerateAiEntryRequestDto
+    {
+        public string TranscribedText { get; set; } = string.Empty;
+        public DateTime? EntryDate { get; set; }
+    }
+}

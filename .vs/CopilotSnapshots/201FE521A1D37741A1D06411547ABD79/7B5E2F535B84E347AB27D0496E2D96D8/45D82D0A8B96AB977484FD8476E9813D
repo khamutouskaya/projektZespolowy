@@ -1,0 +1,131 @@
+﻿import React, { useState, useEffect, useMemo } from "react";
+import { ImageBackground, FlatList, StyleSheet, View, Alert } from "react-native";
+import ShopAvatar from "../components/ShopScreen/ShopAvatar";
+import ShopBalance from "../components/ShopScreen/ShopBalance";
+import ShopPreviewModal from "../components/ShopScreen/ShopPreviewModal";
+import ShopSection from "../components/ShopScreen/ShopSection";
+import { shopSectionsMock } from "../data/shop.mock";
+import { ShopItem, ShopSectionData } from "../shop.types";
+import { apiClient } from "../../../services/api/client";
+import { useAuthStore } from "../../../services/store/useAuthStore";
+import { useShopStore } from "../../../services/store/useShopStore";
+
+export default function ShopScreen() {
+  const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const { fetchEquippedItem, equippedPreviewImage, ownedItems } = useShopStore();
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    fetchEquippedItem();
+  }, []);
+
+  const handleOpenPreview = (item: ShopItem) => {
+    setSelectedItem(item);
+    setIsPreviewVisible(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewVisible(false);
+    setSelectedItem(null);
+  };
+
+  const handleBuy = async (item: ShopItem) => {
+    console.log("BUY ITEM:", item);
+    try {
+      const response = await apiClient.post(`/shop/buy?itemId=${item.id}`, {
+        frontendAccesoriesId: item.id,
+        name: item.name,
+        description: item.name,
+        type: item.category,
+        price: item.price
+      });
+      Alert.alert("Sukces", "Przedmiot został zakupiony!");
+      const currentStore = useAuthStore.getState();
+      if(currentStore.user) {
+         useAuthStore.setState({ user: { ...currentStore.user, coinsBalance: currentStore.user.coinsBalance - item.price } });
+      }
+      await fetchEquippedItem();
+    } catch (error: any) {
+      console.error(error);
+      Alert.alert("Błąd", error.response?.data?.error || "Nie udało się kupić przedmiotu.");
+    }
+    handleClosePreview();
+  };
+
+  const handleEquip = async (item: ShopItem) => {
+    try {
+      await apiClient.post(`/shop/equip-item?itemId=${item.id}`);
+      Alert.alert("Sukces", "Przedmiot został założony!");
+      await fetchEquippedItem();
+    } catch (err: any) {
+      console.error(err);
+      Alert.alert("Błąd", "Nie udało się założyć przedmiotu.");
+    }
+    handleClosePreview();
+  };
+
+  const listData = useMemo(() => {
+    const data: Array<ShopSectionData & { isOwnedSection?: boolean }> = [];
+    if (ownedItems.length > 0) {
+      data.push({ id: "owned", title: "Twoje przedmioty", items: ownedItems, isOwnedSection: true });
+    }
+
+    shopSectionsMock.forEach((section) => {
+      const availableItems = section.items.filter(item => !ownedItems.find(o => o.id === item.id));
+      if (availableItems.length > 0) {
+        data.push({ ...section, items: availableItems, isOwnedSection: false });
+      }
+    });
+
+    return data;
+  }, [ownedItems, shopSectionsMock]);
+
+  return (
+    <ImageBackground
+      source={require("../../../../assets/background.png")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <ShopBalance balance={user?.coinsBalance || 0} />
+
+      <FlatList
+        data={listData}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={<ShopAvatar previewImage={equippedPreviewImage} />}
+        renderItem={({ item }) => (
+          <ShopSection
+            section={item}
+            onItemPress={handleOpenPreview}
+            isOwnedSection={item.isOwnedSection}
+          />
+        )}
+      />
+
+      <ShopPreviewModal
+        item={selectedItem}
+        visible={isPreviewVisible}
+        onClose={handleClosePreview}
+        onBuy={handleBuy}
+        isOwned={selectedItem ? !!ownedItems.find(o => o.id === selectedItem.id) : false}
+        onEquip={handleEquip}
+      />
+    </ImageBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingTop: 36,
+    paddingBottom: 48,
+    paddingHorizontal: 18,
+  },
+  content: {
+    paddingHorizontal: 18,
+  },
+});

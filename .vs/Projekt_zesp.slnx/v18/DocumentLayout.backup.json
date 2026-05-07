@@ -1,0 +1,679 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\icon-symbol.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\ui\\icon-symbol.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\app\\(tabs)\\_layout.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\app\\(tabs)\\_layout.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\app\\(tabs)\\home.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\app\\(tabs)\\home.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\icon-symbol.ios.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\ui\\icon-symbol.ios.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\collapsible.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\ui\\collapsible.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\mocks\\userMock.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\mocks\\userMock.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\external-link.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\external-link.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\hello-wave.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\hello-wave.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\haptic-tab.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\components\\haptic-tab.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerInputBar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerInputBar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerAddBar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerAddBar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryEntry\\EditorToolbar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\diary\\components\\diaryEntry\\EditorToolbar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\home\\HomeScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\home\\HomeScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsSettingsCard.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsSettingsCard.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\hooks\\useNotificationSettings.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\profile\\hooks\\useNotificationSettings.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsRow.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsRow.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\mocks\\diary.mock.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\mocks\\diary.mock.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryEntryCard.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryEntryCard.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\screens\\DiaryScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\diary\\screens\\DiaryScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\GenerateSummaryButton.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\diary\\components\\diaryScreen\\GenerateSummaryButton.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\services\\api\\diaryApi.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\services\\api\\diaryApi.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\screens\\ShopScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\shop\\screens\\ShopScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\PlannerController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Controllers\\PlannerController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\ShopController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Controllers\\ShopController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Services\\GardenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Services\\GardenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\JournalController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Controllers\\JournalController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\screens\\PlannerScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\planner\\screens\\PlannerScreen.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\planner.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\planner\\planner.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\DTOs\\CreateShopItemDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\DTOs\\CreateShopItemDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Domain\\ShopItem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Domain\\ShopItem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Services\\ShopService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Services\\ShopService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\MentalOS\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopAvatar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopAvatar.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\services\\store\\useShopStore.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\services\\store\\useShopStore.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\mentalSupport\\components\\shared\\Header.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\mentalSupport\\components\\shared\\Header.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopPreviewModal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopPreviewModal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopItemCard.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopItemCard.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopSection.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopSection.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\garden\\garden.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\garden\\garden.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryHeader.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryHeader.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "_layout.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\app\\(tabs)\\_layout.tsx",
+              "RelativeDocumentMoniker": "frontend\\app\\(tabs)\\_layout.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\app\\(tabs)\\_layout.tsx",
+              "RelativeToolTip": "frontend\\app\\(tabs)\\_layout.tsx",
+              "ViewState": "AgIAAFMAAAAAAAAAAAArwGcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:43:59.307Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "icon-symbol.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\icon-symbol.tsx",
+              "RelativeDocumentMoniker": "frontend\\components\\ui\\icon-symbol.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\icon-symbol.tsx",
+              "RelativeToolTip": "frontend\\components\\ui\\icon-symbol.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:42:24.355Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "icon-symbol.ios.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\icon-symbol.ios.tsx",
+              "RelativeDocumentMoniker": "frontend\\components\\ui\\icon-symbol.ios.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\icon-symbol.ios.tsx",
+              "RelativeToolTip": "frontend\\components\\ui\\icon-symbol.ios.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:42:20.336Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "collapsible.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\collapsible.tsx",
+              "RelativeDocumentMoniker": "frontend\\components\\ui\\collapsible.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\ui\\collapsible.tsx",
+              "RelativeToolTip": "frontend\\components\\ui\\collapsible.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:42:07.579Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "userMock.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\mocks\\userMock.ts",
+              "RelativeDocumentMoniker": "frontend\\components\\mocks\\userMock.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\mocks\\userMock.ts",
+              "RelativeToolTip": "frontend\\components\\mocks\\userMock.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:41:57.726Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "external-link.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\external-link.tsx",
+              "RelativeDocumentMoniker": "frontend\\components\\external-link.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\external-link.tsx",
+              "RelativeToolTip": "frontend\\components\\external-link.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:41:48.209Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "hello-wave.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\hello-wave.tsx",
+              "RelativeDocumentMoniker": "frontend\\components\\hello-wave.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\hello-wave.tsx",
+              "RelativeToolTip": "frontend\\components\\hello-wave.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:41:43.279Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "haptic-tab.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\haptic-tab.tsx",
+              "RelativeDocumentMoniker": "frontend\\components\\haptic-tab.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\components\\haptic-tab.tsx",
+              "RelativeToolTip": "frontend\\components\\haptic-tab.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:41:33.807Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PlannerInputBar.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerInputBar.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerInputBar.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerInputBar.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerInputBar.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:40:42.403Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "PlannerAddBar.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerAddBar.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerAddBar.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerAddBar.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\planner\\components\\plannerScreen\\PlannerAddBar.tsx",
+              "ViewState": "AgIAAGIAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:40:28.217Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "EditorToolbar.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryEntry\\EditorToolbar.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\diary\\components\\diaryEntry\\EditorToolbar.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryEntry\\EditorToolbar.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\diary\\components\\diaryEntry\\EditorToolbar.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:40:08.226Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "HomeScreen.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\home\\HomeScreen.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\home\\HomeScreen.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\home\\HomeScreen.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\home\\HomeScreen.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:38:59.013Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "useNotificationSettings.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\hooks\\useNotificationSettings.ts",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\profile\\hooks\\useNotificationSettings.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\hooks\\useNotificationSettings.ts",
+              "RelativeToolTip": "frontend\\src\\modules\\profile\\hooks\\useNotificationSettings.ts",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:24:32.923Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "NotificationsSettingsCard.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsSettingsCard.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsSettingsCard.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsSettingsCard.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsSettingsCard.tsx",
+              "ViewState": "AgIAAGUAAAAAAAAAAAAQwKwAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:21:13.038Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "NotificationsRow.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsRow.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsRow.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsRow.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\profile\\components\\profileScreen\\NotificationsRow.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:21:09.265Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "DiaryEntryCard.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryEntryCard.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryEntryCard.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryEntryCard.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryEntryCard.tsx",
+              "ViewState": "AgIAALcAAAAAAAAAAAAmwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:08:54.43Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "diary.mock.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\mocks\\diary.mock.ts",
+              "RelativeDocumentMoniker": "frontend\\mocks\\diary.mock.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\mocks\\diary.mock.ts",
+              "RelativeToolTip": "frontend\\mocks\\diary.mock.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T17:03:44.729Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "DiaryHeader.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryHeader.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryHeader.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryHeader.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\diary\\components\\diaryScreen\\DiaryHeader.tsx",
+              "ViewState": "AgIAAA8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T11:52:39.22Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "DiaryScreen.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\screens\\DiaryScreen.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\diary\\screens\\DiaryScreen.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\screens\\DiaryScreen.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\diary\\screens\\DiaryScreen.tsx",
+              "ViewState": "AgIAANYAAAAAAAAAAAAEwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T11:46:38.077Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "GenerateSummaryButton.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\GenerateSummaryButton.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\diary\\components\\diaryScreen\\GenerateSummaryButton.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\diary\\components\\diaryScreen\\GenerateSummaryButton.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\diary\\components\\diaryScreen\\GenerateSummaryButton.tsx",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAvwDwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T11:46:31.666Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "diaryApi.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\services\\api\\diaryApi.ts",
+              "RelativeDocumentMoniker": "frontend\\src\\services\\api\\diaryApi.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\services\\api\\diaryApi.ts",
+              "RelativeToolTip": "frontend\\src\\services\\api\\diaryApi.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-07T11:45:48.797Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "JournalController.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\JournalController.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Controllers\\JournalController.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\JournalController.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Controllers\\JournalController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAEwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-07T11:33:51.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "PlannerController.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\PlannerController.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Controllers\\PlannerController.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\PlannerController.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Controllers\\PlannerController.cs",
+              "ViewState": "AgIAAMUAAAAAAAAAAAAEwAoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T14:24:50.847Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "GardenService.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Services\\GardenService.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Services\\GardenService.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Services\\GardenService.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Services\\GardenService.cs",
+              "ViewState": "AgIAAHgAAAAAAAAAAAAEwKQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T14:23:14.741Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "PlannerScreen.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\screens\\PlannerScreen.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\planner\\screens\\PlannerScreen.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\screens\\PlannerScreen.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\planner\\screens\\PlannerScreen.tsx",
+              "ViewState": "AgIAADwCAAAAAAAAAAAIwAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T14:22:29.004Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "planner.service.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\planner.service.ts",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\planner\\planner.service.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\planner\\planner.service.ts",
+              "RelativeToolTip": "frontend\\src\\modules\\planner\\planner.service.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T14:20:37.942Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "garden.service.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\garden\\garden.service.ts",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\garden\\garden.service.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\garden\\garden.service.ts",
+              "RelativeToolTip": "frontend\\src\\modules\\garden\\garden.service.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T14:10:39.518Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "home.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\app\\(tabs)\\home.tsx",
+              "RelativeDocumentMoniker": "frontend\\app\\(tabs)\\home.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\app\\(tabs)\\home.tsx",
+              "RelativeToolTip": "frontend\\app\\(tabs)\\home.tsx",
+              "ViewState": "AgIAAG8DAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T14:00:36.749Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "ShopSection.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopSection.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopSection.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopSection.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopSection.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T14:00:36.276Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "ShopItemCard.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopItemCard.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopItemCard.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopItemCard.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopItemCard.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T14:00:36.165Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "ShopPreviewModal.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopPreviewModal.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopPreviewModal.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopPreviewModal.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopPreviewModal.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T13:54:08.329Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "Header.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\mentalSupport\\components\\shared\\Header.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\mentalSupport\\components\\shared\\Header.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\mentalSupport\\components\\shared\\Header.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\mentalSupport\\components\\shared\\Header.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T13:53:46.831Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "useShopStore.ts",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\services\\store\\useShopStore.ts",
+              "RelativeDocumentMoniker": "frontend\\src\\services\\store\\useShopStore.ts",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\services\\store\\useShopStore.ts",
+              "RelativeToolTip": "frontend\\src\\services\\store\\useShopStore.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-06T13:53:35.368Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "ShopAvatar.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopAvatar.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopAvatar.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopAvatar.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\shop\\components\\ShopScreen\\ShopAvatar.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-05T18:28:10.864Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAE8AAAAAAAAAAAD4vwAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-05T18:07:22.198Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "ShopScreen.tsx",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\screens\\ShopScreen.tsx",
+              "RelativeDocumentMoniker": "frontend\\src\\modules\\shop\\screens\\ShopScreen.tsx",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\frontend\\src\\modules\\shop\\screens\\ShopScreen.tsx",
+              "RelativeToolTip": "frontend\\src\\modules\\shop\\screens\\ShopScreen.tsx",
+              "ViewState": "AgIAAGsAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-05-05T18:03:04.667Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "ShopController.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\ShopController.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Controllers\\ShopController.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Controllers\\ShopController.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Controllers\\ShopController.cs",
+              "ViewState": "AgIAAGMAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-05T17:56:03.815Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "ShopService.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Services\\ShopService.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Services\\ShopService.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Services\\ShopService.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Services\\ShopService.cs",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAIwGIAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-05T17:43:59.939Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "ShopItem.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Domain\\ShopItem.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\Domain\\ShopItem.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\Domain\\ShopItem.cs",
+              "RelativeToolTip": "backend\\MentalOS\\Domain\\ShopItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-05T17:42:27.027Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "CreateShopItemDto.cs",
+              "DocumentMoniker": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\DTOs\\CreateShopItemDto.cs",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\DTOs\\CreateShopItemDto.cs",
+              "ToolTip": "C:\\Users\\Micha\u0142\\Desktop\\Projekt_zesp\\backend\\MentalOS\\DTOs\\CreateShopItemDto.cs",
+              "RelativeToolTip": "backend\\MentalOS\\DTOs\\CreateShopItemDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-05T17:40:50.637Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

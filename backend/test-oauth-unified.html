@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test OAuth - MentalOS API (Google & Facebook)</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .google-icon {
+            color: #4285f4;
+            font-size: 2rem;
+        }
+        .facebook-icon {
+            color: #1877f2;
+            font-size: 2rem;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .signin-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .alert-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            color: #1565c0;
+        }
+        .alert-success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+        .alert-error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+        }
+        .alert-warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            color: #e65100;
+        }
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .user-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .info-item strong {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .info-item span {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background: #4caf50;
+        }
+        .status-offline {
+            background: #f44336;
+        }
+        .instructions {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .instructions a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .instructions a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>?? OAuth Test - MentalOS API</h1>
+            <p>Test Google & Facebook Authentication</p>
+        </div>
+
+        <div id="api-status"></div>
+
+        <div class="cards">
+            <!-- Google OAuth Card -->
+            <div class="card">
+                <h2>
+                    <span class="google-icon">??</span>
+                    Google OAuth
+                </h2>
+                
+                <div class="input-group">
+                    <label for="googleClientId">Google Client ID</label>
+                    <input 
+                        type="text" 
+                        id="googleClientId" 
+                        placeholder="123456789-abc.apps.googleusercontent.com"
+                        value="592043560416-4k74p5rq2dl756b2c1ogv8p42h7gkeo6.apps.googleusercontent.com"
+                    >
+                </div>
+
+                <button class="btn btn-primary" onclick="initializeGoogle()">
+                    Initialize Google Sign-In
+                </button>
+
+                <div id="google-signin" class="signin-container" style="display: none;">
+                    <p style="margin-bottom: 15px; color: #666;">Click the button below to sign in:</p>
+                    <div id="google-button"></div>
+                </div>
+
+                <div id="google-result"></div>
+            </div>
+
+            <!-- Facebook OAuth Card -->
+            <div class="card">
+                <h2>
+                    <span class="facebook-icon">??</span>
+                    Facebook OAuth
+                </h2>
+                
+                <div class="input-group">
+                    <label for="facebookAppId">Facebook App ID</label>
+                    <input 
+                        type="text" 
+                        id="facebookAppId" 
+                        placeholder="1234567890123456"
+                        value="1567284824515799"
+                    >
+                </div>
+
+                <button class="btn btn-primary" onclick="initializeFacebook()">
+                    Initialize Facebook Login
+                </button>
+
+                <div id="facebook-signin" class="signin-container" style="display: none;">
+                    <p style="margin-bottom: 15px; color: #666;">Click the button below to sign in:</p>
+                    <button class="btn btn-primary" onclick="handleFacebookLogin()" style="background: #1877f2;">
+                        ?? Login with Facebook
+                    </button>
+                </div>
+
+                <div id="facebook-result"></div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="combined-result"></div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>?? Setup Instructions</h3>
+            
+            <h4>Google OAuth:</h4>
+            <ol>
+                <li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+                <li>Create project ? Enable Google Sign-In API</li>
+                <li>Create OAuth 2.0 Client ID (Web application)</li>
+                <li>Add to Authorized JavaScript origins:
+                    <ul>
+                        <li><code>http://localhost:5076</code> (dla API)</li>
+                        <li><code>http://localhost:8000</code> (dla HTML - Python server)</li>
+                    </ul>
+                </li>
+                <li>Copy Client ID and paste above</li>
+                <li>Add to <code>appsettings.json</code>: <code>"OAuth:Google:ClientId"</code></li>
+            </ol>
+
+            <h4>Facebook OAuth:</h4>
+            <ol>
+                <li>Go to <a href="https://developers.facebook.com" target="_blank">Facebook Developers</a></li>
+                <li>Create App ? Choose "Consumer" type</li>
+                <li>Add Facebook Login product</li>
+                <li>Settings ? Valid OAuth Redirect URIs: <code>http://localhost:5076</code></li>
+                <li>Copy App ID and paste above</li>
+                <li>Add to <code>appsettings.json</code>: <code>"OAuth:Facebook:AppId"</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5076/api/auth';
+        let googleInitialized = false;
+        let facebookInitialized = false;
+
+        // Check API status on load
+        window.addEventListener('load', async () => {
+            await checkApiStatus();
+        });
+
+        async function checkApiStatus() {
+            console.log('?? Checking if API is running on http://localhost:5076...');
+            
+            try {
+                // Try a simple POST endpoint (will return 400 Bad Request but that means API is running!)
+                const response = await fetch('http://localhost:5076/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: '', password: '' }), // Invalid data on purpose
+                    cache: 'no-cache',
+                });
+                
+                // Any response (even 400) means API is running
+                console.log('? API responded with status:', response.status);
+                
+                if (response.status === 400 || response.status === 401 || response.status === 200) {
+                    console.log('? API is ONLINE!');
+                    showApiStatus(true);
+                    return;
+                }
+                
+                console.warn('?? Unexpected status code:', response.status);
+                showApiStatus(false);
+                
+            } catch (error) {
+                console.error('? API check failed:', error);
+                console.error('? API is OFFLINE or not accessible');
+                console.log('?? Make sure API is running: dotnet run --launch-profile http');
+                showApiStatus(false);
+            }
+        }
+
+        function showApiStatus(isOnline) {
+            console.log(`?? Showing API status: ${isOnline ? 'ONLINE ?' : 'OFFLINE ?'}`);
+            
+            const recheckButton = isOnline 
+                ? '' 
+                : '<button class="btn btn-primary" onclick="checkApiStatus()" style="margin-top: 10px; max-width: 200px;">?? Recheck API</button>';
+            
+            const debugInfo = !isOnline 
+                ? `<br><small style="display: block; margin-top: 10px;">
+                    ?? Check Console (F12) for details<br>
+                    ?? Make sure: <code>dotnet run --launch-profile http</code><br>
+                    ?? Verify: <a href="http://localhost:5076/swagger" target="_blank" style="color: inherit;">http://localhost:5076/swagger</a>
+                   </small>` 
+                : '';
+            
+            const statusHtml = `
+                <div class="alert ${isOnline ? 'alert-success' : 'alert-error'}">
+                    <span class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></span>
+                    ${isOnline 
+                        ? '? API is running on http://localhost:5076' 
+                        : '? API is not running! Run: dotnet run --launch-profile http'}
+                    ${debugInfo}
+                    ${recheckButton}
+                </div>
+            `;
+            document.getElementById('api-status').innerHTML = statusHtml;
+        }
+
+        // ========== GOOGLE OAUTH ==========
+
+        function initializeGoogle() {
+            const clientId = document.getElementById('googleClientId').value.trim();
+            
+            if (!clientId) {
+                showGoogleResult('error', 'Please enter Google Client ID!');
+                return;
+            }
+
+            if (!clientId.includes('.apps.googleusercontent.com')) {
+                showGoogleResult('error', 'Invalid Client ID format!');
+                return;
+            }
+
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: handleGoogleResponse,
+                auto_select: false,
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById('google-button'),
+                { 
+                    theme: 'outline', 
+                    size: 'large',
+                    text: 'signin_with',
+                    shape: 'rectangular',
+                    width: 300,
+                }
+            );
+
+            document.getElementById('google-signin').style.display = 'block';
+            googleInitialized = true;
+            showGoogleResult('success', '? Google Sign-In initialized! Click button above to login.');
+        }
+
+        async function handleGoogleResponse(response) {
+            const idToken = response.credential;
+            
+            showGoogleResult('info', '?? Sending token to API...');
+            
+            try {
+                const apiResponse = await fetch(`${API_URL}/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken }),
+                });
+
+                if (!apiResponse.ok) {
+                    const errorText = await apiResponse.text();
+                    throw new Error(`API Error ${apiResponse.status}: ${errorText}`);
+                }
+
+                const data = await apiResponse.json();
+                showSuccessResult('Google', data);
+                
+            } catch (error) {
+                showGoogleResult('error', `? Error: ${error.message}`);
+                console.error('Google OAuth error:', error);
+            }
+        }
+
+        function showGoogleResult(type, message) {
+            const alertClass = `alert-${type}`;
+            document.getElementById('google-result').innerHTML = `
+                <div class="alert ${alertClass}" style="margin-top: 20px;">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // ========== FACEBOOK OAUTH ==========
+
+        function initializeFacebook() {
+            console.log('?? initializeFacebook called');
+            const appId = document.getElementById('facebookAppId').value.trim();
+            
+            if (!appId) {
+                showFacebookResult('error', 'Please enter Facebook App ID!');
+                return;
+            }
+
+            if (!/^\d+$/.test(appId)) {
+                showFacebookResult('error', 'Invalid App ID format (should be numbers only)!');
+                return;
+            }
+
+            console.log('?? App ID:', appId);
+
+            // Remove existing FB SDK if present
+            if (window.FB) {
+                console.log('?? Removing existing FB object');
+                delete window.FB;
+            }
+            
+            const existingScript = document.getElementById('facebook-jssdk');
+            if (existingScript) {
+                console.log('?? Removing existing FB script');
+                existingScript.remove();
+            }
+
+            // Define initialization function
+            window.fbAsyncInit = function() {
+                console.log('?? fbAsyncInit called - initializing FB SDK');
+                FB.init({
+                    appId: appId,
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v12.0'  // U¿ywamy starszej wersji która wspiera HTTP
+                });
+
+                console.log('?? FB.init completed');
+                FB.AppEvents.logPageView();
+                facebookInitialized = true;
+                document.getElementById('facebook-signin').style.display = 'block';
+                showFacebookResult('success', '? Facebook Login initialized! Click button above to login.');
+                console.log('?? Facebook initialized successfully, FB object:', window.FB);
+            };
+
+            // Load Facebook SDK
+            console.log('?? Loading Facebook SDK...');
+            (function(d, s, id){
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) {
+                    console.log('?? Facebook SDK script already exists');
+                    return;
+                }
+                js = d.createElement(s); js.id = id;
+                js.src = "https://connect.facebook.net/en_US/sdk.js";
+                js.onload = function() {
+                    console.log('?? Facebook SDK script loaded');
+                };
+                js.onerror = function() {
+                    console.error('? Failed to load Facebook SDK');
+                    showFacebookResult('error', '? Failed to load Facebook SDK');
+                };
+                fjs.parentNode.insertBefore(js, fjs);
+                console.log('?? Facebook SDK script added to DOM');
+            }(document, 'script', 'facebook-jssdk'));
+        }
+
+        function handleFacebookLogin() {
+            console.log('?? handleFacebookLogin called');
+            console.log('?? facebookInitialized:', facebookInitialized);
+            console.log('?? FB object exists:', typeof window.FB !== 'undefined');
+            
+            if (!facebookInitialized) {
+                showFacebookResult('error', 'Facebook not initialized! Click "Initialize" first.');
+                return;
+            }
+
+            if (typeof window.FB === 'undefined') {
+                showFacebookResult('error', '? Facebook SDK not loaded! Wait a moment and try again.');
+                console.error('FB object is undefined!');
+                return;
+            }
+
+            console.log('?? Calling FB.login...');
+            showFacebookResult('info', '?? Opening Facebook login popup...');
+
+            FB.login(async function(response) {
+                console.log('?? FB.login response:', response);
+                
+                if (response.authResponse) {
+                    const accessToken = response.authResponse.accessToken;
+                    console.log('?? Got access token:', accessToken.substring(0, 20) + '...');
+                    
+                    showFacebookResult('info', '?? Sending token to API...');
+                    
+                    try {
+                        const apiResponse = await fetch(`${API_URL}/facebook`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ accessToken }),
+                        });
+
+                        if (!apiResponse.ok) {
+                            const errorText = await apiResponse.text();
+                            throw new Error(`API Error ${apiResponse.status}: ${errorText}`);
+                        }
+
+                        const data = await apiResponse.json();
+                        showSuccessResult('Facebook', data);
+                        
+                    } catch (error) {
+                        showFacebookResult('error', `? Error: ${error.message}`);
+                        console.error('Facebook OAuth error:', error);
+                    }
+                } else {
+                    console.log('?? Login cancelled or failed');
+                    showFacebookResult('warning', 'Facebook login cancelled');
+                }
+            }, {scope: 'public_profile,email'});
+        }
+
+        function showFacebookResult(type, message) {
+            const alertClass = `alert-${type}`;
+            document.getElementById('facebook-result').innerHTML = `
+                <div class="alert ${alertClass}" style="margin-top: 20px;">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // ========== SHARED SUCCESS DISPLAY ==========
+
+        function showSuccessResult(provider, data) {
+            const resultHtml = `
+                <div class="result-card">
+                    <h3>? ${provider} Login Success!</h3>
+                    
+                    <div class="user-info">
+                        <div class="info-item">
+                            <strong>USER ID</strong>
+                            <span>${data.user.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>EMAIL</strong>
+                            <span>${data.user.email}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>PERSONALITY</strong>
+                            <span>${data.user.personalityType}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>ADMIN</strong>
+                            <span>${data.user.isAdmin ? 'Yes' : 'No'}</span>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">JWT Token:</h4>
+                    <pre>${data.token.substring(0, 150)}...</pre>
+
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">Full Response:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            
+            document.getElementById('combined-result').innerHTML = resultHtml;
+            
+            // Save token
+            localStorage.setItem('jwt_token', data.token);
+            console.log('Token saved to localStorage');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+﻿[
+  {
+    "id": 1,
+    "text": "Jestem duszą towarzystwa.",
+    "trait": "E",
+    "reverse": false
+  },
+  {
+    "id": 2,
+    "text": "Mało przejmuję się innymi ludźmi.",
+    "trait": "A",
+    "reverse": true
+  },
+  {
+    "id": 3,
+    "text": "Zawsze jestem przygotowany.",
+    "trait": "C",
+    "reverse": false
+  },
+  {
+    "id": 4,
+    "text": "Łatwo się stresuję.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 5,
+    "text": "Mam bogate słownictwo.",
+    "trait": "O",
+    "reverse": false
+  },
+
+  {
+    "id": 6,
+    "text": "Nie mówię zbyt dużo.",
+    "trait": "E",
+    "reverse": true
+  },
+  {
+    "id": 7,
+    "text": "Interesuję się ludźmi.",
+    "trait": "A",
+    "reverse": false
+  },
+  {
+    "id": 8,
+    "text": "Zostawiam swoje rzeczy w nieładzie.",
+    "trait": "C",
+    "reverse": true
+  },
+  {
+    "id": 9,
+    "text": "Przez większość czasu jestem zrelaksowany.",
+    "trait": "N",
+    "reverse": true
+  },
+  {
+    "id": 10,
+    "text": "Mam trudności ze zrozumieniem abstrakcyjnych idei.",
+    "trait": "O",
+    "reverse": true
+  },
+
+  {
+    "id": 11,
+    "text": "Czuję się swobodnie wśród ludzi.",
+    "trait": "E",
+    "reverse": false
+  },
+  {
+    "id": 12,
+    "text": "Obrażam ludzi.",
+    "trait": "A",
+    "reverse": true
+  },
+  {
+    "id": 13,
+    "text": "Zwracam uwagę na szczegóły.",
+    "trait": "C",
+    "reverse": false
+  },
+  {
+    "id": 14,
+    "text": "Martwię się różnymi rzeczami.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 15,
+    "text": "Mam żywą wyobraźnię.",
+    "trait": "O",
+    "reverse": false
+  },
+
+  {
+    "id": 16,
+    "text": "Trzymam się na uboczu.",
+    "trait": "E",
+    "reverse": true
+  },
+  {
+    "id": 17,
+    "text": "Współczuję uczuciom innych.",
+    "trait": "A",
+    "reverse": false
+  },
+  {
+    "id": 18,
+    "text": "Robię bałagan.",
+    "trait": "C",
+    "reverse": true
+  },
+  {
+    "id": 19,
+    "text": "Rzadko czuję się przygnębiony.",
+    "trait": "N",
+    "reverse": true
+  },
+  {
+    "id": 20,
+    "text": "Nie interesują mnie abstrakcyjne idee.",
+    "trait": "O",
+    "reverse": true
+  },
+
+  {
+    "id": 21,
+    "text": "Zaczynam rozmowy.",
+    "trait": "E",
+    "reverse": false
+  },
+  {
+    "id": 22,
+    "text": "Nie interesują mnie problemy innych ludzi.",
+    "trait": "A",
+    "reverse": true
+  },
+  {
+    "id": 23,
+    "text": "Wykonuję obowiązki od razu.",
+    "trait": "C",
+    "reverse": false
+  },
+  {
+    "id": 24,
+    "text": "Łatwo się denerwuję.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 25,
+    "text": "Mam świetne pomysły.",
+    "trait": "O",
+    "reverse": false
+  },
+
+  {
+    "id": 26,
+    "text": "Mam niewiele do powiedzenia.",
+    "trait": "E",
+    "reverse": true
+  },
+  {
+    "id": 27,
+    "text": "Mam dobre serce.",
+    "trait": "A",
+    "reverse": false
+  },
+  {
+    "id": 28,
+    "text": "Często zapominam odkładać rzeczy na miejsce.",
+    "trait": "C",
+    "reverse": true
+  },
+  {
+    "id": 29,
+    "text": "Łatwo się denerwuję.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 30,
+    "text": "Nie mam dobrej wyobraźni.",
+    "trait": "O",
+    "reverse": true
+  },
+
+  {
+    "id": 31,
+    "text": "Rozmawiam z wieloma różnymi ludźmi na imprezach.",
+    "trait": "E",
+    "reverse": false
+  },
+  {
+    "id": 32,
+    "text": "Nie jestem zbyt zainteresowany innymi.",
+    "trait": "A",
+    "reverse": true
+  },
+  {
+    "id": 33,
+    "text": "Lubię porządek.",
+    "trait": "C",
+    "reverse": false
+  },
+  {
+    "id": 34,
+    "text": "Często zmieniam nastrój.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 35,
+    "text": "Szybko rozumiem rzeczy.",
+    "trait": "O",
+    "reverse": false
+  },
+
+  {
+    "id": 36,
+    "text": "Nie lubię zwracać na siebie uwagi.",
+    "trait": "E",
+    "reverse": true
+  },
+  {
+    "id": 37,
+    "text": "Poświęcam czas innym.",
+    "trait": "A",
+    "reverse": false
+  },
+  {
+    "id": 38,
+    "text": "Unikam obowiązków.",
+    "trait": "C",
+    "reverse": true
+  },
+  {
+    "id": 39,
+    "text": "Mam częste wahania nastroju.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 40,
+    "text": "Używam trudnych słów.",
+    "trait": "O",
+    "reverse": false
+  },
+
+  {
+    "id": 41,
+    "text": "Nie przeszkadza mi bycie w centrum uwagi.",
+    "trait": "E",
+    "reverse": false
+  },
+  {
+    "id": 42,
+    "text": "Odczuwam emocje innych ludzi.",
+    "trait": "A",
+    "reverse": false
+  },
+  {
+    "id": 43,
+    "text": "Trzymam się harmonogramu.",
+    "trait": "C",
+    "reverse": false
+  },
+  {
+    "id": 44,
+    "text": "Łatwo się irytuję.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 45,
+    "text": "Spędzam czas na refleksji.",
+    "trait": "O",
+    "reverse": false
+  },
+
+  {
+    "id": 46,
+    "text": "Jestem cichy wśród nieznajomych.",
+    "trait": "E",
+    "reverse": true
+  },
+  {
+    "id": 47,
+    "text": "Sprawiam, że ludzie czują się swobodnie.",
+    "trait": "A",
+    "reverse": false
+  },
+  {
+    "id": 48,
+    "text": "Jestem dokładny w swojej pracy.",
+    "trait": "C",
+    "reverse": false
+  },
+  {
+    "id": 49,
+    "text": "Często czuję się przygnębiony.",
+    "trait": "N",
+    "reverse": false
+  },
+  {
+    "id": 50,
+    "text": "Mam dużo pomysłów.",
+    "trait": "O",
+    "reverse": false
+  }
+]

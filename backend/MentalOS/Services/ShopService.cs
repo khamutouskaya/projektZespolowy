@@ -2,6 +2,7 @@
 using MentalOS.Domain;
 using MentalOS.Services.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MentalOS.Services
@@ -64,6 +65,18 @@ namespace MentalOS.Services
             await transaction.CommitAsync();
         }
 
+        public async Task<int> GetBalance(Guid userId)
+        {
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            return user.CoinsBalance;
+        }
+
         public async Task<List<ShopItem>> GetAvailableShopItems()
         {
             return await _context.Set<ShopItem>().ToListAsync();
@@ -81,6 +94,7 @@ namespace MentalOS.Services
             var existingItem = await _context.Set<ShopItem>().FirstOrDefaultAsync(i => i.Id == item.Id);
             if (existingItem != null)
             {
+                existingItem.FrontendAccesoriesId = item.FrontendAccesoriesId;
                 existingItem.Name = item.Name;
                 existingItem.Description = item.Description;
                 existingItem.Price = item.Price;
@@ -91,6 +105,42 @@ namespace MentalOS.Services
             }
             await _context.SaveChangesAsync();
             return await GetAvailableShopItems();
+        }
+
+        public async Task EquipItem(Guid userId, Guid itemId)
+        {
+            var userItems = await _context.UserItems
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+
+            var item = userItems.FirstOrDefault(x => x.Id == itemId || x.ShopItemId == itemId);
+
+            if (item == null)
+                throw new Exception("User doesn't own this item");
+
+            foreach (var userItem in userItems)
+            {
+                userItem.IsActive = (userItem.Id == item.Id);
+                _context.Update(userItem);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UnequipItem(Guid userId, Guid itemId)
+        {
+            var item = await _context.UserItems
+                .FirstOrDefaultAsync(x => x.UserId == userId && (x.Id == itemId || x.ShopItemId == itemId));
+
+            if (item == null)
+                throw new Exception("User doesn't own this item");
+
+            if (!item.IsActive)
+                return;
+
+            item.IsActive = false;
+            _context.Update(item);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -194,7 +194,6 @@ namespace MentalOS.Services
         }
     }
 
-
     public interface IPasswordPolicy
     {
         void Validate(string password);

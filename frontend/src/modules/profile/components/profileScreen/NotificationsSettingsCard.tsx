@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Pressable,
   StyleSheet,
   Switch,
@@ -12,17 +13,11 @@ import {
 } from "react-native";
 import { useNotificationSettings } from "../../hooks/useNotificationSettings";
 
-const ACCENT = "#355A7A";
-const ACCENT_LIGHT = "rgba(53,90,122,0.11)";
-const TEXT_PRIMARY = "rgba(25,40,58,1)";
-const TEXT_SECONDARY = "rgba(60,80,105,0.75)";
-const CARD_BG = "rgba(255,255,255,0.80)";
-const DIVIDER = "rgba(150,175,200,0.4)";
-
 export default function NotificationsSettingsCard() {
   const { settings, loading, update, isMutedTemporarily, muteUntil, unmute } =
     useNotificationSettings();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempTime, setTempTime] = useState<Date | null>(null);
 
   const handleMuteTemporary = () => {
     Alert.alert("Wycisz na jak długo?", undefined, [
@@ -66,49 +61,36 @@ export default function NotificationsSettingsCard() {
 
   if (loading) return <ActivityIndicator />;
 
-  const showMuteRow = settings.allEnabled;
-  const showDiaryRow = settings.allEnabled && !isMutedTemporarily;
-  const showTimeRow = showDiaryRow && settings.diaryEnabled;
-
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Powiadomienia</Text>
 
+      {/* Wszystkie powiadomienia */}
       <Row
         icon="notifications-outline"
         label="Wszystkie powiadomienia"
         right={
-          <Switch
-            value={settings.allEnabled && !isMutedTemporarily}
+    <Switch
+         value={settings.allEnabled && !isMutedTemporarily}
             onValueChange={(val) => update({ allEnabled: val })}
-            trackColor={{ true: "rgba(173,219,183,0.9)", false: undefined }}
-            thumbColor={settings.allEnabled ? "#4a9c5d" : undefined}
-          />
+     trackColor={{ true: "rgba(173,219,183,0.8)", false: "rgba(200,200,200,0.5)" }}
+            thumbColor={settings.allEnabled && !isMutedTemporarily ? "#fff" : "#f4f3f4"}
+/>
         }
       />
 
-      {showMuteRow && <View style={styles.rowDivider} />}
-
-      {showMuteRow && (
+      {/* Wycisz tymczasowo */}
+      {settings.allEnabled && (
         <Row
           icon="moon-outline"
           label={mutedUntilLabel ?? "Wycisz tymczasowo"}
-          iconColor={isMutedTemporarily ? "#4a9c5d" : ACCENT}
-          iconBg={isMutedTemporarily ? "rgba(74,156,93,0.12)" : ACCENT_LIGHT}
+          labelColor={isMutedTemporarily ? "#6FAE7A" : undefined}
           right={
             <Pressable
               onPress={isMutedTemporarily ? unmute : handleMuteTemporary}
-              style={[
-                styles.actionBtn,
-                isMutedTemporarily && styles.actionBtnActive,
-              ]}
+              style={styles.smallButton}
             >
-              <Text
-                style={[
-                  styles.actionBtnText,
-                  isMutedTemporarily && styles.actionBtnTextActive,
-                ]}
-              >
+              <Text style={styles.smallButtonText}>
                 {isMutedTemporarily ? "Odcisz" : "Wycisz"}
               </Text>
             </Pressable>
@@ -116,58 +98,107 @@ export default function NotificationsSettingsCard() {
         />
       )}
 
-      {showDiaryRow && <View style={styles.rowDivider} />}
+      {/* Przypomnienie dziennika */}
+      {settings.allEnabled && !isMutedTemporarily && (
+        <>
+          <Row
+ icon="book-outline"
+            label="Przypomnienie dziennika"
+        right={
+         <Switch
+ value={settings.diaryEnabled}
+        onValueChange={(val) => update({ diaryEnabled: val })}
+    trackColor={{ true: "rgba(173,219,183,0.8)", false: "rgba(200,200,200,0.5)" }}
+         thumbColor={settings.diaryEnabled ? "#fff" : "#f4f3f4"}
+       />
+   }
+       />
 
-      {showDiaryRow && (
-        <Row
-          icon="book-outline"
-          label="Przypomnienie dziennika"
-          right={
-            <Switch
-              value={settings.diaryEnabled}
-              onValueChange={(val) => update({ diaryEnabled: val })}
-              trackColor={{ true: "rgba(173,219,183,0.9)", false: undefined }}
-              thumbColor={settings.diaryEnabled ? "#4a9c5d" : undefined}
-            />
-          }
-        />
-      )}
-
-      {showTimeRow && <View style={styles.rowDivider} />}
-
-      {showTimeRow && (
-        <Row
-          icon="time-outline"
-          label="Godzina przypomnienia"
-          right={
-            <Pressable
-              onPress={() => setShowTimePicker(true)}
-              style={styles.actionBtn}
-            >
-              <Text style={styles.actionBtnText}>
-                {String(settings.diaryHour).padStart(2, "0")}:
-                {String(settings.diaryMinute).padStart(2, "0")}
-              </Text>
-            </Pressable>
-          }
-        />
-      )}
-
-      {showTimePicker && (
-        <DateTimePicker
-          mode="time"
-          value={new Date(0, 0, 0, settings.diaryHour, settings.diaryMinute)}
-          is24Hour
-          onChange={(_, date) => {
-            setShowTimePicker(false);
-            if (!date) return;
-            update({
-              diaryHour: date.getHours(),
-              diaryMinute: date.getMinutes(),
-            });
+          {/* Godzina przypomnienia */}
+     {settings.diaryEnabled && (
+<Row
+      icon="time-outline"
+   label="Godzina przypomnienia"
+           right={
+        <Pressable
+          onPress={() => {
+ const initialDate = new Date();
+      initialDate.setHours(settings.diaryHour, settings.diaryMinute, 0, 0);
+            setTempTime(initialDate);
+            setShowTimePicker(true);
           }}
-        />
+           style={styles.smallButton}
+     >
+         <Text style={styles.smallButtonText}>
+    {String(tempTime ? tempTime.getHours() : settings.diaryHour).padStart(2, "0")}:
+      {String(tempTime ? tempTime.getMinutes() : settings.diaryMinute).padStart(2, "0")}
+             </Text>
+         </Pressable>
+   }
+            />
+   )}
+        </>
       )}
+
+           {showTimePicker && (
+                   <DateTimePicker
+                  mode="time"
+                       value={tempTime ?? (() => {
+                    const d = new Date();
+                           d.setHours(settings.diaryHour, settings.diaryMinute, 0, 0);
+                 return d;
+                   })()}
+                is24Hour
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+             textColor="#2d3748"
+                  themeVariant="light"
+           onChange={(event: DateTimePickerEvent, date?: Date) => {
+                  if (Platform.OS === "android") {
+             setShowTimePicker(false);
+                    if (event.type === "set" && date) {
+            update({
+                    diaryHour: date.getHours(),
+                  diaryMinute: date.getMinutes(),
+                       });
+                  }
+          setTempTime(null);
+              } else {
+               // iOS - update temp value, don't close yet
+                  if (date) {
+                  setTempTime(date);
+                      }
+            }
+                  }}
+                     />
+                )}
+      {showTimePicker && Platform.OS === "ios" && (
+              <View style={styles.iosPickerButtons}>
+            <Pressable
+        onPress={() => {
+              setShowTimePicker(false);
+       setTempTime(null);
+             }}
+           style={styles.iosPickerButton}
+          >
+          <Text style={styles.iosPickerButtonText}>Anuluj</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setShowTimePicker(false);
+         if (tempTime) {
+                update({
+       diaryHour: tempTime.getHours(),
+            diaryMinute: tempTime.getMinutes(),
+        });
+         }
+                    setTempTime(null);
+                  }}
+                  style={[styles.iosPickerButton, styles.iosPickerButtonConfirm]}
+                >
+          <Text style={[styles.iosPickerButtonText, styles.iosPickerButtonTextConfirm]}>Zatwierdź</Text>
+                </Pressable>
+              </View>
+            )}
     </View>
   );
 }
@@ -176,21 +207,19 @@ function Row({
   icon,
   label,
   right,
-  iconColor = ACCENT,
-  iconBg = ACCENT_LIGHT,
+  labelColor,
 }: {
   icon: any;
   label: string;
   right: React.ReactNode;
-  iconColor?: string;
-  iconBg?: string;
+  labelColor?: string;
 }) {
   return (
     <View style={styles.row}>
-      <View style={[styles.rowIconWrap, { backgroundColor: iconBg }]}>
-        <Ionicons name={icon} size={16} color={iconColor} />
-      </View>
-      <Text style={styles.rowLabel}>{label}</Text>
+      <Ionicons name={icon} size={18} color="rgba(70,90,110,0.6)" />
+      <Text style={[styles.rowLabel, labelColor ? { color: labelColor } : {}]}>
+        {label}
+      </Text>
       <View style={{ marginLeft: "auto" }}>{right}</View>
     </View>
   );
@@ -198,58 +227,62 @@ function Row({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: CARD_BG,
+    backgroundColor: "rgba(255,255,255,0.62)",
     borderRadius: 20,
     padding: 16,
-    gap: 2,
+    gap: 10,
   },
   cardTitle: {
-    fontSize: 11.5,
+    fontSize: 13,
     fontWeight: "700",
-    color: TEXT_SECONDARY,
-    textTransform: "uppercase",
-    letterSpacing: 0.7,
-    marginBottom: 8,
+    color: "rgba(111,122,134,0.78)",
+    marginBottom: 4,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingVertical: 9,
-  },
-  rowIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 9,
-    alignItems: "center",
-    justifyContent: "center",
+    gap: 10,
+    paddingVertical: 6,
   },
   rowLabel: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
-    color: TEXT_PRIMARY,
+    color: "rgba(70,80,90,0.75)",
     flex: 1,
   },
-  rowDivider: {
-    height: 1,
-    backgroundColor: DIVIDER,
-    marginLeft: 44,
-  },
-  actionBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+  smallButton: {
+    paddingHorizontal: 12,
+  paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: ACCENT_LIGHT,
+    backgroundColor: "rgba(111,174,122,0.25)",
   },
-  actionBtnActive: {
-    backgroundColor: "rgba(74,156,93,0.12)",
-  },
-  actionBtnText: {
-    fontSize: 13,
+  smallButtonText: {
+fontSize: 13,
     fontWeight: "700",
-    color: ACCENT,
+    color: "#3d5a45",
   },
-  actionBtnTextActive: {
-    color: "#4a9c5d",
+  iosPickerButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    paddingTop: 8,
+  },
+  iosPickerButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "rgba(200,200,200,0.3)",
+  },
+  iosPickerButtonConfirm: {
+    backgroundColor: "rgba(111,174,122,0.4)",
+  },
+  iosPickerButtonText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#4a5568",
+  },
+  iosPickerButtonTextConfirm: {
+    color: "#276749",
+    fontWeight: "700",
   },
 });

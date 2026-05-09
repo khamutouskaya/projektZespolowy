@@ -47,27 +47,27 @@ namespace MentalOS.Controllers
             return Ok(new { message = "Coins added" });
         }
 
-        [HttpPost("spend")]
-        public async Task<IActionResult> Spend(int amount, string action)
-        {
-            var userId = GetUserId();
+        //[HttpPost("spend")]
+        //public async Task<IActionResult> Spend(int amount, string action)
+        //{
+        //    var userId = GetUserId();
 
-            await _streakService.Spend(userId, amount, action);
+        //    await _streakService.Spend(userId, amount, action);
 
-            return Ok(new { message = "Coins spent" });
-        }
+        //    return Ok(new { message = "Coins spent" });
+        //}
 
-        [HttpGet("balance")]
-        public async Task<IActionResult> GetBalance()
-        {
-            var userId = GetUserId();
+        //[HttpGet("balance")]
+        //public async Task<IActionResult> GetBalance()
+        //{
+        //    var userId = GetUserId();
 
-            var balance = await _streakService.GetBalance(userId);
+        //    var balance = await _streakService.GetBalance(userId);
 
-            return Ok(new { balance });
-        }
+        //    return Ok(new { balance });
+        //}
 
-        [HttpGet("count")]
+        [HttpGet("current-streak")]
         public async Task<IActionResult> GetStreakCount()
         {
             var userId = GetUserId();

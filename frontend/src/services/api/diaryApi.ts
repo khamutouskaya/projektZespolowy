@@ -1,6 +1,13 @@
 import { apiClient } from "./client";
 
 export const diaryApi = {
+  generateSummary: async (dateString: string, dailyAnswers: string = "") => {
+    const response = await apiClient.post("/journal/daily-summary/generate", {
+      date: dateString,
+      dailyAnswers,
+    });
+    return response.data;
+  },
   fetchSummary: async (date: string): Promise<string | null> => {
     const response = await apiClient.get(`/journal/summary/${date}`);
     return response.data?.summary ?? null;

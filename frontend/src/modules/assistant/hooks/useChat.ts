@@ -11,48 +11,39 @@ const createMessage = (role: Message["role"], text: string): Message => ({
 });
 
 export function useChat() {
+  // Список всех сообщений в чате
   const [messages, setMessages] = useState<Message[]>([]);
+  // Идёт ли сейчас запрос (чтобы показать "печатает...")
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const requestVersionRef = useRef(0);
 
-  const initSession = async () => {
-    if (sessionId) return sessionId;
-    try {
-      const newSessionId = await assistantApi.createSession("New Session");
-      setSessionId(newSessionId);
-      return newSessionId;
-    } catch (e) {
-      console.error("Failed to create session", e);
-      return null;
-    }
-  };
-
   const sendMessage = async (text: string) => {
+    // Не отправляем пустое сообщение
     const trimmed = text.trim();
     if (!trimmed || isLoading) return;
     const requestVersion = ++requestVersionRef.current;
 
+    // 1. Сразу добавляем сообщение пользователя в чат
     setMessages((prev) => [...prev, createMessage("user", trimmed)]);
-    setIsLoading(true);
+    setIsLoading(true); // показываем "печатает..."
 
     try {
-      const currentSessionId = await initSession();
-      if (!currentSessionId) throw new Error("No session");
-
-      const reply = await assistantApi.sendMessage(currentSessionId, text);
+      // 2. Отправляем на бэкенд, ждём ответ
+      const reply = await assistantApi.sendMessage(text);
       if (requestVersion !== requestVersionRef.current) return;
 
+      // 3. Добавляем ответ AI в чат
       setMessages((prev) => [...prev, createMessage("assistant", reply)]);
     } catch (error) {
       if (requestVersion !== requestVersionRef.current) return;
       const backendMessage = axios.isAxiosError<{ message?: string }>(error)
         ? error.response?.data?.message
         : undefined;
+      // Если что-то пошло не так — показываем ошибку в чате
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        text: "Nie mogę teraz połączyć się z asystentem. Spróbuj ponownie za chwilę.",
+        text: "Что-то пошло не так. Попробуй ещё раз.",
         createdAt: new Date(),
       };
       errorMessage.text =
@@ -70,7 +61,6 @@ export function useChat() {
   const clearChat = () => {
     requestVersionRef.current += 1;
     setMessages([]);
-    setSessionId(null);
     setIsLoading(false);
   };
 

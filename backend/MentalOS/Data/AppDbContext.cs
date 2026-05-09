@@ -31,6 +31,11 @@ namespace MentalOS.Data
         public DbSet<UserItem> UserItems { get; set; }
         public DbSet<CoinTransaction> CoinTransactions { get; set; }
 
+        // Garden
+        public DbSet<Garden> Gardens { get; set; }
+        public DbSet<GardenBed> GardenBeds { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -55,7 +60,8 @@ namespace MentalOS.Data
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false);
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -74,11 +80,13 @@ namespace MentalOS.Data
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false);
                 entity.HasOne(e => e.Role)
                       .WithMany()
                       .HasForeignKey(e => e.RoleId)
                       .OnDelete(DeleteBehavior.Cascade);
+
             });
 
             // Globalne filtry zapytań (Global Query Filters) dla "Miękkiego usuwania" - nie psuje to istniejących zapytań
@@ -105,7 +113,8 @@ namespace MentalOS.Data
                 entity.HasOne(e => e.User)
                       .WithMany() // 
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false);
 
                 entity.HasIndex(e => e.TokenHash)
                       .IsUnique();
@@ -113,6 +122,19 @@ namespace MentalOS.Data
                 entity.HasIndex(e => e.UserId);
             });
 
+            modelBuilder.Entity<Garden>()
+                .HasMany(g => g.GardenBeds)
+                .WithOne(b => b.Garden)
+                .HasForeignKey(b => b.GardenId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GardenBed>()
+                .HasIndex(b => new { b.GardenId, b.X, b.Y })
+                .IsUnique();
+
+            modelBuilder.Entity<GardenBed>()
+                .Property(b => b.TreeState)
+                .HasConversion<string>();
 
             modelBuilder.Entity<StreakHistory>()
                 .ToTable("streak_history")
@@ -160,7 +182,8 @@ namespace MentalOS.Data
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false);
                 entity.HasIndex(e => e.UserId);
             });
 
@@ -171,7 +194,8 @@ namespace MentalOS.Data
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false);
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.TaskDate); // for fast daily/weekly queries
             });

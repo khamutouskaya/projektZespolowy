@@ -9,15 +9,19 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
+import NetInfo from "@react-native-community/netinfo";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 import { DiaryEntry } from "@/modules/diary/diary.types";
 import { useDiarySummarySync } from "@/modules/diary/hooks/useDiarySummarySync";
+import { diarySyncService } from "@/modules/diary/services/diarySyncService";
 
 import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
 import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
 import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
+import GenerateSummaryButton from "@/modules/diary/components/diaryScreen/GenerateSummaryButton";
+
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
@@ -94,6 +98,21 @@ export default function DiaryScreen() {
   useDiarySummarySync(reload);
   useFocusEffect(
     useCallback(() => {
+      const sync = async () => {
+        if (!userId) return;
+
+        const netState = await NetInfo.fetch();
+        if (netState.isConnected) {
+          await diarySyncService.fullSync(userId);
+        }
+        reload();
+      };
+      sync();
+    }, [userId, reload]),
+  );
+  // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
+  useFocusEffect(
+    useCallback(() => {
       reload();
     }, [reload]),
   );
@@ -155,11 +174,17 @@ export default function DiaryScreen() {
       >
         <View style={styles.headerRow}>
           <DiaryHeader />
-          <AddEntryButton
-            onPress={() => {
-              router.push("/(tabs)/diary/note");
-            }}
-          />
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            <GenerateSummaryButton
+              onGenerated={() => reload()}
+              todayEntriesContent={today.map((e) => e.content).join("\n\n")}
+            />
+            <AddEntryButton
+              onPress={() => {
+                router.push("/(tabs)/diary/note");
+              }}
+            />
+          </View>
         </View>
 
         <View style={styles.searchWrapper}>
@@ -204,9 +229,8 @@ export default function DiaryScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    //krzystof bez//
-    paddingHorizontal: 20,
-    paddingBottom: 80, // место под плавающий tab bar
+    paddingHorizontal: 16,
+    paddingBottom: 80,
   },
 
   headerRow: {
@@ -215,7 +239,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: spacing.lg,
     marginBottom: spacing.lg,
-  },
+    width: "100%",
+},
 
   searchWrapper: {
     // marginBottom: spacing.xs,

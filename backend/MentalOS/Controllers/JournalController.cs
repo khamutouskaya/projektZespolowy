@@ -19,11 +19,13 @@ namespace MentalOS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAiChatService _aiChatService;
+        private readonly IGardenService _gardenService;
 
-        public JournalController(AppDbContext context, IAiChatService aiChatService)
+        public JournalController(AppDbContext context, IAiChatService aiChatService, IGardenService gardenService)
         {
             _context = context;
             _aiChatService = aiChatService;
+            _gardenService = gardenService;
         }
 
         private Guid? GetCurrentUserId()
@@ -137,6 +139,15 @@ namespace MentalOS.Controllers
 
             _context.JournalEntries.Add(entry);
             await _context.SaveChangesAsync();
+
+            try
+            {
+                await _gardenService.PlantTreeAsync(userId.Value);
+            }
+            catch
+            {
+                // ignore
+            }
 
             return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new JournalEntryDto
             {

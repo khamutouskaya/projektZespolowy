@@ -24,13 +24,16 @@ export const useNotificationSettings = () => {
 
   const update = useCallback(
     async (patch: Partial<NotificationSettings>) => {
-      const next = { ...settings, ...patch };
-      setSettings(next);
-      await settingsStorage.saveNotificationSettings(patch);
-      const granted = await notificationService.requestPermission();
-      if (granted) await notificationService.reschedule(next);
+    setSettings((prev) => {
+        const next = { ...prev, ...patch };
+        settingsStorage.saveNotificationSettings(next).then(async () => {
+    const granted = await notificationService.requestPermission();
+if (granted) await notificationService.reschedule(next);
+        });
+        return next;
+      });
     },
-    [settings],
+    [],
   );
 
   // Czy aktualnie wyciszone tymczasowo

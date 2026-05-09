@@ -88,7 +88,22 @@ namespace MentalOS.Controllers
 
             var token = _tokenService.GenerateToken(user);
 
-            return Ok(new { token, user = new { user.Id, user.Email, user.PersonalityType } });
+            var userDataResponse = new UserDataDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Avatar = user.Avatar,
+                StreakCount = user.StreakCount,
+                StreakActive = user.StreakActive,
+                CoinsBalance = user.CoinsBalance,
+                IsPremium = user.IsPremium,
+                IsAdmin = user.IsAdmin,
+                CreatedAt = user.CreatedAt
+            };
+
+            return Ok(new { token, user = userDataResponse });
         }
 
         [HttpPost("login")]
@@ -121,19 +136,22 @@ namespace MentalOS.Controllers
 
             var token = _tokenService.GenerateToken(user);
 
-            return Ok(new 
-                { 
-                    token, 
-                    user = new 
-                    { 
-                        user.Id, 
-                        user.Email, 
-                        user.PersonalityType, 
-                        user.IsAdmin 
-                    }
-                }
+            var userDataResponse = new UserDataDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Avatar = user.Avatar,
+                StreakCount = user.StreakCount,
+                StreakActive = user.StreakActive,
+                CoinsBalance = user.CoinsBalance,
+                IsPremium = user.IsPremium,
+                IsAdmin = user.IsAdmin,
+                CreatedAt = user.CreatedAt
+            };
 
-            );
+            return Ok(new { token, user = userDataResponse });
         }
 
         [HttpPost("google")]
@@ -161,7 +179,22 @@ namespace MentalOS.Controllers
 
             _logger.LogInformation("User {Email} logged in via Google", user.Email);
 
-            return Ok(new { token, user = new { user.Id, user.Email, user.IsAdmin } });
+            var userDataResponse = new UserDataDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Avatar = user.Avatar,
+                StreakCount = user.StreakCount,
+                StreakActive = user.StreakActive,
+                CoinsBalance = user.CoinsBalance,
+                IsPremium = user.IsPremium,
+                IsAdmin = user.IsAdmin,
+                CreatedAt = user.CreatedAt
+            };
+
+            return Ok(new { token, user = userDataResponse });
         }
 
         [HttpPost("facebook")]
@@ -189,7 +222,22 @@ namespace MentalOS.Controllers
 
             _logger.LogInformation("User {Email} logged in via Facebook", user.Email);
 
-            return Ok(new { token, user = new { user.Id, user.Email, user.IsAdmin } });
+            var userDataResponse = new UserDataDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Avatar = user.Avatar,
+                StreakCount = user.StreakCount,
+                StreakActive = user.StreakActive,
+                CoinsBalance = user.CoinsBalance,
+                IsPremium = user.IsPremium,
+                IsAdmin = user.IsAdmin,
+                CreatedAt = user.CreatedAt
+            };
+
+            return Ok(new { token, user = userDataResponse });
         }
 
         [HttpPost("forgot-password")]

@@ -14,7 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Konfiguracja Serilog - logowanie do konsoli i rotowanych plikï¿½w dziennych
+// Konfiguracja Serilog - logowanie do konsoli i rotowanych plików dziennych
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
@@ -53,19 +53,27 @@ builder.Services.AddHttpClient<IAiChatService, OpenAiChatService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IContextBuilder, ContextBuilder>();
 
-// Serwis w tle ds. wysyï¿½ania powiadomieï¿½
+// Serwis w tle ds. wysy³ania powiadomieñ
 builder.Services.AddHostedService<DailySummaryNotificationService>();
 
-// Serwis w tle ds. zarzï¿½dzania i archiwizacji danych bez blokowania API
+// Serwis w tle ds. zarz¹dzania i archiwizacji danych bez blokowania API
 builder.Services.AddHostedService<DataArchivingService>();
 
 //Streak system
 builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "MentalOS_Super_Secret_Key_12345!@#_To_Generate_Signatures";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MentalOS";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MentalOS";
+// Serwisy do ogroda
+builder.Services.AddScoped<IGardenService, GardenService>();
+
+// Serwisy do BigFiveTest
+builder.Services.AddSingleton<IQuestionProvider, JsonQuestionProvider>();
+builder.Services.AddScoped<PersonalityService>();
+
+
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
+var jwtAudience = builder.Configuration["Jwt:Audience"]!;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -85,7 +93,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// CORS - dostï¿½p dla wszystkich ï¿½rï¿½deï¿½ (skonfigurowane dla aplikacji mobilnej)
+// CORS - dostêp dla wszystkich Ÿróde³ (skonfigurowane dla aplikacji mobilnej)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -96,7 +104,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Swagger z autoryzacjï¿½ JWT Bearer
+// Swagger z autoryzacj¹ JWT Bearer
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -134,7 +142,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Inicjalizacja bazy danych - sprawdzenie poï¿½ï¿½czenia, utworzenie roli/uï¿½ytkownika admin jeï¿½li potrzeba
+// Inicjalizacja bazy danych - sprawdzenie po³¹czenia, utworzenie roli/u¿ytkownika admin jeœli potrzeba
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -146,14 +154,11 @@ try
         db.Database.SetCommandTimeout(10);
         
         var canConnect = db.Database.CanConnect();
-
+        
         if (canConnect)
         {
             logger.LogInformation("? Database connection successful!");
-
-            logger.LogInformation("Applying migrations...");
-            db.Database.Migrate();
-
+            
             var adminRole = db.Roles.FirstOrDefault(r => r.Name == "admin");
             if (adminRole == null)
             {
@@ -168,7 +173,7 @@ try
                 logger.LogInformation("? Admin role created");
             }
             
-            // Sprawdï¿½ czy istnieje admin user
+            // SprawdŸ czy istnieje admin user
             var adminUser = db.Users.FirstOrDefault(u => u.Email == "admin@local");
             if (adminUser == null)
             {
@@ -223,21 +228,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-app.UseStaticFiles(); // new - obsï¿½uga statycznych plikï¿½w (np. awatary)
+app.UseStaticFiles(); // new - obs³uga statycznych plików (np. awatary)
 app.UseAntiforgery(); // wymagane dla Blazora w .NET 8
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Mapowanie komponentï¿½w Blazor dla panelu Administratora
+// Mapowanie komponentów Blazor dla panelu Administratora
 app.MapRazorComponents<MentalOS.Components.App>()
     .AddInteractiveServerRenderMode();
 
-app.Run();
+//app.Run();
+app.Run("http://0.0.0.0:5076");

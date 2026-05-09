@@ -5,11 +5,9 @@ import { typography } from "@/shared/theme/typography";
 import { spacing } from "@/shared/theme/spacing";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Image,
   Modal,
@@ -17,30 +15,24 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { useAuthStore } from "@/services/store/useAuthStore";
-
-const GOLD = "#f9dd0c";
-
-const PREMIUM_FEATURES = [
-  { icon: "people-outline", label: "Praca z psychologiem" },
-  { icon: "analytics-outline", label: "Głęboka analiza wzorców" },
-  { icon: "flash-outline", label: "Wykrywanie triggerów stresu" },
-  { icon: "bar-chart-outline", label: "Analiza nastroju (tydzień / miesiąc)" },
-  { icon: "bulb-outline", label: "AI-porady na podstawie zachowania" },
-  { icon: "trophy-outline", label: "Adaptacyjne cele" },
-] as const;
+import { useShopStore } from "@/services/store/useShopStore";
 
 export default function Home() {
   const router = useRouter();
-  const isPremium = useAuthStore((s) => s.user?.isPremium ?? false);
-  const buyPremium = useAuthStore((s) => s.buyPremium);
+
+  const { isAuthenticated } = useAuthStore();
+  const { fetchEquippedItem, equippedPreviewImage } = useShopStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEquippedItem();
+    }
+  }, [isAuthenticated]);
 
   const [showOracle, setShowOracle] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [isBuying, setIsBuying] = useState(false);
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
   const [isOracleThinking, setIsOracleThinking] = useState(false);
 
@@ -172,18 +164,9 @@ export default function Home() {
     "Dziś też jest dobry dzień, żeby zacząć.",
     "Jesteś bliżej niż myślisz.",
     "Spokój też jest siłą.",
+    "Oddychaj. Wszystko po kolei.",
     "Nawet mała refleksja ma znaczenie.",
     "To, że próbujesz, już jest ważne.",
-    "Nie jesteś sam. Jesteśmy tu, by cię wspierać.",
-    "Każdy dzień to nowa szansa na lepsze jutro.",
-    "Twoje uczucia są ważne. Pozwól sobie je odczuwać.",
-    "Małe kroki prowadzą do wielkich zmian.",
-    "Jesteś silniejszy, niż myślisz.",
-    "Nie musisz być doskonały, by być wartościowy.",
-    "Twoja historia jest ważna. Podziel się nią, jeśli chcesz.",
-    "Każdy ma prawo do wsparcia i zrozumienia.",
-    "Nie bój się prosić o pomoc. To oznaka siły, nie słabości.",
-    "Twoje emocje są ważne. Znajdź sposób, by je wyrazić.",
   ];
 
   const thoughtOfTheDay =
@@ -274,28 +257,6 @@ export default function Home() {
     thinkingPulse.setValue(1);
   };
 
-  const handlePsychologistPress = () => {
-    if (isPremium) {
-      router.push("../psychologists");
-    } else {
-      setShowPaywall(true);
-    }
-  };
-
-  const handleBuyPremium = async () => {
-    setIsBuying(true);
-    try {
-      await buyPremium();
-      setShowPaywall(false);
-      router.push("../psychologists");
-    } catch (e: any) {
-      const detail = e?.response?.data?.message ?? e?.message ?? "Nieznany błąd";
-      Alert.alert("Błąd", `Nie udało się aktywować Premium.\n${detail}`);
-    } finally {
-      setIsBuying(false);
-    }
-  };
-
   return (
     <>
       <LayoutContainer>
@@ -325,7 +286,7 @@ export default function Home() {
             contentContainerStyle={styles.scrollContent}
           >
             <Animated.Image
-              source={require("../../assets/images/cloud.png")}
+              source={equippedPreviewImage || require("../../assets/images/cloud.png")}
               style={[
                 styles.cloud,
                 { transform: [{ translateY: cloudFloat }] },
@@ -399,7 +360,7 @@ export default function Home() {
                   styles.extraCard,
                   pressed && { opacity: 0.85 },
                 ]}
-                onPress={handlePsychologistPress}
+                onPress={() => {}}
               >
                 <View
                   style={[
@@ -415,12 +376,6 @@ export default function Home() {
                 </View>
                 <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
                 <Text style={styles.extraSub}>Umów konsultację online</Text>
-                {!isPremium && (
-                  <View style={styles.lockBadge}>
-                    <Ionicons name="lock-closed" size={10} color="#fff" />
-                    <Text style={styles.lockBadgeText}>Premium</Text>
-                  </View>
-                )}
               </Pressable>
 
               <Pressable
@@ -429,7 +384,7 @@ export default function Home() {
                   styles.extraCard,
                   pressed && { opacity: 0.85 },
                 ]}
-                onPress={() => router.push("../psychotype")}
+                onPress={() => {}}
               >
                 <View
                   style={[
@@ -450,66 +405,6 @@ export default function Home() {
           </ScrollView>
         </Animated.View>
       </LayoutContainer>
-
-      {/* Paywall modal */}
-      <Modal
-        visible={showPaywall}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowPaywall(false)}
-      >
-        <Pressable
-          style={styles.paywallOverlay}
-          onPress={() => setShowPaywall(false)}
-        >
-          <Pressable style={styles.paywallCard} onPress={() => {}}>
-            <View style={styles.paywallHandle} />
-            <View style={styles.paywallHeader}>
-              <Text style={styles.paywallTitle}>Plan Premium</Text>
-              <Pressable
-                style={styles.paywallClose}
-                onPress={() => setShowPaywall(false)}
-              >
-                <Ionicons name="close" size={16} color={colors.text.secondary} />
-              </Pressable>
-            </View>
-
-            <Text style={styles.paywallIntro}>
-              Odblokuj pracę z psychologiem i zaawansowane funkcje AI.
-            </Text>
-
-            {PREMIUM_FEATURES.map((f, i) => (
-              <View key={i} style={styles.paywallFeature}>
-                <View style={styles.paywallFeatureIcon}>
-                  <Ionicons name={f.icon} size={16} color="#6670ff" />
-                </View>
-                <Text style={styles.paywallFeatureText}>{f.label}</Text>
-              </View>
-            ))}
-
-            <Text style={styles.paywallPrice}>od 29 zł / miesiąc</Text>
-
-            <TouchableOpacity
-              style={styles.paywallBuyBtn}
-              onPress={handleBuyPremium}
-              disabled={isBuying}
-              activeOpacity={0.82}
-            >
-              <LinearGradient
-                colors={["#b6b9ee", "#838bf5", "#6670ff"]}
-                start={{ x: 0.15, y: 0 }}
-                end={{ x: 0.85, y: 1 }}
-                style={styles.paywallBuyGradient}
-              >
-                <Ionicons name="star" size={16} color={GOLD} />
-                <Text style={styles.paywallBuyText}>
-                  {isBuying ? "Aktywowanie..." : "Kup Premium"}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
 
       <Modal
         visible={showOracle}
@@ -607,7 +502,7 @@ export default function Home() {
           <View style={styles.oracleStage}>
             <Pressable onPress={handleOracleAnswer}>
               <Animated.Image
-                source={require("../../assets/images/cloud.png")}
+                source={equippedPreviewImage || require("../../assets/images/cloud.png")}
                 style={[
                   styles.oracleMainCloud,
                   {
@@ -1010,126 +905,5 @@ const styles = StyleSheet.create({
   star: {
     position: "absolute",
     color: "rgba(80,100,160,0.65)",
-  },
-
-  lockBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    backgroundColor: "rgba(100,110,255,0.85)",
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 2,
-  },
-
-  lockBadgeText: {
-    fontSize: 9,
-    fontWeight: "700",
-    color: "#fff",
-    letterSpacing: 0.3,
-  },
-
-  paywallOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.45)",
-    justifyContent: "flex-end",
-  },
-
-  paywallCard: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: spacing.lg,
-    paddingBottom: 40,
-  },
-
-  paywallHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(150,160,180,0.4)",
-    alignSelf: "center",
-    marginBottom: spacing.md,
-  },
-
-  paywallHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing.sm,
-  },
-
-  paywallTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: colors.text.primary,
-  },
-
-  paywallClose: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(150,160,180,0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  paywallIntro: {
-    ...typography.small,
-    color: colors.text.secondary,
-    marginBottom: spacing.md,
-    lineHeight: 20,
-  },
-
-  paywallFeature: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingVertical: 7,
-  },
-
-  paywallFeatureIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: "rgba(100,110,255,0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  paywallFeatureText: {
-    ...typography.small,
-    fontWeight: "600",
-    color: colors.text.primary,
-  },
-
-  paywallPrice: {
-    textAlign: "center",
-    ...typography.small,
-    color: colors.text.tertiary,
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-
-  paywallBuyBtn: {
-    borderRadius: 16,
-    overflow: "hidden",
-  },
-
-  paywallBuyGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    paddingVertical: 15,
-    paddingHorizontal: spacing.lg,
-  },
-
-  paywallBuyText: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#fff",
-    letterSpacing: 0.3,
   },
 });

@@ -7,6 +7,9 @@ import {
 } from "react-native";
 import { typography } from "@/shared/theme/typography";
 import { colors } from "@/shared/theme/colors";
+import { useShopStore } from "@/services/store/useShopStore";
+import { useEffect } from "react";
+import { useAuthStore } from "@/services/store/useAuthStore";
 
 type Props = {
   title: string;
@@ -14,11 +17,20 @@ type Props = {
 };
 
 export default function Header({ title, image }: Props) {
+  const { equippedPreviewImage, fetchEquippedItem } = useShopStore();
+  const { isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEquippedItem();
+    }
+  }, [isAuthenticated]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
 
-      <Image source={image} style={styles.icon} />
+      <Image source={equippedPreviewImage || image} style={styles.icon} />
     </View>
   );
 }

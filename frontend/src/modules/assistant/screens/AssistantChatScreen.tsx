@@ -1,6 +1,6 @@
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -8,6 +8,7 @@ import {
   PanResponder,
   StyleSheet,
   View,
+  Alert,
 } from "react-native";
 import { AssistantComposer } from "../components/AssistantComposer";
 import { AssistantEmptyState } from "../components/AssistantEmptyState";
@@ -17,6 +18,7 @@ import { AssistantTypingIndicator } from "../components/AssistantTypingIndicator
 import { PersonalityDrawer } from "../components/PersonalityDrawer";
 import { useChat } from "../hooks/useChat";
 import { assistantStarterPrompts } from "../prompts/motivation";
+import { assistantApi } from "@/services/api/assistant";
 import type { Personality } from "../data/personalities";
 import type { Message } from "../types/assistant.types";
 
@@ -30,8 +32,27 @@ export function AssistantChatScreen() {
   const [selectedPersonality, setSelectedPersonality] =
     useState<Personality | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const drawerOpenRef = useRef(drawerOpen);
   drawerOpenRef.current = drawerOpen;
+
+  const handleVoiceRecordingComplete = useCallback(async (uri: string) => {
+    setIsTranscribing(true);
+    try {
+      const transcribedText = await assistantApi.transcribeAudio(uri);
+      if (transcribedText.trim()) {
+        await sendMessage(transcribedText);
+      }
+    } catch (error) {
+      console.error("Błąd transkrypcji:", error);
+      Alert.alert(
+    "Błąd transkrypcji",
+        "Nie udało się przekształcić nagrania w tekst. Spróbuj ponownie."
+ );
+ } finally {
+      setIsTranscribing(false);
+    }
+  }, [sendMessage]);
 
   const edgePanResponder = useRef(
     PanResponder.create({
@@ -117,13 +138,13 @@ export function AssistantChatScreen() {
 
         <AssistantComposer
           bottomOffset={keyboardVisible ? 14 : tabBarHeight + 20}
-          isLoading={isLoading}
-          onSendPress={(text) => {
+       isLoading={isLoading || isTranscribing}
+    onSendPress={(text) => {
             void sendMessage(text);
-            Keyboard.dismiss();
+     Keyboard.dismiss();
           }}
-          onVoicePress={() => {}}
-        />
+          onVoiceRecordingComplete={handleVoiceRecordingComplete}
+     />
       </KeyboardAvoidingView>
     </LayoutContainer>
   );

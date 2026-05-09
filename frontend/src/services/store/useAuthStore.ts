@@ -5,6 +5,7 @@ import { UserPayload } from "../../types/auth.types";
 import { storage } from "../storage";
 import NetInfo from "@react-native-community/netinfo";
 import { canReachBackend } from "../network/networkUtils";
+import { apiClient } from "../api/client";
 
 //useAuthStore — twój globalny store, z którego pobierany jest token.
 // Ten store zarządza stanem autoryzacji użytkownika, przechowując token i dane usera zarówno w RAMie (stan aplikacji), jak i na dysku (SecureStore) dla trwałości sesji.
@@ -18,6 +19,8 @@ interface AuthState {
   loginSilent: (token: string, user: UserPayload) => Promise<void>;
   logout: () => Promise<void>;
   hydrate: () => Promise<void>;
+  buyPremium: () => Promise<void>;
+  cancelPremium: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -99,5 +102,25 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  buyPremium: async () => {
+    const { token, user } = useAuthStore.getState();
+    if (!token || !user) throw new Error("Użytkownik nie jest zalogowany");
+
+    await apiClient.post("/users/premium/buy");
+    const updatedUser = { ...user, isPremium: true };
+    await storage.saveUser(JSON.stringify(updatedUser));
+    set({ user: updatedUser });
+  },
+
+  cancelPremium: async () => {
+    const { token, user } = useAuthStore.getState();
+    if (!token || !user) throw new Error("Użytkownik nie jest zalogowany");
+
+    await apiClient.post("/users/premium/cancel");
+    const updatedUser = { ...user, isPremium: false };
+    await storage.saveUser(JSON.stringify(updatedUser));
+    set({ user: updatedUser });
   },
 }));

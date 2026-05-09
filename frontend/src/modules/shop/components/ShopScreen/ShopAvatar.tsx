@@ -1,23 +1,29 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useMemo } from "react";
 import { Animated, Easing, Image, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   previewImage?: any;
 };
 
-export default function ShopAvatar({ previewImage }: Props) {
+// Pre-load domyślnego obrazka
+const DEFAULT_CLOUD = require("../../../../../assets/cloud.png");
+
+function ShopAvatar({ previewImage }: Props) {
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
-      Animated.timing(progress, {
+    const animation = Animated.loop(
+   Animated.timing(progress, {
         toValue: 1,
         duration: 4200,
         easing: Easing.inOut(Easing.sin),
         useNativeDriver: true,
       }),
-      { resetBeforeIteration: true }
-    ).start();
+ { resetBeforeIteration: true }
+    );
+ animation.start();
+
+    return () => animation.stop();
   }, [progress]);
 
   const translateY = progress.interpolate({
@@ -30,19 +36,22 @@ export default function ShopAvatar({ previewImage }: Props) {
     outputRange: [0, 2, 0, -2, 0],
   });
 
+  const animatedStyle = useMemo(() => ({
+    transform: [{ translateY }, { translateX }],
+  }), [translateY, translateX]);
+
+  const imageSource = previewImage || DEFAULT_CLOUD;
+
   return (
     <View style={styles.container}>
       <View style={styles.avatarGlow}>
-        <Animated.View
-          style={{
-            transform: [{ translateY }, { translateX }],
-          }}
-        >
+        <Animated.View style={animatedStyle}>
           <Image
-            source={previewImage || require("../../../../../assets/cloud.png")}
-            style={styles.avatar}
-            resizeMode="contain"
-          />
+   source={imageSource}
+style={styles.avatar}
+   resizeMode="contain"
+  fadeDuration={0}
+/>
         </Animated.View>
       </View>
 
@@ -51,6 +60,8 @@ export default function ShopAvatar({ previewImage }: Props) {
     </View>
   );
 }
+
+export default memo(ShopAvatar);
 
 const styles = StyleSheet.create({
   container: {

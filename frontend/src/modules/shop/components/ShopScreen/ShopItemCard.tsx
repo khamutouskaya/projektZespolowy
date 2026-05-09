@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { ShopItem } from "../../shop.types";
 
@@ -7,41 +8,50 @@ type Props = {
   isOwned?: boolean;
 };
 
-export default function ShopItemCard({ item, onPress, isOwned }: Props) {
+// Pre-load coin image
+const COIN_IMAGE = require("../../../../../assets/shop/coin.png");
+
+function ShopItemCard({ item, onPress, isOwned }: Props) {
+  const handlePress = useCallback(() => {
+    onPress(item);
+  }, [item, onPress]);
+
   return (
     <Pressable
-      onPress={() => onPress(item)}
+      onPress={handlePress}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <Image
         source={item.thumbnail}
-        style={styles.image}
+     style={styles.image}
         resizeMode="contain"
-        fadeDuration={0}
-      />
+ fadeDuration={0}
+   />
 
-      <Text style={styles.label} numberOfLines={2}>
+ <Text style={styles.label} numberOfLines={2}>
         {item.name}
       </Text>
 
       {isOwned ? (
-        <View style={styles.priceRow}>
+ <View style={styles.priceRow}>
           <Text style={styles.price}>Zakupiono</Text>
-        </View>
+     </View>
       ) : (
         <View style={styles.priceRow}>
           <Image
-            source={require("../../../../../assets/shop/coin.png")}
-            style={styles.coin}
-            resizeMode="contain"
-            fadeDuration={0}
-          />
+            source={COIN_IMAGE}
+       style={styles.coin}
+         resizeMode="contain"
+       fadeDuration={0}
+    />
           <Text style={styles.price}>{item.price}</Text>
         </View>
       )}
     </Pressable>
   );
 }
+
+export default memo(ShopItemCard);
 
 const styles = StyleSheet.create({
   card: {

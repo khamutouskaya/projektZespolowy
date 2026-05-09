@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { GardenTreeStage } from "../../garden.types";
 
@@ -6,42 +7,41 @@ type Props = {
   scale?: number;
 };
 
-export default function GardenTree({ stage, scale = 1 }: Props) {
-  const getImage = () => {
-    switch (stage) {
-      case 0:
-        return require("../../../../../assets/garden/tree-stage-0.png");
-      case 1:
-        return require("../../../../../assets/garden/tree-stage-1.png");
-      case 2:
-        return require("../../../../../assets/garden/tree-stage-2.png");
-      case 3:
-        return require("../../../../../assets/garden/tree-stage-3.png");
-      case 4:
-        return require("../../../../../assets/garden/tree-stage-3.png");
+// Pre-load obrazów dla optymalizacji - require jest wywołany tylko raz
+const TREE_IMAGES = {
+  0: require("../../../../../assets/garden/tree-stage-0.png"),
+  1: require("../../../../../assets/garden/tree-stage-1.png"),
+  2: require("../../../../../assets/garden/tree-stage-2.png"),
+  3: require("../../../../../assets/garden/tree-stage-3.png"),
+  4: require("../../../../../assets/garden/tree-stage-3.png"),
+} as const;
 
-      default:
-        return require("../../../../../assets/garden/tree-stage-0.png");
-    }
-  };
+function GardenTree({ stage, scale = 1 }: Props) {
+  const imageSource = useMemo(() => {
+    return TREE_IMAGES[stage] || TREE_IMAGES[0];
+  }, [stage]);
+
+  const imageStyle = useMemo(() => [
+    styles.image,
+    {
+      width: 190 * scale,
+   height: 190 * scale,
+    },
+  ], [scale]);
 
   return (
     <View style={styles.wrapper}>
-
       <Image
-        source={getImage()}
-        style={[
-          styles.image,
-          {
-            width: 190 * scale,
-            height: 190 * scale,
-          },
-        ]}
+        source={imageSource}
+        style={imageStyle}
         resizeMode="contain"
+        fadeDuration={0}
       />
     </View>
   );
 }
+
+export default memo(GardenTree);
 
 const styles = StyleSheet.create({
   wrapper: {

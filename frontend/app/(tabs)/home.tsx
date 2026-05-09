@@ -352,55 +352,55 @@ export default function Home() {
               </Text>
             </View>
 
-            {/* Praca z psychologiem + Test psychotypu */}
-            <View style={styles.extraRow}>
-              <Pressable
-                style={({ pressed }) => [
-                  cardStyles.card,
-                  styles.extraCard,
-                  pressed && { opacity: 0.85 },
-                ]}
-                onPress={() => {}}
-              >
-                <View
+              {/* Praca z psychologiem + Test psychotypu */}
+                        <View style={styles.extraRow}>
+                  <Pressable
+                    style={({ pressed }) => [
+                              cardStyles.card,
+               styles.extraCard,
+                   pressed && { opacity: 0.85 },
+                     ]}
+                onPress={() => router.push("/psychologists")}
+                          >
+                    <View
                   style={[
-                    styles.extraIcon,
-                    { backgroundColor: "rgba(182,204,233,0.4)" },
-                  ]}
-                >
-                  <Ionicons
-                    name="people-outline"
-                    size={24}
-                    color={colors.text.primary}
-                  />
-                </View>
-                <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
-                <Text style={styles.extraSub}>Umów konsultację online</Text>
-              </Pressable>
+             styles.extraIcon,
+                          { backgroundColor: "rgba(182,204,233,0.4)" },
+                 ]}
+                  >
+              <Ionicons
+                 name="people-outline"
+                  size={24}
+                     color={colors.text.primary}
+                    />
+              </View>
+               <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
+                            <Text style={styles.extraSub}>Umów konsultację online</Text>
+                          </Pressable>
 
-              <Pressable
-                style={({ pressed }) => [
-                  cardStyles.card,
-                  styles.extraCard,
-                  pressed && { opacity: 0.85 },
-                ]}
-                onPress={() => {}}
+                        <Pressable
+                 style={({ pressed }) => [
+                cardStyles.card,
+                       styles.extraCard,
+                    pressed && { opacity: 0.85 },
+             ]}
+                 onPress={() => router.push("/psychotype")}
               >
-                <View
-                  style={[
-                    styles.extraIcon,
-                    { backgroundColor: "rgba(233,182,204,0.4)" },
-                  ]}
-                >
-                  <Ionicons
-                    name="clipboard-outline"
-                    size={24}
-                    color={colors.text.primary}
+                            <View
+                 style={[
+             styles.extraIcon,
+                     { backgroundColor: "rgba(233,182,204,0.4)" },
+                       ]}
+                  >
+                         <Ionicons
+                      name="clipboard-outline"
+                        size={24}
+                          color={colors.text.primary}
                   />
-                </View>
-                <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
+                    </View>
+                    <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
                 <Text style={styles.extraSub}>Poznaj swój profil</Text>
-              </Pressable>
+                     </Pressable>
             </View>
           </ScrollView>
         </Animated.View>

@@ -1,5 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+﻿import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -70,12 +72,17 @@ export default function NotificationsSettingsCard() {
         icon="notifications-outline"
         label="Wszystkie powiadomienia"
         right={
-    <Switch
-         value={settings.allEnabled && !isMutedTemporarily}
+          <Switch
+            value={settings.allEnabled && !isMutedTemporarily}
             onValueChange={(val) => update({ allEnabled: val })}
-     trackColor={{ true: "rgba(173,219,183,0.8)", false: "rgba(200,200,200,0.5)" }}
-            thumbColor={settings.allEnabled && !isMutedTemporarily ? "#fff" : "#f4f3f4"}
-/>
+            trackColor={{
+              true: "rgba(173,219,183,0.8)",
+              false: "rgba(200,200,200,0.5)",
+            }}
+            thumbColor={
+              settings.allEnabled && !isMutedTemporarily ? "#fff" : "#f4f3f4"
+            }
+          />
         }
       />
 
@@ -102,103 +109,129 @@ export default function NotificationsSettingsCard() {
       {settings.allEnabled && !isMutedTemporarily && (
         <>
           <Row
- icon="book-outline"
+            icon="book-outline"
             label="Przypomnienie dziennika"
-        right={
-         <Switch
- value={settings.diaryEnabled}
-        onValueChange={(val) => update({ diaryEnabled: val })}
-    trackColor={{ true: "rgba(173,219,183,0.8)", false: "rgba(200,200,200,0.5)" }}
-         thumbColor={settings.diaryEnabled ? "#fff" : "#f4f3f4"}
-       />
-   }
-       />
+            right={
+              <Switch
+                value={settings.diaryEnabled}
+                onValueChange={(val) => update({ diaryEnabled: val })}
+                trackColor={{
+                  true: "rgba(173,219,183,0.8)",
+                  false: "rgba(200,200,200,0.5)",
+                }}
+                thumbColor={settings.diaryEnabled ? "#fff" : "#f4f3f4"}
+              />
+            }
+          />
 
           {/* Godzina przypomnienia */}
-     {settings.diaryEnabled && (
-<Row
-      icon="time-outline"
-   label="Godzina przypomnienia"
-           right={
-        <Pressable
-          onPress={() => {
- const initialDate = new Date();
-      initialDate.setHours(settings.diaryHour, settings.diaryMinute, 0, 0);
-            setTempTime(initialDate);
-            setShowTimePicker(true);
-          }}
-           style={styles.smallButton}
-     >
-         <Text style={styles.smallButtonText}>
-    {String(tempTime ? tempTime.getHours() : settings.diaryHour).padStart(2, "0")}:
-      {String(tempTime ? tempTime.getMinutes() : settings.diaryMinute).padStart(2, "0")}
-             </Text>
-         </Pressable>
-   }
+          {settings.diaryEnabled && (
+            <Row
+              icon="time-outline"
+              label="Godzina przypomnienia"
+              right={
+                <Pressable
+                  onPress={() => {
+                    const initialDate = new Date();
+                    initialDate.setHours(
+                      settings.diaryHour,
+                      settings.diaryMinute,
+                      0,
+                      0,
+                    );
+                    setTempTime(initialDate);
+                    setShowTimePicker(true);
+                  }}
+                  style={styles.smallButton}
+                >
+                  <Text style={styles.smallButtonText}>
+                    {String(
+                      tempTime ? tempTime.getHours() : settings.diaryHour,
+                    ).padStart(2, "0")}
+                    :
+                    {String(
+                      tempTime ? tempTime.getMinutes() : settings.diaryMinute,
+                    ).padStart(2, "0")}
+                  </Text>
+                </Pressable>
+              }
             />
-   )}
+          )}
         </>
       )}
 
-           {showTimePicker && (
-                   <DateTimePicker
-                  mode="time"
-                       value={tempTime ?? (() => {
-                    const d = new Date();
-                           d.setHours(settings.diaryHour, settings.diaryMinute, 0, 0);
-                 return d;
-                   })()}
-                is24Hour
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-             textColor="#2d3748"
-                  themeVariant="light"
-           onChange={(event: DateTimePickerEvent, date?: Date) => {
-                  if (Platform.OS === "android") {
-             setShowTimePicker(false);
-                    if (event.type === "set" && date) {
-            update({
-                    diaryHour: date.getHours(),
-                  diaryMinute: date.getMinutes(),
-                       });
-                  }
-          setTempTime(null);
-              } else {
-               // iOS - update temp value, don't close yet
-                  if (date) {
-                  setTempTime(date);
-                      }
-            }
-                  }}
-                     />
-                )}
-      {showTimePicker && Platform.OS === "ios" && (
-              <View style={styles.iosPickerButtons}>
-            <Pressable
-        onPress={() => {
+      {/* Time Picker */}
+      {showTimePicker && (
+        <DateTimePicker
+          mode="time"
+          value={
+            tempTime ??
+            (() => {
+              const d = new Date();
+              d.setHours(settings.diaryHour, settings.diaryMinute, 0, 0);
+              return d;
+            })()
+          }
+          is24Hour
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          textColor="#2d3748"
+          themeVariant="light"
+          onChange={(event: DateTimePickerEvent, date?: Date) => {
+            if (Platform.OS === "android") {
               setShowTimePicker(false);
-       setTempTime(null);
-             }}
-           style={styles.iosPickerButton}
-          >
-          <Text style={styles.iosPickerButtonText}>Anuluj</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    setShowTimePicker(false);
-         if (tempTime) {
+              if (event.type === "set" && date) {
                 update({
-       diaryHour: tempTime.getHours(),
-            diaryMinute: tempTime.getMinutes(),
-        });
-         }
-                    setTempTime(null);
-                  }}
-                  style={[styles.iosPickerButton, styles.iosPickerButtonConfirm]}
-                >
-          <Text style={[styles.iosPickerButtonText, styles.iosPickerButtonTextConfirm]}>Zatwierdź</Text>
-                </Pressable>
-              </View>
-            )}
+                  diaryHour: date.getHours(),
+                  diaryMinute: date.getMinutes(),
+                });
+              }
+              setTempTime(null);
+            } else {
+              // iOS - update temp value, don't close yet
+              if (date) {
+                setTempTime(date);
+              }
+            }
+          }}
+        />
+      )}
+
+      {/* iOS picker buttons */}
+      {showTimePicker && Platform.OS === "ios" && (
+        <View style={styles.iosPickerButtons}>
+          <Pressable
+            onPress={() => {
+              setShowTimePicker(false);
+              setTempTime(null);
+            }}
+            style={styles.iosPickerButton}
+          >
+            <Text style={styles.iosPickerButtonText}>Anuluj</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setShowTimePicker(false);
+              if (tempTime) {
+                update({
+                  diaryHour: tempTime.getHours(),
+                  diaryMinute: tempTime.getMinutes(),
+                });
+              }
+              setTempTime(null);
+            }}
+            style={[styles.iosPickerButton, styles.iosPickerButtonConfirm]}
+          >
+            <Text
+              style={[
+                styles.iosPickerButtonText,
+                styles.iosPickerButtonTextConfirm,
+              ]}
+            >
+              Zatwierdź
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -252,12 +285,12 @@ const styles = StyleSheet.create({
   },
   smallButton: {
     paddingHorizontal: 12,
-  paddingVertical: 6,
+    paddingVertical: 6,
     borderRadius: 12,
     backgroundColor: "rgba(111,174,122,0.25)",
   },
   smallButtonText: {
-fontSize: 13,
+    fontSize: 13,
     fontWeight: "700",
     color: "#3d5a45",
   },

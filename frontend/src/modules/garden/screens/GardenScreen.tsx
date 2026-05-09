@@ -1,21 +1,28 @@
+import { memo } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import GardenHeader from "../components/gardenScreen/GardenHeader";
 import GardenBoard from "../components/gardenScreen/GardenBoard";
 
-export default function GardenScreen() {
+// Pre-load tła dla szybszego ładowania
+const GARDEN_BACKGROUND = require("../../../../assets/garden/garden-background.png");
+
+function GardenScreen() {
   return (
     <ImageBackground
-      source={require("../../../../assets/garden/garden-background.png")}
+      source={GARDEN_BACKGROUND}
       style={styles.background}
       resizeMode="cover"
-    >
+      fadeDuration={0}
+  >
       <View style={styles.overlay}>
-        <GardenHeader />
+ <GardenHeader />
         <GardenBoard />
-      </View>
+    </View>
     </ImageBackground>
   );
 }
+
+export default memo(GardenScreen);
 
 const styles = StyleSheet.create({
   background: {

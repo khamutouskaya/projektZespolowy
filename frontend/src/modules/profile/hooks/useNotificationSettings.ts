@@ -22,19 +22,16 @@ export const useNotificationSettings = () => {
     });
   }, []);
 
-  const update = useCallback(
-    async (patch: Partial<NotificationSettings>) => {
+  const update = useCallback(async (patch: Partial<NotificationSettings>) => {
     setSettings((prev) => {
-        const next = { ...prev, ...patch };
-        settingsStorage.saveNotificationSettings(next).then(async () => {
-    const granted = await notificationService.requestPermission();
-if (granted) await notificationService.reschedule(next);
-        });
-        return next;
+      const next = { ...prev, ...patch };
+      settingsStorage.saveNotificationSettings(next).then(async () => {
+        const granted = await notificationService.requestPermission();
+        if (granted) await notificationService.reschedule(next);
       });
-    },
-    [],
-  );
+      return next;
+    });
+  }, []);
 
   // Czy aktualnie wyciszone tymczasowo
   const isMutedTemporarily =

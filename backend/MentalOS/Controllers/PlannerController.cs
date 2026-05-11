@@ -1,6 +1,7 @@
 using MentalOS.Data;
 using MentalOS.Domain;
 using MentalOS.DTOs.PlannerDTOs;
+using MentalOS.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +15,12 @@ namespace MentalOS.Controllers
     public class PlannerController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IGardenService _gardenService;
 
-        public PlannerController(AppDbContext context)
+        public PlannerController(AppDbContext context, IGardenService gardenService)
         {
             _context = context;
+            _gardenService = gardenService;
         }
 
         private Guid? GetCurrentUserId()
@@ -136,6 +139,15 @@ namespace MentalOS.Controllers
 
             _context.PlannerTasks.Add(task);
             await _context.SaveChangesAsync();
+
+            try
+            {
+                await _gardenService.PlantTreeAsync(userId.Value);
+            }
+            catch
+            {
+                // ignore
+            }
 
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, MapToDto(task));
         }

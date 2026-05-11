@@ -1,23 +1,128 @@
 import { Ionicons } from "@expo/vector-icons";
-import { memo, useState } from "react";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { memo, useState, useRef, useEffect, useCallback } from "react";
+import {
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+Alert,
+  Animated,
+} from "react-native";
+import { useAudioRecorder, AudioModule, RecordingPresets, AudioSource } from "expo-audio";
 import { colors } from "@/shared/theme/colors";
 
 type Props = {
   bottomOffset: number;
   isLoading: boolean;
   onSendPress: (text: string) => void;
-  onVoicePress: () => void;
+  onVoiceRecordingComplete?: (uri: string) => void;
 };
 
 export const AssistantComposer = memo(function AssistantComposer({
   bottomOffset,
   isLoading,
   onSendPress,
-  onVoicePress,
+  onVoiceRecordingComplete,
 }: Props) {
   const [text, setText] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
   const isSendDisabled = !text.trim() || isLoading;
+
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+
+  useEffect(() => {
+    let animation: Animated.CompositeAnimation;
+    if (isRecording) {
+      animation = Animated.loop(
+  Animated.sequence([
+ Animated.timing(pulseAnim, {
+            toValue: 1.2,
+          duration: 500,
+     useNativeDriver: true,
+}),
+      Animated.timing(pulseAnim, {
+  toValue: 1,
+ duration: 500,
+            useNativeDriver: true,
+   }),
+        ])
+      );
+      animation.start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+    return () => animation?.stop();
+  }, [isRecording, pulseAnim]);
+
+  const requestPermission = useCallback(async () => {
+    const status = await AudioModule.requestRecordingPermissionsAsync();
+    setPermissionGranted(status.granted);
+    return status.granted;
+  }, []);
+
+  const handleVoicePress = useCallback(async () => {
+    if (isLoading) return;
+
+    if (permissionGranted === null) {
+      const granted = await requestPermission();
+      if (!granted) {
+        Alert.alert(
+     "Brak uprawnień",
+          "Aby nagrywać wiadomości głosowe, musisz przyznać uprawnienia do mikrofonu w ustawieniach aplikacji."
+        );
+        return;
+      }
+    } else if (!permissionGranted) {
+      Alert.alert(
+        "Brak uprawnień",
+        "Aby nagrywać wiadomości głosowe, musisz przyznać uprawnienia do mikrofonu w ustawieniach aplikacji."
+      );
+      return;
+    }
+
+    if (isRecording) {
+   try {
+        const recordingUri = await audioRecorder.stop();
+        setIsRecording(false);
+
+        // Poczekaj chwilę na zapisanie pliku
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+ if (recordingUri && onVoiceRecordingComplete) {
+          console.log("Nagranie zakończone, URI:", recordingUri);
+          onVoiceRecordingComplete(recordingUri);
+        } else {
+          Alert.alert("Błąd", "Nie udało się zapisać nagrania. Spróbuj ponownie.");
+     }
+  } catch (error) {
+        console.error("Błąd podczas zatrzymywania nagrywania:", error);
+        setIsRecording(false);
+        Alert.alert("Błąd", "Nie udało się przetworzyć nagrania. Spróbuj ponownie.");
+  }
+    } else {
+    try {
+        // Konfiguracja trybu audio dla iOS - wymagane przed nagrywaniem
+        await AudioModule.setAudioModeAsync({
+          allowsRecording: true,
+     playsInSilentMode: true,
+        });
+        await audioRecorder.record();
+        setIsRecording(true);
+      } catch (error) {
+        console.error("Błąd podczas rozpoczynania nagrywania:", error);
+      Alert.alert("Błąd", "Nie udało się rozpocząć nagrywania. Sprawdź uprawnienia mikrofonu.");
+      }
+    }
+  }, [
+    isLoading,
+    isRecording,
+    permissionGranted,
+    requestPermission,
+    audioRecorder,
+    onVoiceRecordingComplete,
+  ]);
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -27,38 +132,49 @@ export const AssistantComposer = memo(function AssistantComposer({
   };
 
   return (
-    <View style={[styles.inputRow, { marginBottom: bottomOffset }]}>
+<View style={[styles.inputRow, { marginBottom: bottomOffset }]}>
       <TextInput
-        style={styles.input}
+ style={styles.input}
         value={text}
         onChangeText={setText}
-        placeholder="Napisz wiadomość..."
-        placeholderTextColor="rgba(49,66,77,0.45)"
+        placeholder={isRecording ? "Nagrywanie..." : "Napisz wiadomość..."}
+        placeholderTextColor={isRecording ? "#C62828" : "rgba(49,66,77,0.45)"}
         multiline
         textAlignVertical="top"
         returnKeyType="send"
         blurOnSubmit={false}
         onSubmitEditing={handleSend}
+        editable={!isRecording}
       />
 
       <View style={styles.actions}>
+   <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
         <TouchableOpacity
-          style={styles.iconButton}
-          onPress={onVoicePress}
-          accessibilityRole="button"
-          accessibilityLabel="Wprowadzanie głosowe"
-        >
-          <Ionicons name="mic-outline" size={22} color="#567C8D" />
-        </TouchableOpacity>
+      style={[
+   styles.iconButton,
+              isRecording && styles.recordingButton,
+      ]}
+        onPress={handleVoicePress}
+      disabled={isLoading}
+            accessibilityRole="button"
+      accessibilityLabel={isRecording ? "Zatrzymaj nagrywanie" : "Rozpocznij nagrywanie głosowe"}
+          >
+            <Ionicons
+      name={isRecording ? "stop" : "mic-outline"}
+  size={22}
+    color={isRecording ? "#FFFFFF" : "#567C8D"}
+        />
+          </TouchableOpacity>
+ </Animated.View>
 
-        <TouchableOpacity
+ <TouchableOpacity
           style={[
-            styles.iconButton,
-            styles.sendButton,
-            isSendDisabled && styles.sendButtonDisabled,
-          ]}
-          onPress={handleSend}
-          disabled={isSendDisabled}
+     styles.iconButton,
+       styles.sendButton,
+            (isSendDisabled || isRecording) && styles.sendButtonDisabled,
+    ]}
+    onPress={handleSend}
+      disabled={isSendDisabled || isRecording}
           accessibilityRole="button"
           accessibilityLabel="Wyślij wiadomość"
         >
@@ -105,6 +221,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.95)",
+  },
+  recordingButton: {
+    backgroundColor: "#C62828",
   },
   sendButton: {
     backgroundColor: colors.text.primary,

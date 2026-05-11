@@ -7,6 +7,9 @@ namespace MentalOS.Domain
         [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        [Column("accesories_id")]
+        public string FrontendAccesoriesId { get; set; }
+
         [Column("name")]
         public string Name { get; set; } = string.Empty;
 

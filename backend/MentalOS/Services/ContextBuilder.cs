@@ -24,6 +24,45 @@ namespace MentalOS.Services
             var weekAgo = todayStart.AddDays(-7);
 
             // -------------------------
+            // 0️⃣ PERSONALITY PROFILE (Big Five)
+            // -------------------------
+            var personality = await _db.PersonalityProfiles
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            if (personality != null && !string.IsNullOrEmpty(personality.Traits))
+            {
+                try
+                {
+                    var ocean = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, double>>(
+                        personality.Traits,
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (ocean != null)
+                    {
+                        var traitNames = new Dictionary<string, string>
+                        {
+                            ["O"] = "Openness",
+                            ["C"] = "Conscientiousness",
+                            ["E"] = "Extraversion",
+                            ["A"] = "Agreeableness",
+                            ["N"] = "Neuroticism",
+                        };
+                        sb.AppendLine("User personality profile (Big Five / OCEAN):");
+                        foreach (var t in traitNames)
+                        {
+                            if (ocean.TryGetValue(t.Key, out var score))
+                            {
+                                var level = score >= 4.0 ? "high" : score >= 3.0 ? "medium" : "low";
+                                sb.AppendLine($"- {t.Value}: {level} ({score:F2}/5.00)");
+                            }
+                        }
+                        sb.AppendLine();
+                    }
+                }
+                catch { }
+            }
+
+            // -------------------------
             // 1️⃣ JOURNAL (последние записи)
             // -------------------------
             var recentEntries = await _db.JournalEntries

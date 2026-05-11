@@ -15,6 +15,5 @@ const styles = StyleSheet.create({
     ...typography.heading1,
     color: colors.text.primary,
     textAlign: "center",
-    paddingHorizontal: 25,
   },
 });

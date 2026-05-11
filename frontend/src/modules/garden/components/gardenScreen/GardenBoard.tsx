@@ -1,55 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
 import GardenSlot from "./GardenSlot";
 import { GardenSlotType } from "../../garden.types";
 import { gardenService } from "../../garden.service";
 
+const ROW_STYLES: Record<number, object> = {
+  0: { marginLeft: -3, marginBottom: 10 },
+  1: { marginLeft: -3, marginBottom: 10 },
+  2: { marginLeft: -3, marginBottom: 0 },
+};
+
+
 export default function GardenBoard() {
   const [slots, setSlots] = useState<GardenSlotType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadGarden = async () => {
+  const loadGarden = useCallback(async () => {
     try {
       const data = await gardenService.getGarden();
       setSlots(data);
     } catch (error) {
       console.log("GARDEN ERROR:", error);
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadGarden();
-  }, []);
+  }, [loadGarden]);
 
-  const rows = [
-    slots.filter((s) => s.y === 0),
-    slots.filter((s) => s.y === 1),
-    slots.filter((s) => s.y === 2),
-  ];
-
-  const getRowStyle = (row: number) => {
-    switch (row) {
-      case 0:
-        return {
-          marginLeft: -3,
-          marginBottom: 10,
-        };
-      case 1:
-        return {
-          marginLeft: -3,
-          marginBottom: 10,
-        };
-      case 2:
-        return {
-          marginLeft: -3,
-          marginBottom: 0,
-        };
-      default:
-        return {};
-    }
-  };
+  const rows = useMemo(() => {
+    const sortedSlots = [...slots].sort((a, b) => a.x - b.x);
+    return [
+      sortedSlots.filter((s) => s.y === 0),
+      sortedSlots.filter((s) => s.y === 1),
+      sortedSlots.filter((s) => s.y === 2),
+    ];
+  }, [slots]);
 
   if (loading) {
     return (
@@ -63,12 +51,10 @@ export default function GardenBoard() {
   return (
     <View style={styles.container}>
       {rows.map((rowSlots, rowIndex) => (
-        <View key={rowIndex} style={[styles.row, getRowStyle(rowIndex)]}>
-          {rowSlots
-            .sort((a, b) => a.x - b.x)
-            .map((slot) => (
-              <GardenSlot key={slot.id} slot={slot} onRefresh={loadGarden} />
-            ))}
+        <View key={rowIndex} style={[styles.row, ROW_STYLES[rowIndex] || {}]}>
+          {rowSlots.map((slot) => (
+            <GardenSlot key={slot.id} slot={slot} onRefresh={loadGarden} />
+          ))}
         </View>
       ))}
     </View>

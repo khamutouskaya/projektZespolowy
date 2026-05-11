@@ -17,7 +17,6 @@ namespace MentalOS.Controllers
             _gardenService = gardenService;
         }
 
-        // 🔹 Получить сад
         [HttpGet]
         public async Task<IActionResult> GetGarden()
         {
@@ -28,7 +27,6 @@ namespace MentalOS.Controllers
             return Ok(result);
         }
 
-        // 🔹 Посадить дерево
         [HttpPost("plant")]
         public async Task<IActionResult> PlantTree()
         {
@@ -39,7 +37,6 @@ namespace MentalOS.Controllers
             return Ok();
         }
 
-        // 🔹 Собрать дерево
         [HttpPost("harvest/{gardenBedId}")]
         public async Task<IActionResult> HarvestTree(Guid gardenBedId)
         {
@@ -50,7 +47,6 @@ namespace MentalOS.Controllers
             return Ok();
         }
 
-        // 🔐 Получение userId из токена
         private Guid GetUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

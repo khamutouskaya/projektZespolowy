@@ -28,6 +28,9 @@ namespace MentalOS.Domain
         [Column("emotions")]
         public string? Emotions { get; set; }
 
+        [Column("preview")]
+        public string? Preview { get; set; }
+
         [Column("is_summary")]
         public bool IsSummary { get; set; } = false;
 

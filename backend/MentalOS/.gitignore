@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Local configuration with secrets - each developer has their own copy
+appsettings.json
+
 # User-specific files
 *.rsuser
 *.suo
@@ -422,4 +425,6 @@ Logs/
 
 # User secrets
 secrets.json
-appsettings.json
+
+.vs/
+**/.vs/

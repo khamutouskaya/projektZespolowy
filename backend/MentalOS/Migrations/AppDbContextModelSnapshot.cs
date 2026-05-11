@@ -451,6 +451,11 @@ namespace MentalOS.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("FrontendAccesoriesId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("accesories_id");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");

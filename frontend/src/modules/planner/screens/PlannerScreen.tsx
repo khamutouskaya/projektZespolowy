@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Keyboard,
@@ -24,14 +24,26 @@ import PlannerReminderModal from "../components/plannerScreen/PlannerReminderMod
 import PlannerReminderDateTimeModal from "../components/plannerScreen/PlannerReminderDateTimeModal";
 import PlannerCategoryModal from "../components/plannerScreen/PlannerCategoryModal";
 import { PlannerTask } from "../planner.types";
-import { usePlanner } from "../hooks/usePlanner";
+import { plannerService } from "../planner.service";
 
 type ReminderPreset = "today" | "tomorrow" | "nextWeek" | null;
 
 export default function PlannerScreen() {
-  const { tasks, isLoading, addTask, updateTask, removeTask } = usePlanner();
+  const [tasks, setTasks] = useState<PlannerTask[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const fetchedTasks = await plannerService.getTasks();
+        setTasks(fetchedTasks);
+      } catch (err) {
+        console.error("Failed to fetch planner tasks", err);
+      }
+    };
+    loadTasks();
+  }, []);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [taskNote, setTaskNote] = useState("");
   const [selectedTaskDate, setSelectedTaskDate] = useState<string | null>(null);
@@ -194,7 +206,7 @@ export default function PlannerScreen() {
     setReminderBaseDate(null);
   };
 
-  const saveTask = ({
+  const saveTask = async ({
     keepAddingOpen = false,
   }: {
     keepAddingOpen?: boolean;
@@ -214,24 +226,36 @@ export default function PlannerScreen() {
     runSoftLayoutAnimation();
 
     if (editingTaskId) {
-      updateTask(editingTaskId, {
-        title: trimmed,
-        note: taskNote,
-        date: selectedTaskDate,
-        reminderDate: selectedReminderDate,
-        category: selectedCategory,
-      });
+      try {
+        const updated = await plannerService.updateTask(editingTaskId, {
+          title: trimmed,
+          note: taskNote,
+          date: selectedTaskDate,
+          reminderDate: selectedReminderDate,
+          category: selectedCategory,
+        });
+        setTasks((prev) =>
+          prev.map((task) => (task.id === editingTaskId ? updated : task))
+        );
+      } catch (err) {
+        console.error(err);
+      }
       setEditingTaskId(null);
     } else {
-      addTask({
-        title: trimmed,
-        important: false,
-        completed: false,
-        note: taskNote,
-        date: selectedTaskDate,
-        reminderDate: selectedReminderDate,
-        category: selectedCategory,
-      });
+      try {
+        const created = await plannerService.createTask({
+          title: trimmed,
+          important: false,
+          completed: false,
+          note: taskNote,
+          date: selectedTaskDate,
+          reminderDate: selectedReminderDate,
+          category: selectedCategory,
+        });
+        setTasks((prev) => [created, ...prev]);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     resetDraftFields();
@@ -249,23 +273,41 @@ export default function PlannerScreen() {
     saveTask({ keepAddingOpen: true });
   };
 
-  const handleToggleImportant = (id: string) => {
-    const task = tasks.find((t) => t.id === id);
-    if (task) updateTask(id, { important: !task.important });
+  const handleToggleImportant = async (id: string) => {
+    runSoftLayoutAnimation();
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const isImportant = !task.important;
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, important: isImportant } : t
+      )
+    );
+    try {
+      await plannerService.updateTask(id, { important: isImportant });
+    } catch (e) { console.error(e); }
   };
 
-  const handleToggleComplete = (id: string) => {
+  const handleToggleComplete = async (id: string) => {
     setTimeout(() => {
       runSoftLayoutAnimation();
-      const task = tasks.find((t) => t.id === id);
-      if (task) updateTask(id, { completed: !task.completed });
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === id ? { ...task, completed: !task.completed } : task
+        )
+      );
     }, 40);
+    try {
+      await plannerService.toggleComplete(id);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = async (id: string) => {
     setTimeout(() => {
       runSoftLayoutAnimation();
-      removeTask(id);
+      setTasks((prev) => prev.filter((task) => task.id !== id));
     }, 60);
 
     if (editingTaskId === id) {
@@ -273,6 +315,9 @@ export default function PlannerScreen() {
       resetDraftFields();
       setIsAdding(false);
     }
+    try {
+      await plannerService.deleteTask(id);
+    } catch (e) { console.error(e); }
   };
 
   const handleOpenNote = () => {

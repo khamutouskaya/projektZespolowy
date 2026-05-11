@@ -1,4 +1,5 @@
 ﻿using MentalOS.Domain;
+using MentalOS.DTOs;
 
 namespace MentalOS.Services.Interfaces
 {

@@ -19,11 +19,13 @@ namespace MentalOS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAiChatService _aiChatService;
+        private readonly IGardenService _gardenService;
 
-        public JournalController(AppDbContext context, IAiChatService aiChatService)
+        public JournalController(AppDbContext context, IAiChatService aiChatService, IGardenService gardenService)
         {
             _context = context;
             _aiChatService = aiChatService;
+            _gardenService = gardenService;
         }
 
         private Guid? GetCurrentUserId()
@@ -50,6 +52,7 @@ namespace MentalOS.Controllers
                     Id = j.Id,
                     Title = j.Title,
                     Content = j.Content,
+                    Preview = j.Preview,
                     MoodScore = j.MoodScore,
                     Emotions = j.Emotions,
                     IsSummary = j.IsSummary,
@@ -79,6 +82,7 @@ namespace MentalOS.Controllers
                     Id = j.Id,
                     Title = j.Title,
                     Content = j.Content,
+                    Preview = j.Preview,
                     MoodScore = j.MoodScore,
                     Emotions = j.Emotions,
                     IsSummary = j.IsSummary,
@@ -107,6 +111,7 @@ namespace MentalOS.Controllers
                 Id = entry.Id,
                 Title = entry.Title,
                 Content = entry.Content,
+                Preview = entry.Preview,
                 MoodScore = entry.MoodScore,
                 Emotions = entry.Emotions,
                 IsSummary = entry.IsSummary,
@@ -127,6 +132,7 @@ namespace MentalOS.Controllers
                 UserId = userId.Value,
                 Title = dto.Title,
                 Content = dto.Content,
+                Preview = dto.Preview,
                 MoodScore = dto.MoodScore,
                 Emotions = dto.Emotions,
                 IsSummary = dto.IsSummary,
@@ -138,12 +144,21 @@ namespace MentalOS.Controllers
             _context.JournalEntries.Add(entry);
             await _context.SaveChangesAsync();
 
+            try
+            {
+                await _gardenService.PlantTreeAsync(userId.Value);
+            }
+            catch
+            {
+                // ignore
+            }
 
             return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new JournalEntryDto
             {
                 Id = entry.Id,
                 Title = entry.Title,
                 Content = entry.Content,
+                Preview = entry.Preview,
                 MoodScore = entry.MoodScore,
                 Emotions = entry.Emotions,
                 IsSummary = entry.IsSummary,
@@ -166,6 +181,7 @@ namespace MentalOS.Controllers
 
             entry.Title = dto.Title;
             entry.Content = dto.Content;
+            entry.Preview = dto.Preview;
             entry.MoodScore = dto.MoodScore;
             entry.Emotions = dto.Emotions;
             if (dto.EntryDate.HasValue) entry.EntryDate = dto.EntryDate.Value;
@@ -178,6 +194,7 @@ namespace MentalOS.Controllers
                 Id = entry.Id,
                 Title = entry.Title,
                 Content = entry.Content,
+                Preview = entry.Preview,
                 MoodScore = entry.MoodScore,
                 Emotions = entry.Emotions,
                 IsSummary = entry.IsSummary,
@@ -255,6 +272,8 @@ namespace MentalOS.Controllers
             var startOfDay = entryDate.Date.ToUniversalTime();
             var endOfDay = startOfDay.AddDays(1);
             var lastWeek = startOfDay.AddDays(-7);
+            var yesterdayStart = startOfDay.AddDays(-1);
+            var yesterdayEnd = startOfDay;
 
             var personality = await _context.PersonalityProfiles.FirstOrDefaultAsync(p => p.UserId == userId.Value);
             var personalityType = personality?.PersonalityType ?? "Brak określonego typu";
@@ -263,7 +282,7 @@ namespace MentalOS.Controllers
                 .Where(t => t.UserId == userId.Value && t.TaskDate >= startOfDay && t.TaskDate < endOfDay)
                 .ToListAsync();
 
-            var taskDescriptions = todayTasks.Any() 
+            var taskDescriptions = todayTasks.Any()
                 ? string.Join("; ", todayTasks.Select(t => $"{t.Title} ({(t.IsCompleted ? "Zakończone" : "Niezakończone")})"))
                 : "Brak zaplanowanych zadań na ten dzień.";
 
@@ -271,7 +290,7 @@ namespace MentalOS.Controllers
                 .Where(j => j.UserId == userId.Value && j.EntryDate >= lastWeek && j.EntryDate < startOfDay && j.MoodScore.HasValue)
                 .ToListAsync();
 
-            var avgMoodData = recentEntries.Any() 
+            var avgMoodData = recentEntries.Any()
                 ? $"Średnia nastroju z ostatnich 7 dni: {Math.Round(recentEntries.Average(e => e.MoodScore!.Value), 1)}/10"
                 : "Brak wystarczających historii z ostatnich dni.";
 
@@ -281,7 +300,7 @@ Zwróć uwagę na następujące konteksty:
 - Zadania zaplanowane na dzisiaj i ich status: {taskDescriptions}
 - Ogólny stan emocjonalny (historia nastroju): {avgMoodData}
 
-Twoje zadanie: 
+Twoje zadanie:
 Podsumowanie powinno zawierać: interpretację wydarzeń, analizę samopoczucia w kontekście zadań i historii, wykryte emocje dominujące, pochwałę i wsparcie, oraz wskazówki dotyczące poprawy nastroju. Zwróć tekst jako czysty opis dnia z wydzielonymi akapitami.";
 
             var messages = new List<object>
@@ -293,62 +312,45 @@ Podsumowanie powinno zawierać: interpretację wydarzeń, analizę samopoczucia 
             var aiResponse = await _aiChatService.GetResponseAsync(messages);
 
             if (string.IsNullOrEmpty(aiResponse))
-            {
                 return StatusCode(500, new { message = "Failed to generate daily summary." });
+
+            // Find existing entry for today and update its preview instead of creating a new entry
+            var existingEntry = await _context.JournalEntries
+                .Where(j => j.UserId == userId.Value && !j.IsSummary && j.EntryDate >= startOfDay && j.EntryDate < endOfDay)
+                .OrderByDescending(j => j.UpdatedAt)
+                .FirstOrDefaultAsync();
+
+            bool alreadyHadPreview = existingEntry != null && !string.IsNullOrEmpty(existingEntry.Preview);
+
+            if (existingEntry != null)
+            {
+                existingEntry.Preview = aiResponse;
+                existingEntry.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                return BadRequest(new { message = "Brak wpisu na dzień dzisiejszy. Najpierw napisz notatkę." });
             }
 
-            var yesterdayStart = startOfDay.AddDays(-1);
-            var yesterdayEnd = startOfDay;
-
-            var hasSummaryToday = await _context.JournalEntries
-                .AnyAsync(j => j.UserId == userId.Value && j.IsSummary && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
-
-            var journalEntry = new JournalEntry
-            {
-                UserId = userId.Value,
-                Title = "Podsumowanie Dnia",
-                Content = aiResponse,
-                IsSummary = true,
-                EntryDate = entryDate,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            _context.JournalEntries.Add(journalEntry);
-
-            if (!hasSummaryToday)
+            if (!alreadyHadPreview)
             {
                 var user = await _context.Users.FindAsync(userId.Value);
                 if (user != null)
                 {
-                    var hasNormalEntryToday = await _context.JournalEntries
-                        .AnyAsync(j => j.UserId == userId.Value && !j.IsSummary && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
+                    var hadNormalEntryYesterday = await _context.JournalEntries
+                        .AnyAsync(j => j.UserId == userId.Value && !j.IsSummary && j.EntryDate >= yesterdayStart && j.EntryDate < yesterdayEnd);
 
-                    if (hasNormalEntryToday)
-                    {
-                        var hadSummaryYesterday = await _context.JournalEntries
-                            .AnyAsync(j => j.UserId == userId.Value && j.IsSummary && j.EntryDate >= yesterdayStart && j.EntryDate < yesterdayEnd);
+                    var hadPreviewYesterday = await _context.JournalEntries
+                        .AnyAsync(j => j.UserId == userId.Value && !j.IsSummary && !string.IsNullOrEmpty(j.Preview)
+                                    && j.EntryDate >= yesterdayStart && j.EntryDate < yesterdayEnd);
 
-                        var hadNormalEntryYesterday = await _context.JournalEntries
-                            .AnyAsync(j => j.UserId == userId.Value && !j.IsSummary && j.EntryDate >= yesterdayStart && j.EntryDate < yesterdayEnd);
-
-                        if (hadSummaryYesterday && hadNormalEntryYesterday)
-                        {
-                            user.StreakCount += 1;
-                        }
-                        else
-                        {
-                            user.StreakCount = 1;
-                        }
-
-                        user.StreakActive = true;
-                        user.CoinsBalance += user.StreakCount * 5;
-                    }
+                    if (hadNormalEntryYesterday && hadPreviewYesterday)
+                        user.StreakCount += 1;
                     else
-                    {
-                        user.StreakCount = 0;
-                        user.StreakActive = false;
-                    }
+                        user.StreakCount = 1;
+
+                    user.StreakActive = true;
+                    user.CoinsBalance += user.StreakCount * 5;
                 }
             }
 
@@ -356,14 +358,111 @@ Podsumowanie powinno zawierać: interpretację wydarzeń, analizę samopoczucia 
 
             return Ok(new JournalEntryDto
             {
-                Id = journalEntry.Id,
-                Title = journalEntry.Title,
-                Content = journalEntry.Content,
-                IsSummary = journalEntry.IsSummary,
-                EntryDate = journalEntry.EntryDate,
-                CreatedAt = journalEntry.CreatedAt,
-                UpdatedAt = journalEntry.UpdatedAt
+                Id = existingEntry.Id,
+                Title = existingEntry.Title,
+                Content = existingEntry.Content,
+                Preview = existingEntry.Preview,
+                Emotions = existingEntry.Emotions,
+                IsSummary = existingEntry.IsSummary,
+                EntryDate = existingEntry.EntryDate,
+                CreatedAt = existingEntry.CreatedAt,
+                UpdatedAt = existingEntry.UpdatedAt
             });
+        }
+
+        [HttpPost("daily-summary/generate-text")]
+        public async Task<IActionResult> GenerateSummaryText([FromBody] GenerateSummaryRequestDto request)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var entryDate = request.Date ?? DateTime.UtcNow;
+            var startOfDay = entryDate.Date.ToUniversalTime();
+            var endOfDay = startOfDay.AddDays(1);
+            var lastWeek = startOfDay.AddDays(-7);
+
+            var personality = await _context.PersonalityProfiles.FirstOrDefaultAsync(p => p.UserId == userId.Value);
+            var personalityContext = BuildPersonalityContext(personality);
+
+            var todayTasks = await _context.PlannerTasks
+                .Where(t => t.UserId == userId.Value && t.TaskDate >= startOfDay && t.TaskDate < endOfDay)
+                .ToListAsync();
+
+            var taskDescriptions = todayTasks.Any()
+                ? string.Join("; ", todayTasks.Select(t => $"{t.Title} ({(t.IsCompleted ? "Zakończone" : "Niezakończone")})"))
+                : "Brak zaplanowanych zadań na ten dzień.";
+
+            var recentEntries = await _context.JournalEntries
+                .Where(j => j.UserId == userId.Value && j.EntryDate >= lastWeek && j.EntryDate < startOfDay && j.MoodScore.HasValue)
+                .ToListAsync();
+
+            var avgMoodData = recentEntries.Any()
+                ? $"Średnia nastroju z ostatnich 7 dni: {Math.Round(recentEntries.Average(e => e.MoodScore!.Value), 1)}/10"
+                : "Brak wystarczających historii z ostatnich dni.";
+
+            var systemPrompt = $@"Jesteś asystentem AI w aplikacji dbania o zdrowie psychiczne. Twoim zadaniem jest wygenerować spersonalizowany opis dnia (podsumowanie) na podstawie wpisu użytkownika.
+
+{personalityContext}
+- Zadania zaplanowane na dzisiaj i ich status: {taskDescriptions}
+- Ogólny stan emocjonalny (historia nastroju): {avgMoodData}
+
+Twoje zadanie:
+Na podstawie wpisu i profilu osobowości wygeneruj podsumowanie które zawiera:
+1. Interpretację przeżytego dnia przez pryzmat osobowości użytkownika
+2. Konkretne wskazówki i porady dopasowane do jego cech charakteru
+3. Cele lub małe kroki na jutro — realistyczne i dostosowane do jego profilu
+4. Wsparcie emocjonalne i pochwałę — w tonie odpowiednim do osobowości
+Zwróć czysty tekst z wydzielonymi akapitami, bez nagłówków markdown.";
+
+            var messages = new List<object>
+            {
+                new { role = "system", content = systemPrompt },
+                new { role = "user", content = $"Moje odpowiedzi z dzisiaj:\n{request.DailyAnswers}" }
+            };
+
+            var aiResponse = await _aiChatService.GetResponseAsync(messages);
+
+            if (string.IsNullOrEmpty(aiResponse))
+                return StatusCode(500, new { message = "Failed to generate daily summary." });
+
+            return Ok(new { text = aiResponse });
+        }
+
+        private static string BuildPersonalityContext(MentalOS.Domain.PersonalityProfile? personality)
+        {
+            if (personality == null)
+                return "- Profil osobowości użytkownika: nieznany.";
+
+            Dictionary<string, double>? ocean = null;
+            try
+            {
+                ocean = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, double>>(
+                    personality.Traits ?? "{}",
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch { }
+
+            var traitNames = new Dictionary<string, string>
+            {
+                ["O"] = "Otwartość (ciekawość, kreatywność, otwartość na nowe doświadczenia)",
+                ["C"] = "Sumienność (zorganizowanie, samodyscyplina, wytrwałość)",
+                ["E"] = "Ekstrawersja (towarzyskość, energiczność, asertywność)",
+                ["A"] = "Ugodowość (empatia, współpraca, życzliwość)",
+                ["N"] = "Neurotyczność (reaktywność emocjonalna, podatność na stres)",
+            };
+
+            var levelLabel = (double v) => v >= 4.0 ? "wysoka" : v >= 3.0 ? "średnia" : "niska";
+
+            if (ocean == null || !ocean.Keys.Any(traitNames.ContainsKey))
+                return "- Profil osobowości użytkownika: nieznany (użytkownik nie ukończył testu osobowości).";
+
+            var lines = traitNames
+                .Where(t => ocean.ContainsKey(t.Key))
+                .Select(t => $"  • {t.Value}: {levelLabel(ocean[t.Key])} ({ocean[t.Key]:F2}/5.00)");
+
+            return $@"- Profil osobowości użytkownika (model Wielkiej Piątki / Big Five):
+{string.Join("\n", lines)}
+Uwzględnij te cechy przy formułowaniu wskazówek, celów i wsparcia — dostosuj ton i rady do profilu.";
         }
 
         [HttpPost("ai-entry")]

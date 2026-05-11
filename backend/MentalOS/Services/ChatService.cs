@@ -82,16 +82,20 @@ namespace MentalOS.Services
 
             var messages = new List<object>();
 
+            var personalitySection = !string.IsNullOrWhiteSpace(request.PersonalityHint)
+                ? $"\nCommunication style instruction: {request.PersonalityHint}\n"
+                : string.Empty;
+
             messages.Add(new
             {
                 role = "system",
                 content = $"""
 You are a supportive AI assistant inside MentalOS.
-
+{personalitySection}
 User context:
 {context}
 
-Be supportive, calm and helpful.
+Be supportive, calm and helpful. Always respond in the same language the user writes in.
 """
             });
 

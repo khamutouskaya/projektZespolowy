@@ -5,8 +5,8 @@ import { diaryService } from "./diaryService";
 const toApiPayload = (entry: DiaryEntry) => ({
   title: entry.title ?? "",
   content: entry.content,
-  //moodScore: Number(entry.mood) || 0, //TODO, zobaczyć czy się zgadza mood - moodScore ????
-  emotions: entry.tags ?? "[]", // tags - emotions
+  preview: entry.preview ?? null,
+  emotions: entry.tags ?? "[]",
   isSummary: false,
   entryDate: new Date(entry.updatedAt).toISOString(),
 });
@@ -15,7 +15,7 @@ const fromApiResponse = (data: any, userId: string): Partial<DiaryEntry> => ({
   serverId: data.id,
   title: data.title,
   content: data.content,
-  //mood: String(data.moodScore ?? ""),
+  preview: data.preview ?? undefined,
   tags: data.emotions ?? "[]",
   isSummary: data.isSummary,
   updatedAt: data.entryDate ?? new Date().toISOString(),
@@ -55,6 +55,9 @@ export const diarySyncService = {
       const serverEntries: any[] = response.data;
 
       for (const serverEntry of serverEntries) {
+        // Wpisy isSummary nie są osobnymi notatkami — pomijamy je
+        if (serverEntry.isSummary) continue;
+
         // Sprawdź czy już mamy ten wpis lokalnie (po serverId)
         const existing = diaryService.getByServerId(serverEntry.id, userId);
         if (existing) {

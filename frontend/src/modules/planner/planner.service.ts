@@ -1,59 +1,69 @@
-import { apiClient } from "@/services/api/client";
+// ...existing code...
+import { apiClient } from "../../services/api/client";
 import { PlannerTask } from "./planner.types";
 
+const mapToPlannerTask = (dto: any): PlannerTask => ({
+  id: dto.id,
+  title: dto.title,
+  important: dto.priority === 1 || dto.priority === "High",
+  completed: dto.isCompleted,
+  note: dto.description || "",
+  date: dto.taskDate,
+  reminderDate: dto.reminderTime || null,
+  category: dto.category || null,
+});
+
 export const plannerService = {
-  getTasks: async (): Promise<PlannerTask[]> => {
-    const { data } = await apiClient.get<any[]>("/planner");
-    return data.map((dto) => mapDtoToTask(dto));
+  async getTasks(): Promise<PlannerTask[]> {
+    const res = await apiClient.get("/planner");
+    return res.data.map(mapToPlannerTask);
   },
-  createTask: async (task: Omit<PlannerTask, "id">): Promise<PlannerTask> => {
-    const dto = mapTaskToDto(task);
-    const { data } = await apiClient.post<any>("/planner", dto);
-    return mapDtoToTask(data);
+
+  async createTask(data: Partial<PlannerTask>): Promise<PlannerTask> {
+    const payload = {
+      title: data.title || "",
+      description: data.note || null,
+      taskDate: data.date || new Date().toISOString(),
+      hasTime: !!data.date,
+      reminderTime: data.reminderDate || null,
+      category: data.category || null,
+      priority: data.important ? 1 : 0,
+      recurrence: 0,
+    };
+    const res = await apiClient.post("/planner", payload);
+    return mapToPlannerTask(res.data);
   },
-  updateTask: async (id: string, updates: Partial<PlannerTask>): Promise<PlannerTask> => {
-    const { data: existingDto } = await apiClient.get<any>(`/planner/${id}`);
-    const partialDto: any = {};
-    if (updates.title !== undefined) partialDto.title = updates.title;
-    if (updates.note !== undefined) partialDto.description = updates.note;
-    if (updates.date !== undefined) partialDto.taskDate = updates.date ? new Date(updates.date).toISOString() : null;
-    if (updates.completed !== undefined) partialDto.isCompleted = updates.completed;
-    if (updates.important !== undefined) partialDto.priority = updates.important ? 2 : 0;
-    if (updates.reminderDate !== undefined) partialDto.reminderTime = updates.reminderDate ? new Date(updates.reminderDate).toISOString() : null;
-    if (updates.category !== undefined) partialDto.category = updates.category;
-    const updatedDto = { ...existingDto, ...partialDto };
-    const { data } = await apiClient.put<any>(`/planner/${id}`, updatedDto);
-    return mapDtoToTask(data);
+
+  async updateTask(id: string, data: Partial<PlannerTask>): Promise<PlannerTask> {
+    const existingRes = await apiClient.get(`/planner/${id}`);
+    const existing = existingRes.data;
+
+    const payload = {
+      title: data.title !== undefined ? data.title : existing.title,
+      description: data.note !== undefined ? data.note : existing.description,
+      taskDate: data.date !== undefined ? data.date : existing.taskDate,
+      hasTime: existing.hasTime,
+      reminderTime: data.reminderDate !== undefined ? data.reminderDate : existing.reminderTime,
+      category: data.category !== undefined ? data.category : existing.category,
+      priority: data.important !== undefined ? (data.important ? 1 : 0) : existing.priority,
+      recurrence: existing.recurrence,
+      isCompleted: data.completed !== undefined ? data.completed : existing.isCompleted,
+    };
+
+    const res = await apiClient.put(`/planner/${id}`, payload);
+    return mapToPlannerTask(res.data);
   },
-  deleteTask: async (id: string): Promise<void> => {
+
+  async toggleComplete(id: string): Promise<PlannerTask> {
+    const existingRes = await apiClient.get(`/planner/${id}`);
+    const isCompleted = !existingRes.data.isCompleted;
+    
+    const res = await apiClient.patch(`/planner/${id}/complete?isCompleted=${isCompleted}`);
+    return mapToPlannerTask(res.data);
+  },
+
+  async deleteTask(id: string): Promise<void> {
     await apiClient.delete(`/planner/${id}`);
-  },
+  }
 };
-
-function mapDtoToTask(dto: any): PlannerTask {
-  return {
-    id: dto.id,
-    title: dto.title || "",
-    important: dto.priority === 2, // Assuming Priority 2 is High/Important
-    completed: dto.isCompleted || false,
-    note: dto.description || "",
-    date: dto.taskDate ? new Date(dto.taskDate).toISOString() : null,
-    reminderDate: dto.reminderTime ? new Date(dto.reminderTime).toISOString() : null,
-    category: dto.category || null,
-  };
-}
-
-function mapTaskToDto(task: PlannerTask): any {
-  return {
-    title: task.title,
-    description: task.note,
-    taskDate: task.date ? new Date(task.date).toISOString() : new Date().toISOString(),
-    isCompleted: task.completed,
-    priority: task.important ? 2 : 0, // High or Normal
-    reminderTime: task.reminderDate ? new Date(task.reminderDate).toISOString() : null,
-    category: task.category,
-    hasTime: !!task.date && task.date.includes("T"),
-    recurrence: 0,
-    icon: null,
-  };
-}
+// ...existing code...

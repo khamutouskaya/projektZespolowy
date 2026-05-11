@@ -1,0 +1,45 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\projektZespolowy\\myApp\\projektZespolowy\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{48C32223-ADAF-B288-F0B8-04CABB9EF9D8}|backend\\MentalOS\\MentalOS.csproj|d:\\projektzespolowy\\myapp\\projektzespolowy\\backend\\mentalos\\mentalos.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{48C32223-ADAF-B288-F0B8-04CABB9EF9D8}|backend\\MentalOS\\MentalOS.csproj|solutionrelative:backend\\mentalos\\mentalos.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MentalOS.csproj",
+              "DocumentMoniker": "D:\\projektZespolowy\\myApp\\projektZespolowy\\backend\\MentalOS\\MentalOS.csproj",
+              "RelativeDocumentMoniker": "backend\\MentalOS\\MentalOS.csproj",
+              "ToolTip": "D:\\projektZespolowy\\myApp\\projektZespolowy\\backend\\MentalOS\\MentalOS.csproj",
+              "RelativeToolTip": "backend\\MentalOS\\MentalOS.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-10T22:36:02.089Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ShopItem, ShopSectionData } from "../../shop.types";
 import ShopItemCard from "./ShopItemCard";
@@ -5,21 +6,25 @@ import ShopItemCard from "./ShopItemCard";
 type Props = {
   section: ShopSectionData;
   onItemPress: (item: ShopItem) => void;
+  isOwnedSection?: boolean;
 };
 
-export default function ShopSection({ section, onItemPress }: Props) {
+function ShopSection({ section, onItemPress, isOwnedSection }: Props) {
   return (
     <View style={styles.section}>
       <Text style={styles.title}>{section.title}</Text>
 
       <View style={styles.grid}>
         {section.items.map((item) => (
-          <ShopItemCard key={item.id} item={item} onPress={onItemPress} />
+          <ShopItemCard key={item.id} item={item} onPress={onItemPress} isOwned={isOwnedSection} />
         ))}
       </View>
     </View>
   );
 }
+
+export default memo(ShopSection);
+
 
 const styles = StyleSheet.create({
   section: {

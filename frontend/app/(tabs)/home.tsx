@@ -21,6 +21,7 @@ import {
   View,
 } from "react-native";
 import { useAuthStore } from "@/services/store/useAuthStore";
+import { useShopStore } from "@/services/store/useShopStore";
 
 const GOLD = "#f9dd0c";
 
@@ -37,6 +38,15 @@ export default function Home() {
   const router = useRouter();
   const isPremium = useAuthStore((s) => s.user?.isPremium ?? false);
   const buyPremium = useAuthStore((s) => s.buyPremium);
+
+  const { isAuthenticated } = useAuthStore();
+  const { fetchEquippedItem, equippedPreviewImage } = useShopStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEquippedItem();
+    }
+  }, [isAuthenticated]);
 
   const [showOracle, setShowOracle] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -173,18 +183,9 @@ export default function Home() {
     "Dziś też jest dobry dzień, żeby zacząć.",
     "Jesteś bliżej niż myślisz.",
     "Spokój też jest siłą.",
+    "Oddychaj. Wszystko po kolei.",
     "Nawet mała refleksja ma znaczenie.",
     "To, że próbujesz, już jest ważne.",
-    "Nie jesteś sam. Jesteśmy tu, by cię wspierać.",
-    "Każdy dzień to nowa szansa na lepsze jutro.",
-    "Twoje uczucia są ważne. Pozwól sobie je odczuwać.",
-    "Małe kroki prowadzą do wielkich zmian.",
-    "Jesteś silniejszy, niż myślisz.",
-    "Nie musisz być doskonały, by być wartościowy.",
-    "Twoja historia jest ważna. Podziel się nią, jeśli chcesz.",
-    "Każdy ma prawo do wsparcia i zrozumienia.",
-    "Nie bój się prosić o pomoc. To oznaka siły, nie słabości.",
-    "Twoje emocje są ważne. Znajdź sposób, by je wyrazić.",
   ];
 
   const thoughtOfTheDay =
@@ -336,7 +337,7 @@ export default function Home() {
             contentContainerStyle={styles.scrollContent}
           >
             <Animated.Image
-              source={require("../../assets/images/cloud.png")}
+              source={equippedPreviewImage || require("../../assets/images/cloud.png")}
               style={[
                 styles.cloud,
                 { transform: [{ translateY: cloudFloat }] },
@@ -436,61 +437,55 @@ export default function Home() {
               </Text>
             </View>
 
-            {/* Praca z psychologiem + Test psychotypu */}
-            <View style={styles.extraRow}>
-              <Pressable
-                style={({ pressed }) => [
-                  cardStyles.card,
-                  styles.extraCard,
-                  pressed && { opacity: 0.85 },
-                ]}
+              {/* Praca z psychologiem + Test psychotypu */}
+                        <View style={styles.extraRow}>
+                  <Pressable
+                    style={({ pressed }) => [
+                              cardStyles.card,
+               styles.extraCard,
+                   pressed && { opacity: 0.85 },
+                     ]}
                 onPress={handlePsychologistPress}
-              >
-                <View
+                          >
+                    <View
                   style={[
-                    styles.extraIcon,
-                    { backgroundColor: "rgba(182,204,233,0.4)" },
-                  ]}
-                >
-                  <Ionicons
-                    name="people-outline"
-                    size={24}
-                    color={colors.text.primary}
-                  />
-                </View>
-                <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
-                <Text style={styles.extraSub}>Umów konsultację online</Text>
-                {!isPremium && (
-                  <View style={styles.lockBadge}>
-                    <Ionicons name="lock-closed" size={10} color="#fff" />
-                    <Text style={styles.lockBadgeText}>Premium</Text>
-                  </View>
-                )}
-              </Pressable>
+             styles.extraIcon,
+                          { backgroundColor: "rgba(182,204,233,0.4)" },
+                 ]}
+                  >
+              <Ionicons
+                 name="people-outline"
+                  size={24}
+                     color={colors.text.primary}
+                    />
+              </View>
+               <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
+                            <Text style={styles.extraSub}>Umów konsultację online</Text>
+                          </Pressable>
 
-              <Pressable
-                style={({ pressed }) => [
-                  cardStyles.card,
-                  styles.extraCard,
-                  pressed && { opacity: 0.85 },
-                ]}
-                onPress={() => router.push("../psychotype")}
+                        <Pressable
+                 style={({ pressed }) => [
+                cardStyles.card,
+                       styles.extraCard,
+                    pressed && { opacity: 0.85 },
+             ]}
+                 onPress={() => router.push("/psychotype")}
               >
-                <View
-                  style={[
-                    styles.extraIcon,
-                    { backgroundColor: "rgba(233,182,204,0.4)" },
-                  ]}
-                >
-                  <Ionicons
-                    name="clipboard-outline"
-                    size={24}
-                    color={colors.text.primary}
+                            <View
+                 style={[
+             styles.extraIcon,
+                     { backgroundColor: "rgba(233,182,204,0.4)" },
+                       ]}
+                  >
+                         <Ionicons
+                      name="clipboard-outline"
+                        size={24}
+                          color={colors.text.primary}
                   />
-                </View>
-                <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
+                    </View>
+                    <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
                 <Text style={styles.extraSub}>Poznaj swój profil</Text>
-              </Pressable>
+                     </Pressable>
             </View>
           </ScrollView>
         </Animated.View>
@@ -689,7 +684,7 @@ export default function Home() {
           <View style={styles.oracleStage}>
             <Pressable onPress={handleOracleAnswer}>
               <Animated.Image
-                source={require("../../assets/images/cloud.png")}
+                source={equippedPreviewImage || require("../../assets/images/cloud.png")}
                 style={[
                   styles.oracleMainCloud,
                   {
@@ -1339,24 +1334,6 @@ const styles = StyleSheet.create({
   star: {
     position: "absolute",
     color: "rgba(80,100,160,0.65)",
-  },
-
-  lockBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    backgroundColor: "rgba(100,110,255,0.85)",
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginTop: 2,
-  },
-
-  lockBadgeText: {
-    fontSize: 9,
-    fontWeight: "700",
-    color: "#fff",
-    letterSpacing: 0.3,
   },
 
   paywallOverlay: {

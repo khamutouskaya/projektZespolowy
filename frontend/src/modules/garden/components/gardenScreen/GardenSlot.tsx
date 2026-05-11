@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { GardenSlotType } from "../../garden.types";
 import GardenTree from "./GardenTree";
@@ -8,18 +9,17 @@ type Props = {
   onRefresh: () => void;
 };
 
-const getTreeScale = (row: number) => {
-  if (row === 0) return 0.9;
-  if (row === 1) return 1.0;
-  if (row === 2) return 1.0;
-  return 1;
+const TREE_SCALES: Record<number, number> = {
+  0: 0.9,
+  1: 1.0,
+  2: 1.0,
 };
 
-export default function GardenSlot({ slot, onRefresh }: Props) {
-  const scale = getTreeScale(slot.y);
+function GardenSlot({ slot, onRefresh }: Props) {
+  const scale = TREE_SCALES[slot.y] ?? 1;
   const hasTree = slot.treeState !== 0;
 
-  const handlePress = async () => {
+  const handlePress = useCallback(async () => {
     try {
       if (!hasTree) {
         await gardenService.plantTree();
@@ -31,7 +31,7 @@ export default function GardenSlot({ slot, onRefresh }: Props) {
     } catch (error) {
       console.log("GARDEN SLOT ERROR:", error);
     }
-  };
+  }, [hasTree, slot.treeState, slot.id, onRefresh]);
 
   return (
     <Pressable onPress={handlePress} style={styles.slot}>
@@ -41,6 +41,9 @@ export default function GardenSlot({ slot, onRefresh }: Props) {
     </Pressable>
   );
 }
+
+export default memo(GardenSlot);
+
 
 const styles = StyleSheet.create({
   slot: {

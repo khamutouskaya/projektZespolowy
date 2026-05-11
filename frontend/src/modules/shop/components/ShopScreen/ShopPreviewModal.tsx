@@ -13,6 +13,8 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   onBuy: (item: ShopItem) => void;
+  isOwned?: boolean;
+  onEquip?: (item: ShopItem) => void;
 };
 
 export default function ShopPreviewModal({
@@ -20,6 +22,8 @@ export default function ShopPreviewModal({
   visible,
   onClose,
   onBuy,
+  isOwned,
+  onEquip,
 }: Props) {
   if (!item) return null;
 
@@ -31,18 +35,26 @@ export default function ShopPreviewModal({
 
           <Text style={styles.name}>{item.name}</Text>
 
-          <View style={styles.priceRow}>
-            <Image
-              source={require("../../../../../assets/shop/coin.png")}
-              style={styles.coin}
-              resizeMode="contain"
-            />
-            <Text style={styles.price}>{item.price} monet</Text>
-          </View>
+          {!isOwned && (
+            <View style={styles.priceRow}>
+              <Image
+                source={require("../../../../../assets/shop/coin.png")}
+                style={styles.coin}
+                resizeMode="contain"
+              />
+              <Text style={styles.price}>{item.price} monet</Text>
+            </View>
+          )}
 
-          <Pressable style={styles.buyButton} onPress={() => onBuy(item)}>
-            <Text style={styles.buyText}>Kup teraz</Text>
-          </Pressable>
+          {isOwned ? (
+            <Pressable style={styles.buyButton} onPress={() => onEquip && onEquip(item)}>
+              <Text style={styles.buyText}>Załóż</Text>
+            </Pressable>
+          ) : (
+            <Pressable style={styles.buyButton} onPress={() => onBuy(item)}>
+              <Text style={styles.buyText}>Kup teraz</Text>
+            </Pressable>
+          )}
 
           <Pressable onPress={onClose}>
             <Text style={styles.closeText}>Zamknij</Text>

@@ -115,11 +115,7 @@ namespace MentalOS.Controllers
             });
         }
 
-
-
-
-
-        [HttpPost("me/premium")]
+[HttpPost("me/premium")]
         public async Task<IActionResult> BuyPremium()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -179,6 +175,9 @@ namespace MentalOS.Controllers
 
             return Ok(new { message = "Subscription cancelled" });
         }
+
+
+
 
         [HttpPost("avatar")]
         [Consumes("multipart/form-data")]

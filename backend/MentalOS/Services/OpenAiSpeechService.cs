@@ -38,34 +38,44 @@ namespace MentalOS.Services
 
         public async Task<TranscriptionResultDto> TranscribeAsync(IFormFile file, string? language, CancellationToken cancellationToken)
         {
-            try
-            {
-                if (file == null || file.Length == 0)
-                {
-                    return new TranscriptionResultDto
-                    {
-                        Success = false,
-                        Error = "No file uploaded"
-                    };
-                }
+  try
+{
+      _logger.LogInformation("TranscribeAsync wywołane dla pliku: {FileName}", file?.FileName ?? "null");
+
+     if (file == null || file.Length == 0)
+         {
+     _logger.LogWarning("Plik jest null lub pusty");
+     return new TranscriptionResultDto
+        {
+  Success = false,
+                Error = "No file uploaded"
+      };
+     }
+
+          _logger.LogInformation("Rozmiar pliku: {FileSize} bajtów, ContentType: {ContentType}", 
+   file.Length, file.ContentType);
 
                 if (file.Length > MaxFileSize)
                 {
-                    return new TranscriptionResultDto
-                    {
-                        Success = false,
-                        Error = "File size exceeds the 25 MB limit"
-                    };
-                }
+             _logger.LogWarning("Plik przekracza limit rozmiaru: {FileSize} > {MaxSize}", 
+         file.Length, MaxFileSize);
+       return new TranscriptionResultDto
+     {
+              Success = false,
+       Error = "File size exceeds the 25 MB limit"
+  };
+   }
 
-                if (!AllowedContentTypes.Contains(file.ContentType))
-                {
-                    return new TranscriptionResultDto
-                    {
-                        Success = false,
-                        Error = "Invalid file type. Allowed types: " + string.Join(", ", AllowedContentTypes)
-                    };
-                }
+   if (!AllowedContentTypes.Contains(file.ContentType))
+    {
+          _logger.LogWarning("Nieprawidłowy typ pliku: {ContentType}. Dozwolone: {AllowedTypes}", 
+        file.ContentType, string.Join(", ", AllowedContentTypes));
+        return new TranscriptionResultDto
+             {
+       Success = false,
+       Error = "Invalid file type. Allowed types: " + string.Join(", ", AllowedContentTypes)
+      };
+             }
 
                 using var form = new MultipartFormDataContent();
 

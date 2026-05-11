@@ -2,6 +2,7 @@
 using MentalOS.Domain;
 using MentalOS.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using MentalOS.DTOs;
 
 namespace MentalOS.Services
 {
@@ -24,24 +25,13 @@ namespace MentalOS.Services
                 return;
             }
 
-            //var days = (DateTime.UtcNow - bed.PlantedAt.Value).TotalDays;
+            var days = (DateTime.UtcNow - bed.PlantedAt.Value).TotalDays;
 
-            //if (days < 1)
-            //    bed.TreeState = TreeState.Sprout;
-            //else if (days < 2)
-            //    bed.TreeState = TreeState.Sapling;
-            //else if (days < 3)
-            //    bed.TreeState = TreeState.Mature;
-            //else
-            //    bed.TreeState = TreeState.Fruiting;
-
-
-            var sec = (DateTime.UtcNow - bed.PlantedAt.Value).TotalSeconds;
-            if (sec < 5)
+            if (days < 1)
                 bed.TreeState = TreeState.Sprout;
-            else if (sec < 10)
+            else if (days < 2)
                 bed.TreeState = TreeState.Sapling;
-            else if (sec < 15)
+            else if (days < 3)
                 bed.TreeState = TreeState.Mature;
             else
                 bed.TreeState = TreeState.Fruiting;
@@ -135,8 +125,7 @@ namespace MentalOS.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            _streakService.AddBalance(user, user.StreakCount * 3, "harvest").Wait();
-
+            await _streakService.AddBalance(user, 10 + (user.StreakCount * 3), "harvest");
 
             bed.TreeState = TreeState.Empty;
             bed.PlantedAt = null;
@@ -147,14 +136,25 @@ namespace MentalOS.Services
         public async Task PlantTreeAsync(Guid userId)
         {
             var garden = await _context.Gardens
+                .Include(g => g.GardenBeds)
                 .FirstOrDefaultAsync(g => g.UserId == userId);
 
             if (garden == null)
-                throw new Exception("Garden not found");
+            {
+                garden = new Garden
+                {
+                    UserId = userId
+                };
 
-            var beds = await _context.GardenBeds
-                .Where(b => b.GardenId == garden.Id)
-                .ToListAsync();
+                _context.Gardens.Add(garden);
+                await _context.SaveChangesAsync();
+
+                garden.GardenBeds = CreateDefaultBeds(garden.Id);
+
+                await _context.SaveChangesAsync();
+            }
+
+            var beds = garden.GardenBeds.ToList();
 
             foreach (var bed in beds)
             {
@@ -166,6 +166,7 @@ namespace MentalOS.Services
             if (freeBed == null)
                 throw new Exception("No free garden beds");
 
+
             if (freeBed.TreeState != TreeState.Empty)
                 throw new Exception("Bed already taken");
 
@@ -174,14 +175,5 @@ namespace MentalOS.Services
 
             await _context.SaveChangesAsync();
         }
-    }
-
-
-    public class GardenBedDto
-    {
-        public Guid Id { get; set; }
-        public TreeState TreeState { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
     }
 }

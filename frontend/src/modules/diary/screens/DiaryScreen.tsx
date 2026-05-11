@@ -9,15 +9,18 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
+import NetInfo from "@react-native-community/netinfo";
 
 import { useDiaryEntries } from "@/modules/diary/hooks/useDiaryEntries";
 import { DiaryEntry } from "@/modules/diary/diary.types";
 import { useDiarySummarySync } from "@/modules/diary/hooks/useDiarySummarySync";
+import { diarySyncService } from "@/modules/diary/services/diarySyncService";
 
 import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
 import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
 import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
+
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { spacing } from "@/shared/theme/spacing";
@@ -94,6 +97,21 @@ export default function DiaryScreen() {
   useDiarySummarySync(reload);
   useFocusEffect(
     useCallback(() => {
+      const sync = async () => {
+        if (!userId) return;
+
+        const netState = await NetInfo.fetch();
+        if (netState.isConnected) {
+          await diarySyncService.fullSync(userId);
+        }
+        reload();
+      };
+      sync();
+    }, [userId, reload]),
+  );
+  // przeładowywuje wpisy za każdym razem gdy ekran staje się aktywny
+  useFocusEffect(
+    useCallback(() => {
       reload();
     }, [reload]),
   );
@@ -140,9 +158,11 @@ export default function DiaryScreen() {
   const sortByNewest = (a: DiaryEntry, b: DiaryEntry) =>
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
 
-  const today = filtered.filter((e) => e.date === todayDate).sort(sortByNewest);
+  const todayAll = filtered.filter((e) => e.date === todayDate && !e.isSummary).sort(sortByNewest);
+  const todayWithPreview = todayAll.filter((e) => !!e.preview?.trim());
+  const today = todayWithPreview.length > 0 ? todayWithPreview : todayAll;
   const earlier = filtered
-    .filter((e) => e.date !== todayDate)
+    .filter((e) => e.date !== todayDate && !e.isSummary)
     .sort(sortByNewest);
   const isSearching = searchQuery.trim().length > 0;
   const noSearchResults = isSearching && filtered.length === 0;
@@ -157,7 +177,21 @@ export default function DiaryScreen() {
           <DiaryHeader />
           <AddEntryButton
             onPress={() => {
-              router.push("/(tabs)/diary/note");
+              const todayNote = today[0];
+              if (todayNote) {
+                router.push({
+                  pathname: "/(tabs)/diary/note",
+                  params: {
+                    id: todayNote.id,
+                    text: todayNote.content,
+                    preview: todayNote.preview ?? "",
+                    mood: todayNote.mood ?? "",
+                    tag: JSON.parse(todayNote.tags || "[]")[0] ?? "",
+                  },
+                });
+              } else {
+                router.push("/(tabs)/diary/note");
+              }
             }}
           />
         </View>
@@ -204,9 +238,8 @@ export default function DiaryScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    //krzystof bez//
-    paddingHorizontal: 20,
-    paddingBottom: 80, // место под плавающий tab bar
+    paddingHorizontal: 16,
+    paddingBottom: 80,
   },
 
   headerRow: {
@@ -215,7 +248,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: spacing.lg,
     marginBottom: spacing.lg,
-  },
+    width: "100%",
+},
 
   searchWrapper: {
     // marginBottom: spacing.xs,

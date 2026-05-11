@@ -5,6 +5,7 @@ import { UserPayload } from "../../types/auth.types";
 import { storage } from "../storage";
 import NetInfo from "@react-native-community/netinfo";
 import { canReachBackend } from "../network/networkUtils";
+import { apiClient } from "../api/client";
 
 //useAuthStore — twój globalny store, z którego pobierany jest token.
 // Ten store zarządza stanem autoryzacji użytkownika, przechowując token i dane usera zarówno w RAMie (stan aplikacji), jak i na dysku (SecureStore) dla trwałości sesji.
@@ -50,33 +51,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ token: null, user: null, isAuthenticated: false });
 
     router.replace("/login");
-  },
-
-  cancelPremium: async () => {
-    const { apiClient } = require("../api/client");
-    await apiClient.delete("/users/me/premium");
-    const current = useAuthStore.getState().user;
-    if (current) {
-      const updated = { ...current, isPremium: false };
-      await storage.saveUser(JSON.stringify(updated));
-      set({ user: updated });
-    }
-  },
-
-  buyPremium: async () => {
-    const { apiClient } = require("../api/client");
-    try {
-      const response = await apiClient.post("/users/me/premium");
-      console.log("[buyPremium] response:", JSON.stringify(response.data));
-      const updatedUser: UserPayload = { ...response.data, isPremium: true };
-      await storage.saveUser(JSON.stringify(updatedUser));
-      set({ user: updatedUser });
-    } catch (e: any) {
-      console.error("[buyPremium] error status:", e?.response?.status);
-      console.error("[buyPremium] error data:", JSON.stringify(e?.response?.data));
-      console.error("[buyPremium] message:", e?.message);
-      throw e;
-    }
   },
 
   hydrate: async () => {
@@ -128,5 +102,25 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  buyPremium: async () => {
+    const { token, user } = useAuthStore.getState();
+    if (!token || !user) throw new Error("Użytkownik nie jest zalogowany");
+
+    await apiClient.post("/users/me/premium");
+    const updatedUser = { ...user, isPremium: true };
+    await storage.saveUser(JSON.stringify(updatedUser));
+    set({ user: updatedUser });
+  },
+
+  cancelPremium: async () => {
+    const { token, user } = useAuthStore.getState();
+    if (!token || !user) throw new Error("Użytkownik nie jest zalogowany");
+
+    await apiClient.delete("/users/me/premium");
+    const updatedUser = { ...user, isPremium: false };
+    await storage.saveUser(JSON.stringify(updatedUser));
+    set({ user: updatedUser });
   },
 }));

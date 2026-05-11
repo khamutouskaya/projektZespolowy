@@ -94,6 +94,7 @@ namespace MentalOS.Services
             var existingItem = await _context.Set<ShopItem>().FirstOrDefaultAsync(i => i.Id == item.Id);
             if (existingItem != null)
             {
+                existingItem.FrontendAccesoriesId = item.FrontendAccesoriesId;
                 existingItem.Name = item.Name;
                 existingItem.Description = item.Description;
                 existingItem.Price = item.Price;
@@ -112,20 +113,17 @@ namespace MentalOS.Services
                 .Where(x => x.UserId == userId)
                 .ToListAsync();
 
-            var item = userItems.FirstOrDefault(x => x.Id == itemId);
+            var item = userItems.FirstOrDefault(x => x.Id == itemId || x.ShopItemId == itemId);
 
             if (item == null)
                 throw new Exception("User doesn't own this item");
 
-            if (item.IsActive)
-                return;
-
-            foreach (var userItem in userItems.Where(x => x.IsActive))
+            foreach (var userItem in userItems)
             {
-                userItem.IsActive = false;
+                userItem.IsActive = (userItem.Id == item.Id);
+                _context.Update(userItem);
             }
 
-            item.IsActive = true;
 
             await _context.SaveChangesAsync();
         }
@@ -133,7 +131,7 @@ namespace MentalOS.Services
         public async Task UnequipItem(Guid userId, Guid itemId)
         {
             var item = await _context.UserItems
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == itemId);
+                .FirstOrDefaultAsync(x => x.UserId == userId && (x.Id == itemId || x.ShopItemId == itemId));
 
             if (item == null)
                 throw new Exception("User doesn't own this item");
@@ -142,7 +140,7 @@ namespace MentalOS.Services
                 return;
 
             item.IsActive = false;
-
+            _context.Update(item);
             await _context.SaveChangesAsync();
         }
     }

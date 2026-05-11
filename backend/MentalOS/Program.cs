@@ -22,7 +22,11 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 // Blazor SSR and Interactive Server Components for Admin Panel
 builder.Services.AddRazorComponents()
@@ -71,9 +75,9 @@ builder.Services.AddSingleton<IQuestionProvider, JsonQuestionProvider>();
 builder.Services.AddScoped<PersonalityService>();
 
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "MentalOS_Super_Secret_Key_12345!@#_To_Generate_Signatures";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MentalOS";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MentalOS";
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
+var jwtAudience = builder.Configuration["Jwt:Audience"]!;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -154,14 +158,11 @@ try
         db.Database.SetCommandTimeout(10);
         
         var canConnect = db.Database.CanConnect();
-
+        
         if (canConnect)
         {
             logger.LogInformation("? Database connection successful!");
-
-            logger.LogInformation("Applying migrations...");
-            db.Database.Migrate();
-
+            
             var adminRole = db.Roles.FirstOrDefault(r => r.Name == "admin");
             if (adminRole == null)
             {

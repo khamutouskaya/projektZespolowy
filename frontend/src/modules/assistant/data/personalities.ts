@@ -15,11 +15,11 @@ export const personalities: Personality[] = [
     systemHint: "Rozmawiaj jak bliski przyjaciel — ciepło, naturalnie, bez formalności.",
   },
   {
-    id: "psychologist",
-    name: "Psycholog",
-    emoji: "🧠",
-    description: "Empatycznie i profesjonalnie",
-    systemHint: "Odpowiadaj empatycznie i profesjonalnie, jak doświadczony psycholog.",
+    id: "psychotype",
+    name: "Psychotyp",
+    emoji: "🧬",
+    description: "Styl dopasowany do Twojej osobowości",
+    systemHint: "Dostosuj swój styl komunikacji ściśle do profilu osobowości użytkownika (model Big Five). Weź pod uwagę jego dominujące cechy — dostosuj ton, tempo, podejście i rodzaj wsparcia do tego, co najlepiej rezonuje z jego charakterem.",
   },
   {
     id: "coach",

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { useFocusEffect } from "expo-router";
 import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
 import GardenSlot from "./GardenSlot";
@@ -18,6 +18,7 @@ export default function GardenBoard() {
   const [slots, setSlots] = useState<GardenSlotType[]>([]);
   const [fruitsBalance, setFruitsBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const initialLoaded = useRef(false);
 
   const loadGarden = useCallback(async () => {
     try {
@@ -27,19 +28,22 @@ export default function GardenBoard() {
     } catch (error) {
       console.log("GARDEN ERROR:", error);
     } finally {
-      setLoading(false);
+      if (!initialLoaded.current) {
+        initialLoaded.current = true;
+        setLoading(false);
+      }
     }
   }, []);
 
   useFocusEffect(
     useCallback(() => {
+      // pierwsze wejście — pokaż spinner; kolejne — cicha aktualizacja w tle
+      if (!initialLoaded.current) {
+        setLoading(true);
+      }
       loadGarden();
 
-      // Auto-refresh every 30 seconds so tree stages update during demo
-      const interval = setInterval(() => {
-        loadGarden();
-      }, POLL_INTERVAL_MS);
-
+      const interval = setInterval(loadGarden, POLL_INTERVAL_MS);
       return () => clearInterval(interval);
     }, [loadGarden]),
   );
@@ -64,7 +68,7 @@ export default function GardenBoard() {
 
   return (
     <>
-      <GardenHeader fruitsBalance={fruitsBalance} />
+      <GardenHeader fruitsBalance={fruitsBalance} onRefresh={loadGarden} />
       <View style={styles.container}>
         {rows.map((rowSlots, rowIndex) => (
           <View key={rowIndex} style={[styles.row, ROW_STYLES[rowIndex] || {}]}>

@@ -117,7 +117,6 @@ export default function Home() {
   // Thinking pulse
   const thinkingPulse = useRef(new Animated.Value(1)).current;
   // Planet tile pulse
-  const tileGlow = useRef(new Animated.Value(1)).current;
   // Stars
   const star1 = useRef(new Animated.Value(0.3)).current;
   const star2 = useRef(new Animated.Value(0.7)).current;
@@ -161,24 +160,6 @@ export default function Home() {
       ]),
     ).start();
   }, [cloudFloat]);
-
-  // Planet tile breathing pulse
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(tileGlow, {
-          toValue: 1.18,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(tileGlow, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, [tileGlow]);
 
   // Oracle animations when modal opens/closes
   useEffect(() => {
@@ -511,10 +492,9 @@ export default function Home() {
                 sub="Zapytaj chmurkę"
                 iconBg="rgba(182,182,230,0.4)"
                 onPress={handleOracleOpen}
-                glowAnim={tileGlow}
               />
               <Tile
-                icon="diamond-outline"
+                icon="sparkles-outline"
                 label="Akcesoria"
                 sub="Twoje zasoby"
                 iconBg="rgba(245,220,150,0.4)"
@@ -872,13 +852,11 @@ function UniverseTile({
   sub,
   iconBg,
   onPress,
-  glowAnim,
 }: {
   label: string;
   sub: string;
   iconBg: string;
   onPress: () => void;
-  glowAnim: Animated.Value;
 }) {
   return (
     <Pressable
@@ -889,14 +867,9 @@ function UniverseTile({
         pressed && { opacity: 0.85 },
       ]}
     >
-      <Animated.View
-        style={[
-          styles.tileIcon,
-          { backgroundColor: iconBg, transform: [{ scale: glowAnim }] },
-        ]}
-      >
+      <View style={[styles.tileIcon, { backgroundColor: iconBg }]}>
         <Ionicons name="planet-outline" size={22} color={colors.text.primary} />
-      </Animated.View>
+      </View>
       <Text style={styles.tileText}>{label}</Text>
       <Text style={styles.tileSub}>{sub}</Text>
     </Pressable>

@@ -61,6 +61,7 @@ export default function Home() {
   const [dailyProgress, setDailyProgress] = useState(0);
   const [fruitsBalance, setFruitsBalance] = useState(0);
   const [hasPendingFruit, setHasPendingFruit] = useState(false);
+  const [hasDailyFruitUsed, setHasDailyFruitUsed] = useState(false);
   const [streakCount, setStreakCount] = useState(0);
   const [coinsBalance, setCoinsBalance] = useState(0);
 
@@ -70,6 +71,7 @@ export default function Home() {
       setDailyProgress(status.progress);
       setFruitsBalance(status.fruitsBalance);
       setHasPendingFruit(status.hasPendingFruit);
+      setHasDailyFruitUsed(status.hasDailyFruitUsed ?? false);
       setStreakCount(status.streakCount ?? 0);
       setCoinsBalance(status.coinsBalance ?? 0);
       const currentUser = useAuthStore.getState().user;
@@ -223,7 +225,7 @@ export default function Home() {
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
   const progress = dailyProgress;
-  const isReady = hasPendingFruit || fruitsBalance > 0;
+  const isReady = (hasPendingFruit || fruitsBalance > 0) && !hasDailyFruitUsed;
 
   const handleOdbierzPress = async () => {
     if (hasPendingFruit) {
@@ -464,6 +466,8 @@ export default function Home() {
                           Odbierz 🍎
                         </Text>
                       </Pressable>
+                    ) : hasDailyFruitUsed ? (
+                      <Text style={styles.compactDone}>✓ Użyto dziś</Text>
                     ) : progress === 2 ? (
                       <Text style={styles.compactDone}>✓ Odebrano</Text>
                     ) : (

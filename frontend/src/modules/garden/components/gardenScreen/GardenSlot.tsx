@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { GardenSlotType } from "../../garden.types";
 import GardenTree from "./GardenTree";
 import { gardenService } from "../../garden.service";
@@ -40,8 +40,9 @@ function GardenSlot({ slot, fruitsBalance, onRefresh }: Props) {
         }
       }
       await onRefresh();
-    } catch (error) {
-      console.log("GARDEN SLOT ERROR:", error);
+    } catch (error: any) {
+      const msg = error?.response?.data?.message ?? error?.message ?? "Nieznany błąd";
+      Alert.alert("Błąd", msg);
     } finally {
       setLoading(false);
     }

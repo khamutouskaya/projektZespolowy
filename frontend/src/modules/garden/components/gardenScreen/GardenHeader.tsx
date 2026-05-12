@@ -1,5 +1,6 @@
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { apiClient } from "@/services/api/client";
+import { useAuthStore } from "@/services/store/useAuthStore";
 
 type Props = {
   fruitsBalance: number;
@@ -7,8 +8,11 @@ type Props = {
 };
 
 const FRUIT_IMAGE = require("../../../../../assets/images/fruit.png");
+const COIN_IMAGE = require("../../../../../assets/shop/coin.png");
 
 export default function GardenHeader({ fruitsBalance, onRefresh }: Props) {
+  const coinsBalance = useAuthStore((s) => s.user?.coinsBalance ?? 0);
+
   const handleDebugAdd = async () => {
     try {
       const res = await apiClient.post("/streak/debug/add-fruits?amount=5");
@@ -20,55 +24,89 @@ export default function GardenHeader({ fruitsBalance, onRefresh }: Props) {
   };
 
   return (
-    <View style={styles.sign}>
-      <View style={styles.row}>
-        <Image source={FRUIT_IMAGE} style={styles.icon} resizeMode="contain" />
-        <Text style={styles.text}>{fruitsBalance}</Text>
+    <View style={styles.container}>
+      {/* Owoce */}
+      <View style={styles.fruitBadge}>
+        <Image source={FRUIT_IMAGE} style={styles.fruitIcon} resizeMode="contain" />
+        <Text style={styles.fruitText}>{fruitsBalance}</Text>
         <Pressable onPress={handleDebugAdd} style={styles.debugBtn}>
-          <Text style={styles.debugText}>+5 🍎</Text>
+          <Text style={styles.debugText}>+5</Text>
         </Pressable>
+      </View>
+
+      {/* Monety — styl identyczny jak ShopBalance */}
+      <View style={styles.coinWrapper}>
+        <Image source={COIN_IMAGE} style={styles.coin} resizeMode="contain" fadeDuration={0} />
+        <Text style={styles.coinValue}>{coinsBalance}</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sign: {
+  container: {
     position: "absolute",
     top: 55,
     alignSelf: "center",
-    width: 300,
-    height: 80,
-    justifyContent: "center",
+    flexDirection: "row",
+    gap: 10,
     alignItems: "center",
   },
-  row: {
+  fruitBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
+    backgroundColor: "rgba(0,0,0,0.28)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
   },
-  icon: {
-    width: 28,
-    height: 28,
+  fruitIcon: {
+    width: 22,
+    height: 22,
   },
-  text: {
-    fontSize: 26,
-    fontWeight: "900",
+  fruitText: {
+    fontSize: 18,
+    fontWeight: "800",
     color: "#fff4dc",
-    textShadowColor: "#5a3a1c",
-    textShadowOffset: { width: 0, height: 2 },
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
-    letterSpacing: 0.5,
   },
   debugBtn: {
-    backgroundColor: "rgba(0,0,0,0.35)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
   debugText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: "#fff4dc",
+  },
+  coinWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(0,0,0,0.28)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+  },
+  coin: {
+    width: 22,
+    height: 22,
+  },
+  coinValue: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#fff4dc",
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });

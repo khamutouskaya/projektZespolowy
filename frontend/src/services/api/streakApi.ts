@@ -8,6 +8,7 @@ export type DailyStatus = {
   hasPendingFruit: boolean;
   streakCount: number;
   coinsBalance: number;
+  hasDailyFruitUsed: boolean;
 };
 
 export const streakApi = {

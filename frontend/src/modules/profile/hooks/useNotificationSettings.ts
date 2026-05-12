@@ -26,8 +26,8 @@ export const useNotificationSettings = () => {
     setSettings((prev) => {
       const next = { ...prev, ...patch };
       settingsStorage.saveNotificationSettings(next).then(async () => {
-        const granted = await notificationService.requestPermission();
-        if (granted) await notificationService.reschedule(next);
+        await notificationService.requestPermission();
+        await notificationService.reschedule(next);
       });
       return next;
     });

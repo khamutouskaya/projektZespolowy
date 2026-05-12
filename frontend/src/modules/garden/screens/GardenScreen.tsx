@@ -1,6 +1,5 @@
 import { memo } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
-import GardenHeader from "../components/gardenScreen/GardenHeader";
 import GardenBoard from "../components/gardenScreen/GardenBoard";
 
 const GARDEN_BACKGROUND = require("../../../../assets/garden/garden-background.png");
@@ -14,7 +13,6 @@ function GardenScreen() {
       fadeDuration={0}
     >
       <View style={styles.overlay}>
-        <GardenHeader />
         <GardenBoard />
       </View>
     </ImageBackground>
@@ -22,7 +20,6 @@ function GardenScreen() {
 }
 
 export default memo(GardenScreen);
-
 
 const styles = StyleSheet.create({
   background: {

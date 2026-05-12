@@ -155,10 +155,15 @@ try
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
         logger.LogInformation("Checking database connection...");
-        db.Database.SetCommandTimeout(10);
-        
-        var canConnect = db.Database.CanConnect();
-        
+        db.Database.SetCommandTimeout(30);
+
+        db.Database.Migrate();
+
+        db.Database.ExecuteSqlRaw(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_pending_fruit boolean NOT NULL DEFAULT false;");
+
+        var canConnect = true;
+
         if (canConnect)
         {
             logger.LogInformation("? Database connection successful!");

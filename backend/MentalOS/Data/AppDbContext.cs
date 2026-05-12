@@ -175,6 +175,12 @@ namespace MentalOS.Data
                 .WithMany(cs => cs.Messages)
                 .HasForeignKey(cm => cm.SessionId);
 
+            modelBuilder.Entity<ChatMessage>()
+                .HasIndex(cm => cm.SessionId);
+
+            modelBuilder.Entity<ChatSession>()
+                .HasIndex(cs => cs.UserId);
+
             modelBuilder.Entity<JournalEntry>(entity =>
             {
                 entity.ToTable("journal_entries");
@@ -185,6 +191,9 @@ namespace MentalOS.Data
                       .OnDelete(DeleteBehavior.Cascade)
                       .IsRequired(false);
                 entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => new { e.UserId, e.EntryDate });
+                entity.HasIndex(e => new { e.UserId, e.CreatedAt });
+                entity.HasIndex(e => new { e.UserId, e.IsSummary, e.EntryDate });
             });
 
             modelBuilder.Entity<PlannerTask>(entity =>

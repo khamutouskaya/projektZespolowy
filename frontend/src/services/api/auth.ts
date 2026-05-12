@@ -49,4 +49,11 @@ export const authApi = {
     });
     return response.data;
   },
+
+  googleLogin: async (idToken: string): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>("/auth/google", {
+      idToken,
+    });
+    return response.data;
+  },
 };

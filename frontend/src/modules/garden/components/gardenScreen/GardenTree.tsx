@@ -8,16 +8,15 @@ type Props = {
 };
 
 const TREE_IMAGES = {
-  0: require("../../../../../assets/garden/tree-stage-0.png"),
-  1: require("../../../../../assets/garden/tree-stage-1.png"),
-  2: require("../../../../../assets/garden/tree-stage-2.png"),
-  3: require("../../../../../assets/garden/tree-stage-3.png"),
+  1: require("../../../../../assets/garden/tree-stage-0.png"),
+  2: require("../../../../../assets/garden/tree-stage-1.png"),
+  3: require("../../../../../assets/garden/tree-stage-2.png"),
   4: require("../../../../../assets/garden/tree-stage-3.png"),
 } as const;
 
 function GardenTree({ stage, scale = 1 }: Props) {
   const imageSource = useMemo(() => {
-    return TREE_IMAGES[stage] || TREE_IMAGES[0];
+    return TREE_IMAGES[stage as keyof typeof TREE_IMAGES] ?? TREE_IMAGES[1];
   }, [stage]);
 
   const imageStyle = useMemo(() => [

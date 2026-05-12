@@ -6,8 +6,8 @@ import { spacing } from "@/shared/theme/spacing";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Animated,
@@ -22,8 +22,16 @@ import {
 } from "react-native";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { useShopStore } from "@/services/store/useShopStore";
+import { streakApi } from "@/services/api/streakApi";
+import { gardenService } from "@/modules/garden/garden.service";
 
 const GOLD = "#f9dd0c";
+
+const DAILY_TREE_IMAGES: Record<number, any> = {
+  0: require("../../assets/garden/tree-stage-0.png"),
+  1: require("../../assets/garden/tree-stage-1.png"),
+  2: require("../../assets/garden/tree-stage-2.png"),
+};
 
 const PREMIUM_FEATURES = [
   { icon: "people-outline", label: "Praca z psychologiem" },
@@ -42,18 +50,61 @@ export default function Home() {
   const { isAuthenticated } = useAuthStore();
   const { fetchEquippedItem, equippedPreviewImage } = useShopStore();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchEquippedItem();
-    }
-  }, [isAuthenticated]);
-
   const [showOracle, setShowOracle] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
   const [showFruitModal, setShowFruitModal] = useState(false);
+  const [isClaimingFruit, setIsClaimingFruit] = useState(false);
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
   const [isOracleThinking, setIsOracleThinking] = useState(false);
+
+  const [dailyProgress, setDailyProgress] = useState(0);
+  const [fruitsBalance, setFruitsBalance] = useState(0);
+  const [hasPendingFruit, setHasPendingFruit] = useState(false);
+  const [streakCount, setStreakCount] = useState(0);
+  const [coinsBalance, setCoinsBalance] = useState(0);
+
+  const loadDailyStatus = useCallback(async () => {
+    try {
+      const status = await streakApi.getDailyStatus();
+      setDailyProgress(status.progress);
+      setFruitsBalance(status.fruitsBalance);
+      setHasPendingFruit(status.hasPendingFruit);
+      setStreakCount(status.streakCount ?? 0);
+      setCoinsBalance(status.coinsBalance ?? 0);
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser && status.coinsBalance !== undefined) {
+        useAuthStore.setState({
+          user: {
+            ...currentUser,
+            coinsBalance: status.coinsBalance,
+            streakCount: status.streakCount ?? currentUser.streakCount,
+          },
+        });
+      }
+    } catch {
+      // keep defaults if offline
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEquippedItem();
+    }
+  }, [isAuthenticated, fetchEquippedItem]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated) return;
+      loadDailyStatus();
+
+      const interval = setInterval(() => {
+        loadDailyStatus();
+      }, 30_000);
+
+      return () => clearInterval(interval);
+    }, [isAuthenticated, loadDailyStatus]),
+  );
 
   // Home cloud float
   const cloudFloat = useRef(new Animated.Value(0)).current;
@@ -190,15 +241,53 @@ export default function Home() {
 
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
-  // STREAK MOCK (потім підключиш бек)
-  const streakDays = 2;
+  const progress = dailyProgress;
+  const isReady = hasPendingFruit || fruitsBalance > 0;
 
-  const hasJournalEntryToday = true;
-  const hasDailySummaryToday = true;
+  const handleOdbierzPress = async () => {
+    if (hasPendingFruit) {
+      setIsClaimingFruit(true);
+      try {
+        await streakApi.claimFruit();
+        await loadDailyStatus();
+      } catch {
+        Alert.alert("Błąd", "Nie udało się odebrać nagrody.");
+        setIsClaimingFruit(false);
+        return;
+      } finally {
+        setIsClaimingFruit(false);
+      }
+    }
+    setShowFruitModal(true);
+  };
 
-  const progress = Number(hasJournalEntryToday) + Number(hasDailySummaryToday);
+  const handlePlantFruit = async () => {
+    setIsClaimingFruit(true);
+    try {
+      await gardenService.plantTree();
+      setShowFruitModal(false);
+      await loadDailyStatus();
+      Alert.alert("Posadzono!", "Owoc został posadzony w ogródku. 🌱");
+    } catch {
+      Alert.alert("Błąd", "Nie udało się posadzić owocu.");
+    } finally {
+      setIsClaimingFruit(false);
+    }
+  };
 
-  const isReady = progress === 2;
+  const handleExchangeFruit = async () => {
+    setIsClaimingFruit(true);
+    try {
+      await gardenService.exchangeFruit();
+      setShowFruitModal(false);
+      await loadDailyStatus();
+      Alert.alert("Wymieniono!", "Owoc został wymieniony na 10 monet. 🪙");
+    } catch {
+      Alert.alert("Błąd", "Nie udało się wymienić owocu.");
+    } finally {
+      setIsClaimingFruit(false);
+    }
+  };
 
   const handleOracleOpen = () => {
     setShowOracle(true);
@@ -337,7 +426,9 @@ export default function Home() {
             contentContainerStyle={styles.scrollContent}
           >
             <Animated.Image
-              source={equippedPreviewImage || require("../../assets/images/cloud.png")}
+              source={
+                equippedPreviewImage || require("../../assets/images/cloud.png")
+              }
               style={[
                 styles.cloud,
                 { transform: [{ translateY: cloudFloat }] },
@@ -348,33 +439,52 @@ export default function Home() {
               <Text style={styles.title}>Jak się dziś czujesz?</Text>
             </View>
 
-            {/* STREAK FRUIT CARD */}
+            {/* DRZEWO DNIA CARD */}
             <View style={[cardStyles.card, styles.statusCard]}>
               <View style={styles.compactStreakRow}>
-                <Image
-                  source={require("../../assets/images/fruit.png")}
-                  style={[
-                    styles.compactFruit,
-                    {
-                      opacity:
-                        progress === 0 ? 0.25 : progress === 1 ? 0.55 : 1,
-                    },
-                  ]}
-                />
+                <View style={styles.dailyTreeWrap}>
+                  <Image
+                    source={DAILY_TREE_IMAGES[progress] ?? DAILY_TREE_IMAGES[0]}
+                    style={styles.dailyTree}
+                    resizeMode="contain"
+                    fadeDuration={0}
+                  />
+                  {progress === 2 && (
+                    <Image
+                      source={require("../../assets/images/fruit.png")}
+                      style={styles.dailyTreeFruit}
+                      resizeMode="contain"
+                    />
+                  )}
+                </View>
 
                 <View style={styles.compactStreakContent}>
                   <View style={styles.compactStreakTop}>
-                    <Text style={styles.compactTitle}>Dzisiejszy owoc</Text>
-
-                    {progress === 2 ? (
+                    <View style={styles.compactTitleRow}>
+                      <Text style={styles.compactTitle}>Drzewo Dnia</Text>
+                      {streakCount > 0 && (
+                        <View style={styles.streakChip}>
+                          <Text style={styles.streakChipText}>
+                            🔥 {streakCount}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                    {isReady ? (
                       <Pressable
-                        style={styles.claimFruitMiniButton}
-                        onPress={() => setShowFruitModal(true)}
+                        style={[
+                          styles.claimFruitMiniButton,
+                          isClaimingFruit && { opacity: 0.6 },
+                        ]}
+                        onPress={handleOdbierzPress}
+                        disabled={isClaimingFruit}
                       >
                         <Text style={styles.claimFruitMiniText}>
                           Odbierz 🍎
                         </Text>
                       </Pressable>
+                    ) : progress === 2 ? (
+                      <Text style={styles.compactDone}>✓ Odebrano</Text>
                     ) : (
                       <Text style={styles.compactProgress}>{progress}/2</Text>
                     )}
@@ -387,7 +497,6 @@ export default function Home() {
                       ]}
                     />
                   </View>
-
                   <Text style={styles.compactSubtitle}>
                     Wpis w dzienniku · Podsumowanie dnia
                   </Text>
@@ -437,55 +546,55 @@ export default function Home() {
               </Text>
             </View>
 
-              {/* Praca z psychologiem + Test psychotypu */}
-                        <View style={styles.extraRow}>
-                  <Pressable
-                    style={({ pressed }) => [
-                              cardStyles.card,
-               styles.extraCard,
-                   pressed && { opacity: 0.85 },
-                     ]}
+            {/* Praca z psychologiem + Test psychotypu */}
+            <View style={styles.extraRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  cardStyles.card,
+                  styles.extraCard,
+                  pressed && { opacity: 0.85 },
+                ]}
                 onPress={handlePsychologistPress}
-                          >
-                    <View
-                  style={[
-             styles.extraIcon,
-                          { backgroundColor: "rgba(182,204,233,0.4)" },
-                 ]}
-                  >
-              <Ionicons
-                 name="people-outline"
-                  size={24}
-                     color={colors.text.primary}
-                    />
-              </View>
-               <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
-                            <Text style={styles.extraSub}>Umów konsultację online</Text>
-                          </Pressable>
-
-                        <Pressable
-                 style={({ pressed }) => [
-                cardStyles.card,
-                       styles.extraCard,
-                    pressed && { opacity: 0.85 },
-             ]}
-                 onPress={() => router.push("/psychotype")}
               >
-                            <View
-                 style={[
-             styles.extraIcon,
-                     { backgroundColor: "rgba(233,182,204,0.4)" },
-                       ]}
-                  >
-                         <Ionicons
-                      name="clipboard-outline"
-                        size={24}
-                          color={colors.text.primary}
+                <View
+                  style={[
+                    styles.extraIcon,
+                    { backgroundColor: "rgba(182,204,233,0.4)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="people-outline"
+                    size={24}
+                    color={colors.text.primary}
                   />
-                    </View>
-                    <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
+                </View>
+                <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
+                <Text style={styles.extraSub}>Umów konsultację online</Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  cardStyles.card,
+                  styles.extraCard,
+                  pressed && { opacity: 0.85 },
+                ]}
+                onPress={() => router.push("/psychotype")}
+              >
+                <View
+                  style={[
+                    styles.extraIcon,
+                    { backgroundColor: "rgba(233,182,204,0.4)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="clipboard-outline"
+                    size={24}
+                    color={colors.text.primary}
+                  />
+                </View>
+                <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
                 <Text style={styles.extraSub}>Poznaj swój profil</Text>
-                     </Pressable>
+              </Pressable>
             </View>
           </ScrollView>
         </Animated.View>
@@ -576,13 +685,29 @@ export default function Home() {
             <Text style={styles.fruitModalTitle}>Owoc dojrzał!</Text>
             <Text style={styles.fruitModalText}>Co chcesz z nim zrobić?</Text>
 
-            <Pressable style={styles.fruitModalPlantButton}>
-              <Text style={styles.fruitModalPlantText}>Zasadź w ogródku</Text>
+            <Pressable
+              style={[
+                styles.fruitModalPlantButton,
+                isClaimingFruit && { opacity: 0.6 },
+              ]}
+              onPress={handlePlantFruit}
+              disabled={isClaimingFruit}
+            >
+              <Text style={styles.fruitModalPlantText}>
+                Zasadź w ogródku 🌱
+              </Text>
             </Pressable>
 
-            <Pressable style={styles.fruitModalExchangeButton}>
+            <Pressable
+              style={[
+                styles.fruitModalExchangeButton,
+                isClaimingFruit && { opacity: 0.6 },
+              ]}
+              onPress={handleExchangeFruit}
+              disabled={isClaimingFruit}
+            >
               <Text style={styles.fruitModalExchangeText}>
-                Wymień na monety
+                Wymień na 10 monet 🪙
               </Text>
             </Pressable>
           </View>
@@ -684,7 +809,10 @@ export default function Home() {
           <View style={styles.oracleStage}>
             <Pressable onPress={handleOracleAnswer}>
               <Animated.Image
-                source={equippedPreviewImage || require("../../assets/images/cloud.png")}
+                source={
+                  equippedPreviewImage ||
+                  require("../../assets/images/cloud.png")
+                }
                 style={[
                   styles.oracleMainCloud,
                   {
@@ -1197,10 +1325,55 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
+  compactTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  streakChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,180,60,0.18)",
+  },
+
+  streakChipText: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#b36a00",
+  },
+
   compactFruit: {
     width: 54,
     height: 54,
     resizeMode: "contain",
+  },
+
+  dailyTreeWrap: {
+    width: 62,
+    height: 72,
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+
+  dailyTree: {
+    width: 62,
+    height: 62,
+  },
+
+  dailyTreeFruit: {
+    position: "absolute",
+    top: 0,
+    right: -4,
+    width: 22,
+    height: 22,
+  },
+
+  compactDone: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "rgba(111,174,122,0.85)",
   },
 
   compactStreakContent: {

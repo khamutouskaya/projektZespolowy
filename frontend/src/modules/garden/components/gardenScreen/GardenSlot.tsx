@@ -1,11 +1,13 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { GardenSlotType } from "../../garden.types";
 import GardenTree from "./GardenTree";
 import { gardenService } from "../../garden.service";
+import { useAuthStore } from "@/services/store/useAuthStore";
 
 type Props = {
   slot: GardenSlotType;
+  fruitsBalance: number;
   onRefresh: () => void;
 };
 
@@ -15,23 +17,33 @@ const TREE_SCALES: Record<number, number> = {
   2: 1.0,
 };
 
-function GardenSlot({ slot, onRefresh }: Props) {
+function GardenSlot({ slot, fruitsBalance, onRefresh }: Props) {
   const scale = TREE_SCALES[slot.y] ?? 1;
   const hasTree = slot.treeState !== 0;
+  const canPlant = !hasTree && fruitsBalance > 0;
+  const canHarvest = slot.treeState === 4;
 
   const handlePress = useCallback(async () => {
     try {
-      if (!hasTree) {
+      if (canPlant) {
         await gardenService.plantTree();
-      } else if (slot.treeState === 4) {
-        await gardenService.harvestTree(slot.id);
+      } else if (canHarvest) {
+        const result = await gardenService.harvestTree(slot.id);
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          useAuthStore.setState({
+            user: { ...currentUser, coinsBalance: result.coinsBalance },
+          });
+        }
       }
 
-      await onRefresh();
+      if (canPlant || canHarvest) {
+        await onRefresh();
+      }
     } catch (error) {
       console.log("GARDEN SLOT ERROR:", error);
     }
-  }, [hasTree, slot.treeState, slot.id, onRefresh]);
+  }, [canPlant, canHarvest, slot.id, onRefresh]);
 
   return (
     <Pressable onPress={handlePress} style={styles.slot}>
@@ -43,7 +55,6 @@ function GardenSlot({ slot, onRefresh }: Props) {
 }
 
 export default memo(GardenSlot);
-
 
 const styles = StyleSheet.create({
   slot: {

@@ -27,6 +27,7 @@ namespace MentalOS.Services
             // 0️⃣ PERSONALITY PROFILE (Big Five)
             // -------------------------
             var personality = await _db.PersonalityProfiles
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.UserId == userId);
 
             if (personality != null && !string.IsNullOrEmpty(personality.Traits))
@@ -66,6 +67,7 @@ namespace MentalOS.Services
             // 1️⃣ JOURNAL (последние записи)
             // -------------------------
             var recentEntries = await _db.JournalEntries
+                .AsNoTracking()
                 .Where(x => x.UserId == userId && !x.IsSummary)
                 .OrderByDescending(x => x.CreatedAt)
                 .Take(3)
@@ -88,6 +90,7 @@ namespace MentalOS.Services
             // 2️⃣ MOOD ANALYSIS (за неделю)
             // -------------------------
             var weeklyEntries = await _db.JournalEntries
+                .AsNoTracking()
                 .Where(x => x.UserId == userId &&
                             x.EntryDate >= weekAgo &&
                             x.MoodScore.HasValue)
@@ -116,6 +119,7 @@ namespace MentalOS.Services
             // 3️⃣ TODAY TASKS
             // -------------------------
             var todayTasks = await _db.PlannerTasks
+                .AsNoTracking()
                 .Where(t => t.UserId == userId &&
                             t.TaskDate >= todayStart &&
                             t.TaskDate < todayStart.AddDays(1))

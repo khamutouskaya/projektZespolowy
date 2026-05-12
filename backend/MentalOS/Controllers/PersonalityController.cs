@@ -41,6 +41,24 @@ namespace MentalOS.Controllers
             return Ok(_provider.GetQuestions());
         }
 
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            var profile = await _context.PersonalityProfiles
+                .FirstOrDefaultAsync(p => p.UserId == userId.Value);
+
+            if (profile == null) return NotFound();
+
+            var scores = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, double>>(
+                profile.Traits ?? "{}",
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return Ok(scores);
+        }
+
         [HttpPost("submit")]
         public async Task<IActionResult> Submit([FromBody] SubmitTestDto dto)
         {

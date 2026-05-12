@@ -15,11 +15,10 @@ interface TranscribeResponse {
   error?: string;
 }
 
-// Backend zwraca pola z wielkiej litery (C# convention)
 interface TranscribeBackendResponse {
-  Success: boolean;
-  Transcript?: string;
-  Error?: string;
+  success: boolean;
+  transcript?: string;
+  error?: string | null;
 }
 
 export const assistantApi = {
@@ -66,11 +65,11 @@ export const assistantApi = {
 
       console.log("Odpowiedź z serwera:", response.data);
 
-      if (!response.data.Success || !response.data.Transcript) {
-        throw new Error(response.data.Error || 'Transkrypcja nie powiodła się');
+      if (!response.data.success || !response.data.transcript) {
+        throw new Error(response.data.error || 'Transkrypcja nie powiodła się');
       }
 
-      return response.data.Transcript;
+      return response.data.transcript;
     } catch (error: any) {
       console.error("Błąd transkrypcji szczegóły:", {
         message: error.message,

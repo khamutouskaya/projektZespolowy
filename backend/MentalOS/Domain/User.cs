@@ -37,6 +37,12 @@ namespace MentalOS.Domain
 
         [Column("coins_balance")]
         public int CoinsBalance { get; set; } = 0;
+
+        [Column("fruits_balance")]
+        public int FruitsBalance { get; set; } = 0;
+
+        [Column("has_pending_fruit")]
+        public bool HasPendingFruit { get; set; } = false;
         
         [Column("is_premium")]
         public bool IsPremium { get; set; } = false;

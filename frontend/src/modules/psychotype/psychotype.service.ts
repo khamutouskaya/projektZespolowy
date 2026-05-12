@@ -11,4 +11,13 @@ export const psychotypeService = {
     const { data } = await apiClient.post<PersonalityResult>("/personality/submit", { answers });
     return data;
   },
+
+  getProfile: async (): Promise<PersonalityResult | null> => {
+    try {
+      const { data } = await apiClient.get<PersonalityResult>("/personality/profile");
+      return data;
+    } catch {
+      return null;
+    }
+  },
 };

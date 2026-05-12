@@ -12,7 +12,7 @@ import { useAudioRecorder, AudioModule, RecordingPresets, AudioSource } from "ex
 import { colors } from "@/shared/theme/colors";
 
 type Props = {
-  bottomOffset: number;
+  bottomOffset: Animated.Value | number;
   isLoading: boolean;
   onSendPress: (text: string) => void;
   onVoiceRecordingComplete?: (uri: string) => void;
@@ -83,36 +83,37 @@ export const AssistantComposer = memo(function AssistantComposer({
     }
 
     if (isRecording) {
-   try {
-        const recordingUri = await audioRecorder.stop();
+      try {
+        await audioRecorder.stop();
         setIsRecording(false);
 
         // Poczekaj chwilę na zapisanie pliku
         await new Promise(resolve => setTimeout(resolve, 300));
 
- if (recordingUri && onVoiceRecordingComplete) {
-          console.log("Nagranie zakończone, URI:", recordingUri);
+        const recordingUri = audioRecorder.uri;
+
+        if (recordingUri && onVoiceRecordingComplete) {
           onVoiceRecordingComplete(recordingUri);
         } else {
           Alert.alert("Błąd", "Nie udało się zapisać nagrania. Spróbuj ponownie.");
-     }
-  } catch (error) {
+        }
+      } catch (error) {
         console.error("Błąd podczas zatrzymywania nagrywania:", error);
         setIsRecording(false);
         Alert.alert("Błąd", "Nie udało się przetworzyć nagrania. Spróbuj ponownie.");
-  }
+      }
     } else {
-    try {
-        // Konfiguracja trybu audio dla iOS - wymagane przed nagrywaniem
+      try {
         await AudioModule.setAudioModeAsync({
           allowsRecording: true,
-     playsInSilentMode: true,
+          playsInSilentMode: true,
         });
-        await audioRecorder.record();
+        await audioRecorder.prepareToRecordAsync();
+        audioRecorder.record();
         setIsRecording(true);
       } catch (error) {
         console.error("Błąd podczas rozpoczynania nagrywania:", error);
-      Alert.alert("Błąd", "Nie udało się rozpocząć nagrywania. Sprawdź uprawnienia mikrofonu.");
+        Alert.alert("Błąd", "Nie udało się rozpocząć nagrywania. Sprawdź uprawnienia mikrofonu.");
       }
     }
   }, [
@@ -132,7 +133,7 @@ export const AssistantComposer = memo(function AssistantComposer({
   };
 
   return (
-<View style={[styles.inputRow, { marginBottom: bottomOffset }]}>
+    <Animated.View style={[styles.inputRow, { marginBottom: bottomOffset }]}>
       <TextInput
  style={styles.input}
         value={text}
@@ -181,7 +182,7 @@ export const AssistantComposer = memo(function AssistantComposer({
           <Ionicons name="arrow-up" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 });
 

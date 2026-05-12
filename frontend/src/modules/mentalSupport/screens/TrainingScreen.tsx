@@ -18,7 +18,7 @@ export default function MeditationScreen() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null); //Ten stan steruje: czy pokazać player/jakie wideo odtwarzać
 
   const { videoId } = useLocalSearchParams<{ videoId?: string }>();
-  const player = useVideoPlayer(selectedVideo ?? "");
+  const player = useVideoPlayer("");
   const flatListRef = useRef<any>(null);
 
   //[] → wykona się tylko raz po załadowaniu ekranu, ustawia tryb audio
@@ -39,41 +39,38 @@ export default function MeditationScreen() {
   }, [videoId]);
 
   useEffect(() => {
-    const setup = async () => {
-      await setAudioModeAsync({
-        playsInSilentMode: true,
-      });
-    };
-
-    setup();
+    setAudioModeAsync({ playsInSilentMode: true });
   }, []);
+
+  useEffect(() => {
+    if (!selectedVideo) return;
+    player.replace(selectedVideo);
+    player.play();
+  }, [player, selectedVideo]);
 
   return (
     <LayoutContainer>
+      <View style={styles.headerArea}>
+        <Header
+          title="Treningi"
+          image={require("../../../../assets/images/cloud.png")}
+        />
+        {selectedVideo && (
+          <VideoView
+            player={player}
+            style={styles.videoPlayer}
+            contentFit="cover"
+            allowsFullscreen
+            nativeControls
+          />
+        )}
+      </View>
+
       <FlatList
         ref={flatListRef}
         data={sections}
-        keyExtractor={(item) => item.title} //każda sekcja musi mieć unikalny tytuł
+        keyExtractor={(item) => item.title}
         contentContainerStyle={styles.content}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Header
-              title="Treningi"
-              image={require("../../../../assets/images/cloud.png")}
-            />
-
-            {/* pokazujemy player tylko wtedy, gdy jest wybrane wideo */}
-            {selectedVideo && (
-              <VideoView
-                key={selectedVideo}
-                player={player}
-                style={styles.videoPlayer}
-                contentFit="cover"
-                allowsFullscreen
-              />
-            )}
-          </View>
-        }
         renderItem={({ item }) => (
           <View style={styles.section}>
             <View style={{ paddingHorizontal: 20 }}>
@@ -87,7 +84,7 @@ export default function MeditationScreen() {
               keyExtractor={(video) => video.id}
               contentContainerStyle={styles.cardsList}
               renderItem={({ item: video }) => (
-                <MeditationCard // ✅ ваш готовый компонент
+                <MeditationCard
                   video={video}
                   isActive={selectedVideo === video.videoUrl}
                   onPress={() => {
@@ -113,9 +110,9 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
 
-  header: {
-    marginTop: -10,
+  headerArea: {
     paddingHorizontal: 20,
+    paddingTop: 10,
   },
 
   section: {

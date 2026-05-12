@@ -1,6 +1,8 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useFocusEffect } from "expo-router";
 import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
 import GardenSlot from "./GardenSlot";
+import GardenHeader from "./GardenHeader";
 import { GardenSlotType } from "../../garden.types";
 import { gardenService } from "../../garden.service";
 
@@ -10,25 +12,37 @@ const ROW_STYLES: Record<number, object> = {
   2: { marginLeft: -3, marginBottom: 0 },
 };
 
+const POLL_INTERVAL_MS = 30_000;
 
 export default function GardenBoard() {
   const [slots, setSlots] = useState<GardenSlotType[]>([]);
+  const [fruitsBalance, setFruitsBalance] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const loadGarden = useCallback(async () => {
     try {
       const data = await gardenService.getGarden();
-      setSlots(data);
+      setSlots(data.beds);
+      setFruitsBalance(data.fruitsBalance);
     } catch (error) {
       console.log("GARDEN ERROR:", error);
     } finally {
-    setLoading(false);
+      setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    loadGarden();
-  }, [loadGarden]);
+  useFocusEffect(
+    useCallback(() => {
+      loadGarden();
+
+      // Auto-refresh every 30 seconds so tree stages update during demo
+      const interval = setInterval(() => {
+        loadGarden();
+      }, POLL_INTERVAL_MS);
+
+      return () => clearInterval(interval);
+    }, [loadGarden]),
+  );
 
   const rows = useMemo(() => {
     const sortedSlots = [...slots].sort((a, b) => a.x - b.x);
@@ -49,15 +63,23 @@ export default function GardenBoard() {
   }
 
   return (
-    <View style={styles.container}>
-      {rows.map((rowSlots, rowIndex) => (
-        <View key={rowIndex} style={[styles.row, ROW_STYLES[rowIndex] || {}]}>
-          {rowSlots.map((slot) => (
-            <GardenSlot key={slot.id} slot={slot} onRefresh={loadGarden} />
-          ))}
-        </View>
-      ))}
-    </View>
+    <>
+      <GardenHeader fruitsBalance={fruitsBalance} />
+      <View style={styles.container}>
+        {rows.map((rowSlots, rowIndex) => (
+          <View key={rowIndex} style={[styles.row, ROW_STYLES[rowIndex] || {}]}>
+            {rowSlots.map((slot) => (
+              <GardenSlot
+                key={slot.id}
+                slot={slot}
+                fruitsBalance={fruitsBalance}
+                onRefresh={loadGarden}
+              />
+            ))}
+          </View>
+        ))}
+      </View>
+    </>
   );
 }
 

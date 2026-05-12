@@ -57,30 +57,27 @@ export default function MeditationScreen() {
 
   return (
     <LayoutContainer>
+      <View style={styles.headerArea}>
+        <Header
+          title="Medytacje"
+          image={require("../../../../assets/images/cloud.png")}
+        />
+        {selectedVideo && (
+          <VideoView
+            player={player}
+            style={styles.videoPlayer}
+            contentFit="cover"
+            allowsFullscreen
+            nativeControls
+          />
+        )}
+      </View>
+
       <FlatList
         ref={flatListRef}
         data={sections}
-        keyExtractor={(item) => item.title} //każda sekcja musi mieć unikalny tytuł
+        keyExtractor={(item) => item.title}
         contentContainerStyle={styles.content}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Header
-              title="Medytacje"
-              image={require("../../../../assets/images/cloud.png")}
-            />
-
-            {/* pokazujemy player tylko wtedy, gdy jest wybrane wideo */}
-            {selectedVideo && (
-              <VideoView
-                key={selectedVideo}
-                player={player}
-                style={styles.videoPlayer}
-                contentFit="cover"
-                allowsFullscreen
-              />
-            )}
-          </View>
-        }
         renderItem={({ item }) => (
           <View style={styles.section}>
             <View style={{ paddingHorizontal: 20 }}>

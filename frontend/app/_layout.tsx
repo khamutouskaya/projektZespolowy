@@ -5,6 +5,17 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "../src/services/store/useAuthStore";
+import * as Notifications from "expo-notifications";
+import { settingsStorage } from "../src/services/store/settingsStorage";
+import { notificationService } from "../src/services/notifications/notificationService";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const queryClient = new QueryClient();
 
@@ -13,6 +24,11 @@ function AppInit() {
 
   useEffect(() => {
     hydrate();
+
+    settingsStorage.getNotificationSettings().then(async (settings) => {
+      await notificationService.requestPermission();
+      await notificationService.reschedule(settings);
+    });
   }, [hydrate]);
 
   return null;

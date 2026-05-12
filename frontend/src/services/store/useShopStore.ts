@@ -15,7 +15,7 @@ export const useShopStore = create<ShopState>((set) => ({
   ownedItems: [],
   fetchEquippedItem: async () => {
     try {
-      const { data } = await apiClient.get(`/shop/my-items?_t=${Date.now()}`);
+      const { data } = await apiClient.get(`/shop/my-items`);
       if (Array.isArray(data)) {
         const owned = data.map((d: any) => {
           return shopSectionsMock.flatMap(s => s.items).find(i => i.id === d.frontendAccesoriesId);

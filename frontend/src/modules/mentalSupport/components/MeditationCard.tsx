@@ -72,6 +72,8 @@ export default function MeditationCard({ video, isActive, onPress }: Props) {
           <Image
             source={{ uri: video.thumbnail }}
             style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+            fadeDuration={0}
           />
           <View style={styles.overlay} />
         </View>

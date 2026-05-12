@@ -1,5 +1,6 @@
 import { memo, useCallback } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ShopItem } from "../../shop.types";
 
 type Props = {
@@ -23,8 +24,7 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
       <Image
         source={item.thumbnail}
         style={styles.image}
-        resizeMode="contain"
-        fadeDuration={0}
+        contentFit="contain"
       />
 
       <Text style={styles.label} numberOfLines={2}>
@@ -37,12 +37,7 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
         </View>
       ) : (
         <View style={styles.priceRow}>
-          <Image
-            source={COIN_IMAGE}
-            style={styles.coin}
-            resizeMode="contain"
-            fadeDuration={0}
-          />
+          <Image source={COIN_IMAGE} style={styles.coin} contentFit="contain" />
           <Text style={styles.price}>{item.price}</Text>
         </View>
       )}
@@ -52,10 +47,9 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
 
 export default memo(ShopItemCard);
 
-
 const styles = StyleSheet.create({
   card: {
-    width: "31%",
+    width: "30%",
     minHeight: 180,
     borderRadius: 24,
     padding: 12,

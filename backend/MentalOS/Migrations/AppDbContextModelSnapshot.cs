@@ -537,6 +537,16 @@ namespace MentalOS.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("coins_balance");
 
+                    b.Property<int>("FruitsBalance")
+                        .HasColumnType("integer")
+                        .HasColumnName("fruits_balance");
+
+                    b.Property<bool>("HasPendingFruit")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_pending_fruit")
+                        .HasDefaultValue(false);
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");

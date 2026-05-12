@@ -2,10 +2,11 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { useRef, useEffect, useState, useCallback } from "react";
 import {
+  Animated,
   FlatList,
-  KeyboardAvoidingView,
   Keyboard,
   PanResponder,
+  Platform,
   StyleSheet,
   View,
   Alert,
@@ -31,7 +32,7 @@ export function AssistantChatScreen() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedPersonality, setSelectedPersonality] =
     useState<Personality | null>(null);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const animatedPadding = useRef(new Animated.Value(tabBarHeight + 20)).current;
   const [isTranscribing, setIsTranscribing] = useState(false);
   const drawerOpenRef = useRef(drawerOpen);
   drawerOpenRef.current = drawerOpen;
@@ -71,19 +72,30 @@ export function AssistantChatScreen() {
   }, [messages]);
 
   useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", () => {
-      setKeyboardVisible(true);
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const show = Keyboard.addListener(showEvent, (e) => {
       flatListRef.current?.scrollToEnd({ animated: true });
+      Animated.timing(animatedPadding, {
+        toValue: e.endCoordinates.height + 14,
+        duration: e.duration || 250,
+        useNativeDriver: false,
+      }).start();
     });
-    const hide = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardVisible(false);
+    const hide = Keyboard.addListener(hideEvent, (e) => {
       flatListRef.current?.scrollToEnd({ animated: true });
+      Animated.timing(animatedPadding, {
+        toValue: tabBarHeight + 20,
+        duration: e.duration || 250,
+        useNativeDriver: false,
+      }).start();
     });
     return () => {
       show.remove();
       hide.remove();
     };
-  }, []);
+  }, [animatedPadding, tabBarHeight]);
 
   return (
     <LayoutContainer>
@@ -97,7 +109,7 @@ export function AssistantChatScreen() {
       {/* Thin left-edge zone — swipe right here to open the drawer */}
       <View style={styles.edgeZone} {...edgePanResponder.panHandlers} />
 
-      <KeyboardAvoidingView style={styles.root} behavior="padding">
+      <Animated.View style={[styles.root, { paddingBottom: animatedPadding }]}>
         <View style={styles.header}>
           <AssistantHeader
             title="Asystent"
@@ -137,7 +149,7 @@ export function AssistantChatScreen() {
         {isLoading && <AssistantTypingIndicator />}
 
         <AssistantComposer
-          bottomOffset={keyboardVisible ? 14 : tabBarHeight + 20}
+          bottomOffset={0}
        isLoading={isLoading || isTranscribing}
     onSendPress={(text) => {
             void sendMessage(text, selectedPersonality?.systemHint);
@@ -145,7 +157,7 @@ export function AssistantChatScreen() {
           }}
           onVoiceRecordingComplete={handleVoiceRecordingComplete}
      />
-      </KeyboardAvoidingView>
+      </Animated.View>
     </LayoutContainer>
   );
 }

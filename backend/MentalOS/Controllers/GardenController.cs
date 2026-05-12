@@ -1,4 +1,5 @@
-﻿using MentalOS.Services.Interfaces;
+﻿using MentalOS.DTOs;
+using MentalOS.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -18,7 +19,7 @@ namespace MentalOS.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetGarden()
+        public async Task<ActionResult<GardenStatusDto>> GetGarden()
         {
             var userId = GetUserId();
 
@@ -37,14 +38,24 @@ namespace MentalOS.Controllers
             return Ok();
         }
 
+        [HttpPost("exchange-fruit")]
+        public async Task<IActionResult> ExchangeFruit()
+        {
+            var userId = GetUserId();
+
+            await _gardenService.ExchangeFruitAsync(userId);
+
+            return Ok();
+        }
+
         [HttpPost("harvest/{gardenBedId}")]
         public async Task<IActionResult> HarvestTree(Guid gardenBedId)
         {
             var userId = GetUserId();
 
-            await _gardenService.HarvestTreeAsync(userId, gardenBedId);
+            var newCoinsBalance = await _gardenService.HarvestTreeAsync(userId, gardenBedId);
 
-            return Ok();
+            return Ok(new { coinsBalance = newCoinsBalance });
         }
 
         private Guid GetUserId()

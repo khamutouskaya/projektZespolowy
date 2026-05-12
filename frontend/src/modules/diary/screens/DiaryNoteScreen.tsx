@@ -23,6 +23,8 @@ import SummaryInput from "../components/diaryNote/SummaryInput";
 import TagSelector from "../components/diaryNote/TagSelector";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { diaryService } from "@/modules/diary/services/diaryService";
+import { diarySyncService } from "@/modules/diary/services/diarySyncService";
+import { streakApi } from "@/services/api/streakApi";
 
 
 export default function DiaryNoteScreen() {
@@ -114,6 +116,16 @@ export default function DiaryNoteScreen() {
     } else {
       addEntry(payload);
     }
+
+    // Sync to backend immediately so home screen sees updated state
+    // Then trigger streak check — backend decides if both tasks are done
+    if (user?.id) {
+      const userId = user.id;
+      diarySyncService.syncPending(userId)
+        .then(() => streakApi.triggerDaily())
+        .catch(() => {});
+    }
+
     router.back();
   };
 

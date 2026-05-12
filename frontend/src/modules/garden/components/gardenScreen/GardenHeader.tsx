@@ -1,9 +1,18 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-export default function GardenHeader() {
+type Props = {
+  fruitsBalance: number;
+};
+
+const FRUIT_IMAGE = require("../../../../../assets/images/fruit.png");
+
+export default function GardenHeader({ fruitsBalance }: Props) {
   return (
     <View style={styles.sign}>
-      <Text style={styles.text}></Text>
+      <View style={styles.row}>
+        <Image source={FRUIT_IMAGE} style={styles.icon} resizeMode="contain" />
+        <Text style={styles.text}>{fruitsBalance}</Text>
+      </View>
     </View>
   );
 }
@@ -11,14 +20,22 @@ export default function GardenHeader() {
 const styles = StyleSheet.create({
   sign: {
     position: "absolute",
-    top: 190,
+    top: 55,
     alignSelf: "center",
     width: 260,
     height: 80,
     justifyContent: "center",
     alignItems: "center",
   },
-
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  icon: {
+    width: 28,
+    height: 28,
+  },
   text: {
     fontSize: 26,
     fontWeight: "900",

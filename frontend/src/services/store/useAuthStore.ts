@@ -108,7 +108,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { token, user } = useAuthStore.getState();
     if (!token || !user) throw new Error("Użytkownik nie jest zalogowany");
 
-    await apiClient.post("/users/premium/buy");
+    await apiClient.post("/users/me/premium");
     const updatedUser = { ...user, isPremium: true };
     await storage.saveUser(JSON.stringify(updatedUser));
     set({ user: updatedUser });
@@ -118,7 +118,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { token, user } = useAuthStore.getState();
     if (!token || !user) throw new Error("Użytkownik nie jest zalogowany");
 
-    await apiClient.post("/users/premium/cancel");
+    await apiClient.delete("/users/me/premium");
     const updatedUser = { ...user, isPremium: false };
     await storage.saveUser(JSON.stringify(updatedUser));
     set({ user: updatedUser });

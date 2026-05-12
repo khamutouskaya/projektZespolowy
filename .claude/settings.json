@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker exec *)",
+      "Bash(Get-ChildItem -Path \"d:\\\\projektZespolowy\\\\myApp\\\\projektZespolowy\\\\frontend\\\\src\\\\modules\\\\diary\" -Recurse)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(findstr /c\"\\\\\"id\\\\\"\" \"d:\\\\projektZespolowy\\\\myApp\\\\projektZespolowy\\\\backend\\\\MentalOS\\\\Data\\\\TestQuestions.json\")",
+      "Bash(xargs grep -l \"today\\\\|diary\\\\|journal\\\\|notatk\\\\|wpis\")"
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 import { memo, useCallback } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ShopItem } from "../../shop.types";
 
 type Props = {
@@ -8,7 +9,6 @@ type Props = {
   isOwned?: boolean;
 };
 
-// Pre-load coin image
 const COIN_IMAGE = require("../../../../../assets/shop/coin.png");
 
 function ShopItemCard({ item, onPress, isOwned }: Props) {
@@ -23,27 +23,25 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
     >
       <Image
         source={item.thumbnail}
-     style={styles.image}
-        resizeMode="contain"
- fadeDuration={0}
-   />
+        style={styles.image}
+        contentFit="contain"
+      />
 
- <Text style={styles.label} numberOfLines={2}>
+      <Text style={styles.label} numberOfLines={2}>
         {item.name}
       </Text>
 
       {isOwned ? (
- <View style={styles.priceRow}>
+        <View style={styles.priceRow}>
           <Text style={styles.price}>Zakupiono</Text>
-     </View>
+        </View>
       ) : (
         <View style={styles.priceRow}>
           <Image
             source={COIN_IMAGE}
-       style={styles.coin}
-         resizeMode="contain"
-       fadeDuration={0}
-    />
+            style={styles.coin}
+            contentFit="contain"
+          />
           <Text style={styles.price}>{item.price}</Text>
         </View>
       )}
@@ -53,9 +51,10 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
 
 export default memo(ShopItemCard);
 
+
 const styles = StyleSheet.create({
   card: {
-    width: "31%",
+    width: "30%",
     minHeight: 180,
     borderRadius: 24,
     padding: 12,

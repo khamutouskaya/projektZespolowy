@@ -63,17 +63,17 @@ namespace MentalOS.Services
                 var startOfDay = currentDate.Date.ToUniversalTime();
                 var endOfDay = startOfDay.AddDays(1);
 
-                // Get all users
-                var allUsers = await dbContext.Users.ToListAsync(stoppingToken);
-                
-                // Get summary entries created today
                 var summariesToday = await dbContext.JournalEntries
+                    .AsNoTracking()
                     .Where(j => j.IsSummary && j.EntryDate >= startOfDay && j.EntryDate < endOfDay)
                     .Select(j => j.UserId)
                     .Distinct()
                     .ToListAsync(stoppingToken);
 
-                var usersToNotify = allUsers.Where(u => !summariesToday.Contains(u.Id)).ToList();
+                var usersToNotify = await dbContext.Users
+                    .AsNoTracking()
+                    .Where(u => !summariesToday.Contains(u.Id))
+                    .ToListAsync(stoppingToken);
 
                 foreach (var user in usersToNotify)
                 {

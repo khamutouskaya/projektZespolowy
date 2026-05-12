@@ -11,11 +11,7 @@ type Props = {
 };
 
 //group od cards
-export default function DiarySection({
-  title,
-  entries,
-  onDeleteEntry,
-}: Props) {
+export default function DiarySection({ title, entries, onDeleteEntry }: Props) {
   return (
     <View style={styles.section}>
       <Text style={styles.title}>{title}:</Text>
@@ -43,6 +39,7 @@ const styles = StyleSheet.create({
     ...typography.title,
     color: colors.text.tertiary, // stonowany kolor tekstu
     marginBottom: 12, // odstęp pod nagłówkiem
+    paddingHorizontal: 20, // wyrównanie do paddingu kart
     //  textTransform: "uppercase", // wielkie litery
     //letterSpacing: 0.5, // odstęp między literami
   },

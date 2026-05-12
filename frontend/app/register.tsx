@@ -18,17 +18,36 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { apiClient } from "@/services/api/client";
 import { useAuthStore } from "@/services/store/useAuthStore";
+import { authApi } from "@/services/api/auth";
+import * as AuthSession from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isGooglePending, setIsGooglePending] = useState(false);
 
   const router = useRouter();
   const registerMutation = useRegisterMutation();
-
   const loginSilent = useAuthStore((state) => state.loginSilent);
+
+  const discovery = AuthSession.useAutoDiscovery("https://accounts.google.com");
+  const [request, , promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId:
+        "592043560416-esld4fb60clp4n510sf14182okkr5ufd.apps.googleusercontent.com",
+      redirectUri:
+        "com.googleusercontent.apps.592043560416-esld4fb60clp4n510sf14182okkr5ufd:/oauthredirect",
+      responseType: AuthSession.ResponseType.Code,
+      scopes: ["openid", "profile", "email"],
+      usePKCE: true,
+    },
+    discovery
+  );
 
   const handleRegister = () => {
     if (!firstName) return Alert.alert("Błąd", "Wpisz swoje imię");
@@ -53,15 +72,42 @@ export default function Register() {
     );
   };
 
-  const handleGoogleLogin = () => {
-    Alert.alert("Google", "Tu będzie logowanie/rejestracja Google");
+  const handleGoogleLogin = async () => {
+    setIsGooglePending(true);
+    try {
+      const result = await promptAsync();
+      if (result.type === "success") {
+        const tokenResult = await AuthSession.exchangeCodeAsync(
+          {
+            code: result.params.code,
+            redirectUri:
+              "com.googleusercontent.apps.592043560416-esld4fb60clp4n510sf14182okkr5ufd:/oauthredirect",
+            clientId:
+              "592043560416-esld4fb60clp4n510sf14182okkr5ufd.apps.googleusercontent.com",
+            extraParams: request?.codeVerifier
+              ? { code_verifier: request.codeVerifier }
+              : undefined,
+          },
+          { tokenEndpoint: "https://oauth2.googleapis.com/token" }
+        );
+        const idToken = tokenResult.idToken;
+        if (!idToken) {
+          Alert.alert("Błąd", "Nie udało się pobrać tokenu Google.");
+          return;
+        }
+        const data = await authApi.googleLogin(idToken);
+        await loginSilent(data.token, data.user);
+        router.replace({ pathname: "/onboarding" });
+      }
+    } catch (e) {
+      console.error("[OAuth] error:", e);
+      Alert.alert("Błąd", "Nie udało się zalogować przez Google.");
+    } finally {
+      setIsGooglePending(false);
+    }
   };
 
-  const handleFacebookLogin = () => {
-    Alert.alert("Facebook", "Tu będzie logowanie/rejestracja Facebook");
-  };
-
-  const isPending = registerMutation.isPending;
+  const isPending = registerMutation.isPending || isGooglePending;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -148,25 +194,20 @@ export default function Register() {
                   <View style={styles.dividerLine} />
                 </View>
 
-                <View style={styles.socialContainer}>
-                  <Pressable
-                    style={[styles.socialButton, styles.googleButton]}
-                    onPress={handleGoogleLogin}
-                    disabled={isPending}
-                  >
-                    <Ionicons name="logo-google" size={20} color="#DB4437" />
-                    <Text style={styles.socialButtonTextDark}>Google</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[styles.socialButton, styles.facebookButton]}
-                    onPress={handleFacebookLogin}
-                    disabled={isPending}
-                  >
-                    <Ionicons name="logo-facebook" size={20} color="#fff" />
-                    <Text style={styles.socialButtonTextLight}>Facebook</Text>
-                  </Pressable>
-                </View>
+                <Pressable
+                  style={[styles.socialButton, styles.googleButton]}
+                  onPress={handleGoogleLogin}
+                  disabled={isPending}
+                >
+                  {isGooglePending ? (
+                    <ActivityIndicator size="small" color="#DB4437" />
+                  ) : (
+                    <>
+                      <Ionicons name="logo-google" size={20} color="#DB4437" />
+                      <Text style={styles.socialButtonTextDark}>Google</Text>
+                    </>
+                  )}
+                </Pressable>
 
                 <Pressable onPress={() => router.back()} disabled={isPending}>
                   <Text style={styles.link}>
@@ -308,17 +349,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(111,122,134,0.1)",
   },
-  facebookButton: {
-    backgroundColor: "#1877F2",
-  },
-  socialButtonTextDark: {
+socialButtonTextDark: {
     fontSize: 14,
     fontWeight: "600",
     color: "#7B8794",
-  },
-  socialButtonTextLight: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
   },
 });

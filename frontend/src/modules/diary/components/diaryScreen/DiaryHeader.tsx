@@ -14,6 +14,6 @@ const styles = StyleSheet.create({
   title: {
     ...typography.heading1,
     color: colors.text.primary,
-    textAlign: "left",
+    textAlign: "center",
   },
 });

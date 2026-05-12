@@ -17,7 +17,7 @@ export function useChat() {
   const [isLoading, setIsLoading] = useState(false);
   const requestVersionRef = useRef(0);
 
-  const sendMessage = async (text: string) => {
+  const sendMessage = async (text: string, personalityHint?: string) => {
     // Не отправляем пустое сообщение
     const trimmed = text.trim();
     if (!trimmed || isLoading) return;
@@ -29,7 +29,7 @@ export function useChat() {
 
     try {
       // 2. Отправляем на бэкенд, ждём ответ
-      const reply = await assistantApi.sendMessage(text);
+      const reply = await assistantApi.sendMessage(text, personalityHint);
       if (requestVersion !== requestVersionRef.current) return;
 
       // 3. Добавляем ответ AI в чат

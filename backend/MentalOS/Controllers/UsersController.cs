@@ -115,6 +115,66 @@ namespace MentalOS.Controllers
             });
         }
 
+[HttpPost("me/premium")]
+        public async Task<IActionResult> BuyPremium()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new { message = "User is unauthorized" });
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            user.IsPremium = true;
+            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedBy = user.Id;
+
+            await _context.SaveChangesAsync();
+
+            var isAdmin = await _context.UserRoles
+                        .AnyAsync(ur => ur.UserId == user.Id &&
+                        _context.Roles.Any(r => r.Id == ur.RoleId && r.Name == "admin"));
+
+            return Ok(new UserDataDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Avatar = user.Avatar,
+                StreakCount = user.StreakCount,
+                StreakActive = user.StreakActive,
+                CoinsBalance = user.CoinsBalance,
+                IsPremium = user.IsPremium,
+                IsAdmin = isAdmin,
+                CreatedAt = user.CreatedAt
+            });
+        }
+
+        [HttpDelete("me/premium")]
+        public async Task<IActionResult> CancelPremium()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new { message = "User is unauthorized" });
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            user.IsPremium = false;
+            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedBy = user.Id;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Subscription cancelled" });
+        }
 
 
 

@@ -1,55 +1,101 @@
-import {
-  useLoginMutation,
-  useRegisterMutation,
-} from "@/hooks/useAuthMutations";
+import { useLoginMutation, useRegisterMutation } from "@/hooks/useAuthMutations";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Image,
-  ScrollView,
   ImageBackground,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  Keyboard,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { authApi } from "@/services/api/auth";
+import { useAuthStore } from "@/services/store/useAuthStore";
+import * as AuthSession from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isGooglePending, setIsGooglePending] = useState(false);
 
   const router = useRouter();
 
-  // Inicjalizujemy hooki
   const loginMutation = useLoginMutation();
   const registerMutation = useRegisterMutation();
+  const loginSilent = useAuthStore((state) => state.loginSilent);
+
+  const discovery = AuthSession.useAutoDiscovery("https://accounts.google.com");
+  const [request, , promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId:
+        "592043560416-esld4fb60clp4n510sf14182okkr5ufd.apps.googleusercontent.com",
+      redirectUri:
+        "com.googleusercontent.apps.592043560416-esld4fb60clp4n510sf14182okkr5ufd:/oauthredirect",
+      responseType: AuthSession.ResponseType.Code,
+      scopes: ["openid", "profile", "email"],
+      usePKCE: true,
+    },
+    discovery
+  );
 
   const handleLogin = () => {
     if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
     loginMutation.mutate({ email, password });
   };
 
-  const handleGoogleLogin = () => {
-    Alert.alert("Google", "Tu będzie logowanie Google");
+  const handleGoogleLogin = async () => {
+    setIsGooglePending(true);
+    try {
+      const result = await promptAsync();
+      if (result.type === "success") {
+        const tokenResult = await AuthSession.exchangeCodeAsync(
+          {
+            code: result.params.code,
+            redirectUri:
+              "com.googleusercontent.apps.592043560416-esld4fb60clp4n510sf14182okkr5ufd:/oauthredirect",
+            clientId:
+              "592043560416-esld4fb60clp4n510sf14182okkr5ufd.apps.googleusercontent.com",
+            extraParams: request?.codeVerifier
+              ? { code_verifier: request.codeVerifier }
+              : undefined,
+          },
+          { tokenEndpoint: "https://oauth2.googleapis.com/token" }
+        );
+        const idToken = tokenResult.idToken;
+        if (!idToken) {
+          Alert.alert("Błąd", "Nie udało się pobrać tokenu Google.");
+          return;
+        }
+        const data = await authApi.googleLogin(idToken);
+        await loginSilent(data.token, data.user);
+        router.replace("/");
+      }
+    } catch (e) {
+      console.error("[OAuth] error:", e);
+      Alert.alert("Błąd", "Nie udało się zalogować przez Google.");
+    } finally {
+      setIsGooglePending(false);
+    }
   };
 
-  const handleFacebookLogin = () => {
-    Alert.alert("Facebook", "Tu będzie logowanie Facebook");
-  };
-
-  const isPending = loginMutation.isPending || registerMutation.isPending;
+  const isPending = loginMutation.isPending || registerMutation.isPending || isGooglePending;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1 }}>
-        {/* Прибирає верхній хедер "login" + білу зону */}
         <Stack.Screen options={{ headerShown: false }} />
 
         <ImageBackground
@@ -58,64 +104,96 @@ export default function Login() {
           resizeMode="cover"
         >
           <SafeAreaView style={styles.safe}>
-            {/* ХМАРКА */}
-            <Image
-              source={require("../assets/images/cloud.png")}
-              style={styles.cloud}
-            />
-
-            {/* ТЕКСТ ПО ЦЕНТРУ */}
-            <View style={styles.center}>
-              <Text style={styles.hey}>Hej!</Text>
-              <Text style={styles.title}>Zaloguj się</Text>
-            </View>
-
-            {/* КАРТКА ЗНИЗУ */}
-            <View style={styles.card}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="you@example.com"
-                placeholderTextColor="rgba(111,122,134,0.55)"
-                style={styles.input}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                editable={!isPending}
-              />
-
-              <Text style={styles.label}>Hasło</Text>
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor="rgba(111,122,134,0.55)"
-                secureTextEntry
-                style={styles.input}
-                editable={!isPending}
-              />
-
-              <Pressable
-                style={styles.button}
-                onPress={handleLogin}
-                disabled={isPending}
+            <KeyboardAvoidingView
+              style={{ flex: 1, width: "100%" }}
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              keyboardVerticalOffset={0}
+            >
+              <ScrollView
+                contentContainerStyle={styles.scroll}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
               >
-                {loginMutation.isPending ? (
-                  <ActivityIndicator color="#355A7A" />
-                ) : (
-                  <Text style={styles.buttonText}>Zaloguj się</Text>
-                )}
-              </Pressable>
+                <Image
+                  source={require("../assets/images/cloud.png")}
+                  style={styles.cloud}
+                />
 
-              <Pressable
-                onPress={() => router.push("/register")}
-                disabled={isPending}
-              >
-                <Text style={styles.link}>
-                  Nie masz konta?{"\n"}Zarejestruj się
-                </Text>
-              </Pressable>
-            </View>
+                <View style={styles.center}>
+                  <Text style={styles.hey}>Hej!</Text>
+                  <Text style={styles.title}>Zaloguj się</Text>
+                </View>
+
+                <View style={styles.card}>
+                  <Text style={styles.label}>Email</Text>
+                  <TextInput
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="you@example.com"
+                    placeholderTextColor="rgba(111,122,134,0.55)"
+                    style={styles.input}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    editable={!isPending}
+                  />
+
+                  <Text style={styles.label}>Hasło</Text>
+                  <TextInput
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="••••••••"
+                    placeholderTextColor="rgba(111,122,134,0.55)"
+                    secureTextEntry
+                    style={styles.input}
+                    editable={!isPending}
+                  />
+
+                  <Pressable
+                    style={styles.button}
+                    onPress={handleLogin}
+                    disabled={isPending}
+                  >
+                    {loginMutation.isPending ? (
+                      <ActivityIndicator color="#355A7A" />
+                    ) : (
+                      <Text style={styles.buttonText}>Zaloguj się</Text>
+                    )}
+                  </Pressable>
+
+                  <View style={styles.dividerContainer}>
+                    <View style={styles.dividerLine} />
+                    <Text style={styles.dividerText}>lub</Text>
+                    <View style={styles.dividerLine} />
+                  </View>
+
+                  <Pressable
+                    style={styles.googleButton}
+                    onPress={handleGoogleLogin}
+                    disabled={isPending}
+                  >
+                    {isGooglePending ? (
+                      <ActivityIndicator size="small" color="#DB4437" />
+                    ) : (
+                      <>
+                        <Ionicons name="logo-google" size={18} color="#DB4437" />
+                        <Text style={styles.googleButtonText}>
+                          Kontynuuj z Google
+                        </Text>
+                      </>
+                    )}
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => router.push("/register")}
+                    disabled={isPending}
+                  >
+                    <Text style={styles.link}>
+                      Nie masz konta?{"\n"}Zarejestruj się
+                    </Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
           </SafeAreaView>
         </ImageBackground>
       </View>
@@ -131,26 +209,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
-
-  /* ХМАРКА */
-  cloud: {
-    position: "absolute",
-    top: 45, // було 20 — на iPhone з Dynamic Island краще нижче
-    width: 250,
-    height: 300,
-    resizeMode: "contain",
+  scroll: {
+    flexGrow: 1,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
 
-  /* ЦЕНТР */
+  cloud: {
+    width: 250,
+    height: 240,
+    resizeMode: "contain",
+    marginTop: 40,
+  },
+
   center: {
-    marginTop: 230, // було 200 — щоб текст не ліз на хмарку
     alignItems: "center",
     paddingHorizontal: 24,
+    marginTop: 8,
+    marginBottom: 24,
   },
   hey: {
     fontSize: 42,
     fontWeight: "800",
-    color: "#6F7A86", // темніший, “брендовий”
+    color: "#6F7A86",
   },
   title: {
     marginTop: 2,
@@ -158,23 +240,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#7B8794",
   },
-  subtitle: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "rgba(111,122,134,0.72)",
-    textAlign: "center",
-  },
 
-  /* КАРТКА */
   card: {
-    position: "absolute",
-    bottom: 170, // поднять опустить панель
-    width: "92%",
-    backgroundColor: "rgba(255,255,255,0.52)", // трішки прозоріше
+    width: "100%",
+    backgroundColor: "rgba(255,255,255,0.52)",
     borderRadius: 28,
     padding: 18,
-
-    // легка тінь, щоб "скло" читалось
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 14,
@@ -192,19 +263,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     backgroundColor: "rgba(255,255,255,0.88)",
     borderWidth: 1,
-    borderColor: "rgba(170,190,210,0.38)", // трішки м’якше
+    borderColor: "rgba(170,190,210,0.38)",
     color: "rgba(70,80,90,0.95)",
   },
 
-  /* КНОПКА */
   button: {
     height: 52,
     borderRadius: 18,
-    backgroundColor: "#b6cce9", // kolor zaloguj sie
+    backgroundColor: "#b6cce9",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 16,
-
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -213,7 +282,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#355A7A", // кращий контраст
+    color: "#355A7A",
   },
 
   link: {
@@ -226,7 +295,7 @@ const styles = StyleSheet.create({
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 14,
+    marginVertical: 12,
   },
   dividerLine: {
     flex: 1,
@@ -236,42 +305,22 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 10,
     fontSize: 12,
-    color: "rgba(111,122,134,0.70)",
+    color: "rgba(111,122,134,0.60)",
   },
-  socialContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  socialButton: {
-    flex: 1,
+  googleButton: {
     height: 48,
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  googleButton: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "rgba(111,122,134,0.1)",
+    borderColor: "rgba(111,122,134,0.15)",
   },
-  facebookButton: {
-    backgroundColor: "#1877F2",
-  },
-  socialButtonTextDark: {
+  googleButtonText: {
     fontSize: 14,
     fontWeight: "600",
     color: "#7B8794",
-  },
-  socialButtonTextLight: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
   },
 });

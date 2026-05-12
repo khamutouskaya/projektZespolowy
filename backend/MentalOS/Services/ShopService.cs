@@ -124,6 +124,7 @@ namespace MentalOS.Services
                 _context.Update(userItem);
             }
 
+
             await _context.SaveChangesAsync();
         }
 

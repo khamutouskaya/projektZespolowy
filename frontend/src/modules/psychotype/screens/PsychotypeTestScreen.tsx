@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,39 +17,75 @@ import {
   View,
 } from "react-native";
 import { psychotypeService } from "../psychotype.service";
-import { QuizAnswer, QuizQuestion, QuizResult } from "../psychotype.types";
+import {
+  PersonalityAnswer,
+  PersonalityQuestion,
+  PersonalityResult,
+} from "../psychotype.types";
 
-type Phase = "intro" | "quiz" | "loading" | "result";
+type Phase = "init" | "intro" | "quiz" | "loading" | "result";
 
-const PERSONALITY_COLORS: Record<string, string> = {
-  empatyk: "rgba(233,182,204,0.5)",
-  analityk: "rgba(182,204,233,0.5)",
-  lider: "rgba(245,220,150,0.5)",
-  marzyciel: "rgba(200,230,190,0.5)",
+const TRAIT_META: Record<
+  string,
+  {
+    label: string;
+    description: string;
+    color: string;
+    icon: keyof typeof Ionicons.glyphMap;
+  }
+> = {
+  O: {
+    label: "Otwartość",
+    description:
+      "Ciekawość świata, wyobraźnia, kreatywność i otwartość na nowe doświadczenia.",
+    color: "rgba(124,107,232,0.85)",
+    icon: "sparkles-outline",
+  },
+  C: {
+    label: "Sumienność",
+    description:
+      "Zorganizowanie, wytrwałość, samodyscyplina i dbałość o szczegóły.",
+    color: "rgba(55,90,133,0.85)",
+    icon: "checkmark-circle-outline",
+  },
+  E: {
+    label: "Ekstrawersja",
+    description:
+      "Towarzyskość, energiczność i aktywność w relacjach z innymi ludźmi.",
+    color: "rgba(247,183,49,0.9)",
+    icon: "flash-outline",
+  },
+  A: {
+    label: "Ugodowość",
+    description: "Empatia, współpraca, życzliwość i troska o dobro innych.",
+    color: "rgba(76,175,146,0.85)",
+    icon: "heart-outline",
+  },
+  N: {
+    label: "Neurotyczność",
+    description:
+      "Podatność na stres, zmienność nastrojów i reaktywność emocjonalna.",
+    color: "rgba(239,83,80,0.85)",
+    icon: "warning-outline",
+  },
 };
 
-const PERSONALITY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
-  empatyk: "heart-outline",
-  analityk: "analytics-outline",
-  lider: "flash-outline",
-  marzyciel: "sparkles-outline",
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  empatyk: "Empatyk",
-  analityk: "Analityk",
-  lider: "Lider",
-  marzyciel: "Marzyciel",
-};
+const LIKERT = [
+  { value: 1, label: "Zupełnie\nnie" },
+  { value: 2, label: "Raczej\nnie" },
+  { value: 3, label: "Trudno\npowiedzieć" },
+  { value: 4, label: "Raczej\ntak" },
+  { value: 5, label: "Zdecydowanie\ntak" },
+];
 
 export default function PsychotypeTestScreen() {
   const router = useRouter();
-  const [phase, setPhase] = useState<Phase>("intro");
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [phase, setPhase] = useState<Phase>("init");
+  const [questions, setQuestions] = useState<PersonalityQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [result, setResult] = useState<QuizResult | null>(null);
+  const [answers, setAnswers] = useState<PersonalityAnswer[]>([]);
+  const [selectedValue, setSelectedValue] = useState<number | null>(null);
+  const [result, setResult] = useState<PersonalityResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const screenOpacity = useRef(new Animated.Value(0)).current;
@@ -56,15 +93,47 @@ export default function PsychotypeTestScreen() {
   const cardOpacity = useRef(new Animated.Value(1)).current;
   const cardSlide = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const resultScale = useRef(new Animated.Value(0.7)).current;
   const resultOpacity = useRef(new Animated.Value(0)).current;
+  const resultSlide = useRef(new Animated.Value(24)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(screenOpacity, { toValue: 1, duration: 320, useNativeDriver: true }),
-      Animated.timing(screenSlide, { toValue: 0, duration: 320, useNativeDriver: true }),
+      Animated.timing(screenOpacity, {
+        toValue: 1,
+        duration: 320,
+        useNativeDriver: true,
+      }),
+      Animated.timing(screenSlide, {
+        toValue: 0,
+        duration: 320,
+        useNativeDriver: true,
+      }),
     ]).start();
-  }, [screenOpacity, screenSlide]);
+  }, []);
+
+  useEffect(() => {
+    psychotypeService.getProfile().then((profile) => {
+      if (profile) {
+        setResult(profile);
+        setPhase("result");
+        Animated.parallel([
+          Animated.timing(resultOpacity, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.spring(resultSlide, {
+            toValue: 0,
+            speed: 12,
+            bounciness: 4,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      } else {
+        setPhase("intro");
+      }
+    });
+  }, []);
 
   const loadQuestions = async () => {
     setError(null);
@@ -73,28 +142,44 @@ export default function PsychotypeTestScreen() {
       setQuestions(data);
       setCurrentIndex(0);
       setAnswers([]);
-      setSelectedKey(null);
-      progressAnim.setValue(data.length > 0 ? 1 / data.length : 0);
+      setSelectedValue(null);
+      progressAnim.setValue(1 / data.length);
       setPhase("quiz");
     } catch {
-      setError("Nie udało się załadować pytań. Sprawdź połączenie z internetem.");
+      setError("Nie udało się załadować testu. Sprawdź połączenie.");
     }
   };
 
-  const animateCardTransition = (callback: () => void) => {
-    Animated.timing(cardOpacity, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
-      cardSlide.setValue(24);
+  const animateCardOut = (callback: () => void) => {
+    Animated.timing(cardOpacity, {
+      toValue: 0,
+      duration: 130,
+      useNativeDriver: true,
+    }).start(() => {
+      cardSlide.setValue(20);
       callback();
       Animated.parallel([
-        Animated.timing(cardOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
-        Animated.spring(cardSlide, { toValue: 0, speed: 20, bounciness: 4, useNativeDriver: true }),
+        Animated.timing(cardOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(cardSlide, {
+          toValue: 0,
+          speed: 22,
+          bounciness: 3,
+          useNativeDriver: true,
+        }),
       ]).start();
     });
   };
 
   const handleNext = () => {
-    if (!selectedKey) return;
-    const newAnswer: QuizAnswer = { questionId: questions[currentIndex].id, selectedKey };
+    if (selectedValue === null) return;
+    const newAnswer: PersonalityAnswer = {
+      questionId: questions[currentIndex].id,
+      value: selectedValue,
+    };
     const newAnswers = [...answers, newAnswer];
     setAnswers(newAnswers);
 
@@ -102,63 +187,115 @@ export default function PsychotypeTestScreen() {
       const nextIndex = currentIndex + 1;
       Animated.timing(progressAnim, {
         toValue: (nextIndex + 1) / questions.length,
-        duration: 380,
+        duration: 350,
         useNativeDriver: false,
       }).start();
-      animateCardTransition(() => {
+      animateCardOut(() => {
         setCurrentIndex(nextIndex);
-        setSelectedKey(null);
+        setSelectedValue(null);
       });
     } else {
-      submitAnswers(newAnswers);
+      submit(newAnswers);
     }
   };
 
-  const submitAnswers = async (finalAnswers: QuizAnswer[]) => {
+  const submit = async (finalAnswers: PersonalityAnswer[]) => {
     setPhase("loading");
     setError(null);
     try {
-      const quizResult = await psychotypeService.submitAnswers(finalAnswers);
-      setResult(quizResult);
+      const res = await psychotypeService.submitAnswers(finalAnswers);
+      setResult(res);
       setPhase("result");
       Animated.parallel([
-        Animated.spring(resultScale, { toValue: 1, bounciness: 10, speed: 6, useNativeDriver: true }),
-        Animated.timing(resultOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+        Animated.timing(resultOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.spring(resultSlide, {
+          toValue: 0,
+          speed: 12,
+          bounciness: 4,
+          useNativeDriver: true,
+        }),
       ]).start();
     } catch {
-      setError("Nie udało się zapisać wyników. Spróbuj ponownie.");
+      setError("Nie udało się przetworzyć wyników. Spróbuj ponownie.");
       setPhase("quiz");
     }
+  };
+
+  const swipePan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) =>
+        g.dx > 15 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
+      onPanResponderRelease: (_, g) => {
+        if (g.dx > 60) handleBack();
+      },
+    }),
+  ).current;
+
+  const handleBack = () => {
+    if (currentIndex === 0) return;
+    const prevIndex = currentIndex - 1;
+    Animated.timing(progressAnim, {
+      toValue: (prevIndex + 1) / questions.length,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    animateCardOut(() => {
+      setCurrentIndex(prevIndex);
+      const prevAnswer = answers[prevIndex];
+      setSelectedValue(prevAnswer?.value ?? null);
+      setAnswers((prev) => prev.slice(0, prevIndex));
+    });
   };
 
   const handleRestart = () => {
     setPhase("intro");
     setCurrentIndex(0);
     setAnswers([]);
-    setSelectedKey(null);
+    setSelectedValue(null);
     setResult(null);
     setError(null);
     progressAnim.setValue(0);
-    resultScale.setValue(0.7);
     resultOpacity.setValue(0);
+    resultSlide.setValue(24);
     cardOpacity.setValue(1);
     cardSlide.setValue(0);
   };
 
   const currentQuestion = questions[currentIndex];
+  const traitMeta = currentQuestion ? TRAIT_META[currentQuestion.trait] : null;
 
   return (
     <LayoutContainer>
       <Animated.View
-        style={[styles.safe, { opacity: screenOpacity, transform: [{ translateY: screenSlide }] }]}
+        style={[
+          styles.safe,
+          { opacity: screenOpacity, transform: [{ translateY: screenSlide }] },
+        ]}
       >
         {/* Header */}
         <View style={styles.header}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={22} color={colors.text.secondary} />
+          <Pressable
+            style={styles.backButton}
+            onPress={phase === "quiz" ? handleBack : () => router.back()}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={22}
+              color={colors.text.secondary}
+            />
           </Pressable>
-          <Text style={styles.headerTitle}>Test psychotypu</Text>
-          <View style={styles.headerSpacer} />
+          <Text style={styles.headerTitle}>Test osobowości</Text>
+          {phase === "quiz" ? (
+            <Pressable style={styles.exitButton} onPress={() => router.back()}>
+              <Text style={styles.exitButtonText}>Wyjdź</Text>
+            </Pressable>
+          ) : (
+            <View style={styles.headerSpacer} />
+          )}
         </View>
 
         {error ? (
@@ -168,6 +305,13 @@ export default function PsychotypeTestScreen() {
           </View>
         ) : null}
 
+        {/* INIT */}
+        {phase === "init" && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.text.primary} />
+          </View>
+        )}
+
         {/* INTRO */}
         {phase === "intro" && (
           <ScrollView
@@ -175,34 +319,71 @@ export default function PsychotypeTestScreen() {
             contentContainerStyle={styles.scrollContent}
           >
             <View style={[cardStyles.card, styles.introCard]}>
-              <View style={[styles.bigIconWrap, { backgroundColor: "rgba(233,182,204,0.4)" }]}>
-                <Ionicons name="clipboard-outline" size={40} color={colors.text.primary} />
+              <View
+                style={[
+                  styles.bigIconWrap,
+                  { backgroundColor: "rgba(124,107,232,0.15)" },
+                ]}
+              >
+                <Ionicons
+                  name="person-outline"
+                  size={40}
+                  color={colors.text.primary}
+                />
               </View>
-              <Text style={styles.introTitle}>Poznaj swój psychotyp</Text>
+              <Text style={styles.introTitle}>Poznaj swoją osobowość</Text>
               <Text style={styles.introBody}>
-                Odpowiedz szczerze na kilka pytań i odkryj, jaki typ osobowości dominuje w Twoim życiu.
-                Wynik zostanie zapisany i pomoże lepiej dopasować wsparcie do Twoich potrzeb.
+                Test oparty na modelu Wielkiej Piątki (Big Five) — jednym z
+                najbardziej rzetelnych naukowych modeli osobowości. Wynik pokaże
+                Twój profil w 5 wymiarach.
               </Text>
+
+              <View style={styles.traitsPreview}>
+                {Object.entries(TRAIT_META).map(([key, meta]) => (
+                  <View key={key} style={styles.traitPill}>
+                    <Ionicons name={meta.icon} size={13} color={meta.color} />
+                    <Text style={[styles.traitPillText, { color: meta.color }]}>
+                      {meta.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
               <View style={styles.introStats}>
                 <View style={styles.introStat}>
-                  <Ionicons name="help-circle-outline" size={18} color={colors.text.secondary} />
-                  <Text style={styles.introStatText}>8 pytań</Text>
+                  <Ionicons
+                    name="help-circle-outline"
+                    size={18}
+                    color={colors.text.secondary}
+                  />
+                  <Text style={styles.introStatText}>50 pytań</Text>
                 </View>
                 <View style={styles.introDot} />
                 <View style={styles.introStat}>
-                  <Ionicons name="time-outline" size={18} color={colors.text.secondary} />
-                  <Text style={styles.introStatText}>~3 min</Text>
+                  <Ionicons
+                    name="time-outline"
+                    size={18}
+                    color={colors.text.secondary}
+                  />
+                  <Text style={styles.introStatText}>~10 min</Text>
                 </View>
                 <View style={styles.introDot} />
                 <View style={styles.introStat}>
-                  <Ionicons name="shield-checkmark-outline" size={18} color={colors.text.secondary} />
+                  <Ionicons
+                    name="shield-checkmark-outline"
+                    size={18}
+                    color={colors.text.secondary}
+                  />
                   <Text style={styles.introStatText}>Prywatnie</Text>
                 </View>
               </View>
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.primaryButton, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && { opacity: 0.85 },
+              ]}
               onPress={loadQuestions}
             >
               <Text style={styles.primaryButtonText}>Rozpocznij test</Text>
@@ -212,10 +393,13 @@ export default function PsychotypeTestScreen() {
         )}
 
         {/* QUIZ */}
-        {phase === "quiz" && currentQuestion && (
-          <View style={styles.quizRoot}>
-            {/* Progress bar */}
+        {phase === "quiz" && currentQuestion && traitMeta && (
+          <View style={styles.quizRoot} {...swipePan.panHandlers}>
+            {/* Progress */}
             <View style={styles.progressWrap}>
+              <Text style={styles.progressLabel}>
+                {currentIndex + 1} / {questions.length}
+              </Text>
               <View style={styles.progressBg}>
                 <Animated.View
                   style={[
@@ -225,74 +409,128 @@ export default function PsychotypeTestScreen() {
                         inputRange: [0, 1],
                         outputRange: ["0%", "100%"],
                       }),
+                      backgroundColor: traitMeta.color,
                     },
                   ]}
                 />
               </View>
-              <Text style={styles.progressLabel}>
-                {currentIndex + 1} / {questions.length}
-              </Text>
             </View>
 
             <ScrollView
+              contentContainerStyle={styles.quizScroll}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
             >
-              {/* Question card */}
+              {/* Trait badge */}
+              <View
+                style={[
+                  styles.traitBadge,
+                  { backgroundColor: traitMeta.color + "33" },
+                ]}
+              >
+                <Ionicons name={traitMeta.icon} size={14} color="#1a2d4a" />
+                <Text style={styles.traitBadgeText}>{traitMeta.label}</Text>
+              </View>
+
+              {/* Question */}
               <Animated.View
                 style={[
                   cardStyles.card,
                   styles.questionCard,
-                  { opacity: cardOpacity, transform: [{ translateY: cardSlide }] },
+                  {
+                    opacity: cardOpacity,
+                    transform: [{ translateY: cardSlide }],
+                  },
                 ]}
               >
                 <Text style={styles.questionText}>{currentQuestion.text}</Text>
               </Animated.View>
 
-              {/* Options */}
+              {/* Likert scale */}
               <Animated.View
-                style={{ opacity: cardOpacity, transform: [{ translateY: cardSlide }] }}
+                style={[
+                  styles.likertWrap,
+                  {
+                    opacity: cardOpacity,
+                    transform: [{ translateY: cardSlide }],
+                  },
+                ]}
               >
-                {currentQuestion.options.map((option) => {
-                  const selected = selectedKey === option.key;
-                  return (
-                    <Pressable
-                      key={option.key}
-                      style={({ pressed }) => [
-                        cardStyles.card,
-                        styles.optionCard,
-                        selected && styles.optionCardSelected,
-                        pressed && { opacity: 0.88 },
-                      ]}
-                      onPress={() => setSelectedKey(option.key)}
-                    >
-                      <View style={[styles.radioCircle, selected && styles.radioCircleSelected]}>
-                        {selected && <View style={styles.radioDot} />}
-                      </View>
-                      <Text style={[styles.optionText, selected && styles.optionTextSelected]}>
-                        {option.text}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                <View style={styles.likertRow}>
+                  {LIKERT.map((item) => {
+                    const selected = selectedValue === item.value;
+                    const size =
+                      34 + (item.value === 1 || item.value === 5 ? 2 : 0);
+                    return (
+                      <Pressable
+                        key={item.value}
+                        style={styles.likertItem}
+                        onPress={() => setSelectedValue(item.value)}
+                      >
+                        <View
+                          style={[
+                            styles.likertCircle,
+                            {
+                              width: size,
+                              height: size,
+                              borderRadius: size / 2,
+                            },
+                            selected && {
+                              backgroundColor: traitMeta.color,
+                              borderColor: traitMeta.color,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.likertNum,
+                              selected && styles.likertNumSelected,
+                            ]}
+                          >
+                            {item.value}
+                          </Text>
+                        </View>
+                        <Text
+                          style={[
+                            styles.likertLabel,
+                            selected && {
+                              color: traitMeta.color,
+                              fontWeight: "700",
+                            },
+                          ]}
+                        >
+                          {item.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
               </Animated.View>
 
+              {/* Button */}
               <Pressable
                 style={({ pressed }) => [
                   styles.primaryButton,
-                  !selectedKey && styles.primaryButtonDisabled,
-                  pressed && selectedKey ? { opacity: 0.85 } : null,
+                  !selectedValue && styles.primaryButtonDisabled,
+                  pressed && selectedValue ? { opacity: 0.85 } : null,
                 ]}
                 onPress={handleNext}
-                disabled={!selectedKey}
+                disabled={!selectedValue}
               >
-                <Text style={[styles.primaryButtonText, !selectedKey && styles.primaryButtonTextDisabled]}>
-                  {currentIndex < questions.length - 1 ? "Następne pytanie" : "Zakończ test"}
+                <Text
+                  style={[
+                    styles.primaryButtonText,
+                    !selectedValue && styles.primaryButtonTextDisabled,
+                  ]}
+                >
+                  {currentIndex < questions.length - 1
+                    ? "Następne pytanie"
+                    : "Zakończ test"}
                 </Text>
                 <Ionicons
                   name="arrow-forward"
                   size={18}
-                  color={selectedKey ? "#fff" : "rgba(150,150,160,0.5)"}
+                  color={selectedValue ? "#fff" : "rgba(150,150,160,0.5)"}
                 />
               </Pressable>
             </ScrollView>
@@ -303,7 +541,9 @@ export default function PsychotypeTestScreen() {
         {phase === "loading" && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.text.primary} />
-            <Text style={styles.loadingText}>Analizujemy Twoje odpowiedzi…</Text>
+            <Text style={styles.loadingText}>
+              Analizujemy Twoje odpowiedzi…
+            </Text>
           </View>
         )}
 
@@ -314,64 +554,91 @@ export default function PsychotypeTestScreen() {
             contentContainerStyle={styles.scrollContent}
           >
             <Animated.View
-              style={[
-                cardStyles.card,
-                styles.resultCard,
-                { opacity: resultOpacity, transform: [{ scale: resultScale }] },
-              ]}
+              style={{
+                opacity: resultOpacity,
+                transform: [{ translateY: resultSlide }],
+              }}
             >
-              <View
-                style={[
-                  styles.bigIconWrap,
-                  { backgroundColor: PERSONALITY_COLORS[result.personalityType] ?? "rgba(200,200,220,0.4)" },
-                ]}
-              >
-                <Ionicons
-                  name={PERSONALITY_ICONS[result.personalityType] ?? "person-outline"}
-                  size={44}
-                  color={colors.text.primary}
-                />
-              </View>
-              <Text style={styles.resultLabel}>Twój psychotyp to</Text>
-              <Text style={styles.resultType}>{result.title}</Text>
-              <Text style={styles.resultDescription}>{result.description}</Text>
+              <Text style={styles.resultLabel}>Twój profil osobowości</Text>
 
-              {/* Score bars */}
-              <View style={styles.scoresWrap}>
-                <Text style={styles.scoresTitle}>Rozkład wyników</Text>
-                {Object.entries(result.scores).map(([type, score]) => {
-                  const maxScore = Math.max(...Object.values(result.scores), 1);
-                  const pct = score / maxScore;
-                  return (
-                    <View key={type} style={styles.scoreRow}>
-                      <Text style={styles.scoreLabel}>{TYPE_LABELS[type] ?? type}</Text>
-                      <View style={styles.scoreBarBg}>
-                        <View
-                          style={[
-                            styles.scoreBarFill,
-                            {
-                              width: `${Math.round(pct * 100)}%`,
-                              backgroundColor:
-                                PERSONALITY_COLORS[type]?.replace("0.5", "0.85") ??
-                                "rgba(180,180,220,0.85)",
-                            },
-                          ]}
+              {Object.entries(TRAIT_META).map(([key, meta]) => {
+                const score = ((result as any)[key] as number) ?? 0;
+                const pct = ((score - 1) / 4) * 100;
+                const level =
+                  score >= 3.5 ? "Wysoki" : score >= 2.5 ? "Średni" : "Niski";
+                const levelColor =
+                  score >= 3.5
+                    ? meta.color
+                    : score >= 2.5
+                      ? "rgba(150,160,180,0.9)"
+                      : "rgba(200,100,90,0.8)";
+                return (
+                  <View key={key} style={[cardStyles.card, styles.traitCard]}>
+                    <View style={styles.traitCardHeader}>
+                      <View
+                        style={[
+                          styles.traitIconWrap,
+                          { backgroundColor: meta.color + "22" },
+                        ]}
+                      >
+                        <Ionicons
+                          name={meta.icon}
+                          size={20}
+                          color={meta.color}
                         />
                       </View>
-                      <Text style={styles.scoreNum}>{score}</Text>
+                      <View style={styles.traitCardInfo}>
+                        <Text style={styles.traitCardLabel}>{meta.label}</Text>
+                        <Text style={styles.traitCardDesc}>
+                          {meta.description}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.levelBadge,
+                          { backgroundColor: levelColor + "22" },
+                        ]}
+                      >
+                        <Text
+                          style={[styles.levelBadgeText, { color: levelColor }]}
+                        >
+                          {level}
+                        </Text>
+                      </View>
                     </View>
-                  );
-                })}
-              </View>
-            </Animated.View>
+                    <View style={styles.barBg}>
+                      <View
+                        style={[
+                          styles.barFill,
+                          {
+                            width: `${Math.round(pct)}%` as any,
+                            backgroundColor: meta.color,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={[styles.scoreText, { color: meta.color }]}>
+                      {score.toFixed(2)} / 5.00
+                    </Text>
+                  </View>
+                );
+              })}
 
-            <Pressable
-              style={({ pressed }) => [styles.secondaryButton, pressed && { opacity: 0.85 }]}
-              onPress={handleRestart}
-            >
-              <Ionicons name="refresh-outline" size={18} color={colors.text.secondary} />
-              <Text style={styles.secondaryButtonText}>Powtórz test</Text>
-            </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.secondaryButton,
+                  pressed && { opacity: 0.85 },
+                ]}
+                onPress={handleRestart}
+              >
+                <Ionicons
+                  name="refresh-outline"
+                  size={18}
+                  color={colors.text.secondary}
+                />
+                <Text style={styles.secondaryButtonText}>Powtórz test</Text>
+              </Pressable>
+            </Animated.View>
           </ScrollView>
         )}
       </Animated.View>
@@ -380,9 +647,7 @@ export default function PsychotypeTestScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
+  safe: { flex: 1 },
 
   header: {
     flexDirection: "row",
@@ -392,7 +657,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     marginBottom: spacing.sm,
   },
-
   backButton: {
     width: 46,
     height: 46,
@@ -405,15 +669,17 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
   },
-
-  headerTitle: {
-    ...typography.title,
-    color: colors.text.primary,
+  headerTitle: { ...typography.title, color: colors.text.primary },
+  headerSpacer: { width: 46 },
+  exitButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.62)",
+    borderWidth: 1,
+    borderColor: "rgba(200,210,230,0.5)",
   },
-
-  headerSpacer: {
-    width: 46,
-  },
+  exitButtonText: { fontSize: 14, fontWeight: "600", color: "#1a2d4a" },
 
   errorBanner: {
     flexDirection: "row",
@@ -426,12 +692,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
   },
-
-  errorText: {
-    ...typography.caption,
-    color: "#c0504d",
-    flex: 1,
-  },
+  errorText: { ...typography.caption, color: "#c0504d", flex: 1 },
 
   scrollContent: {
     paddingHorizontal: spacing.md,
@@ -439,13 +700,12 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
 
-  // ── INTRO ──────────────────────────────────────
+  // ── INTRO ─────────────────────────────────────────
   introCard: {
     alignItems: "center",
     gap: spacing.md,
     paddingVertical: spacing.xl,
   },
-
   bigIconWrap: {
     width: 80,
     height: 80,
@@ -453,38 +713,43 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   introTitle: {
     ...typography.heading1,
     color: colors.text.primary,
     textAlign: "center",
   },
-
   introBody: {
     ...typography.body,
     color: colors.text.secondary,
     textAlign: "center",
     lineHeight: 22,
   },
-
-  introStats: {
+  traitsPreview: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "center",
+    marginVertical: spacing.xs,
+  },
+  traitPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(200,210,230,0.5)",
   },
-
-  introStat: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-
+  traitPillText: { fontSize: 12, fontWeight: "700" },
+  introStats: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  introStat: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
   introStatText: {
     ...typography.caption,
     color: colors.text.secondary,
     fontWeight: "600",
   },
-
   introDot: {
     width: 3,
     height: 3,
@@ -492,7 +757,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(70,80,90,0.3)",
   },
 
-  // ── BUTTONS ────────────────────────────────────
+  // ── BUTTONS ───────────────────────────────────────
   primaryButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -508,23 +773,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-
   primaryButtonDisabled: {
     backgroundColor: "rgba(200,200,210,0.5)",
     shadowOpacity: 0,
     elevation: 0,
   },
-
-  primaryButtonText: {
-    ...typography.small,
-    color: "#fff",
-    fontWeight: "700",
-  },
-
-  primaryButtonTextDisabled: {
-    color: "rgba(150,150,160,0.6)",
-  },
-
+  primaryButtonText: { ...typography.small, color: "#fff", fontWeight: "700" },
+  primaryButtonTextDisabled: { color: "rgba(150,150,160,0.6)" },
   secondaryButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -540,188 +795,134 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
-
   secondaryButtonText: {
     ...typography.small,
     color: colors.text.secondary,
     fontWeight: "600",
   },
 
-  // ── QUIZ ───────────────────────────────────────
-  quizRoot: {
-    flex: 1,
+  // ── QUIZ ──────────────────────────────────────────
+  quizRoot: { flex: 1 },
+  quizCenter: { flex: 1 },
+  quizBottom: {},
+  quizScroll: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.xl,
+    gap: spacing.lg,
   },
-
   progressWrap: {
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
     gap: spacing.xs,
   },
-
   progressBg: {
     height: 6,
     borderRadius: 3,
     backgroundColor: "rgba(200,200,220,0.35)",
     overflow: "hidden",
   },
-
-  progressFill: {
-    height: "100%",
-    borderRadius: 3,
-    backgroundColor: colors.text.primary,
-  },
-
+  progressFill: { height: "100%", borderRadius: 3 },
   progressLabel: {
     ...typography.caption,
-    color: colors.text.secondary,
-    textAlign: "right",
-    opacity: 0.75,
+    color: "#1a2d4a",
+    fontWeight: "600",
+    opacity: 0.7,
   },
-
-  questionCard: {
-    paddingVertical: spacing.xl,
-  },
-
-  questionText: {
-    ...typography.title,
-    color: colors.text.primary,
-    lineHeight: 26,
-  },
-
-  optionCard: {
+  traitBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    marginBottom: spacing.sm,
+    gap: 6,
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
   },
+  traitBadgeText: { fontSize: 13, fontWeight: "700", color: "#1a2d4a" },
+  questionCard: { paddingVertical: spacing.xl },
+  questionText: { ...typography.title, color: "#1a2d4a", lineHeight: 28 },
 
-  optionCardSelected: {
-    backgroundColor: "rgba(55,90,133,0.1)",
-    borderWidth: 1.5,
-    borderColor: "rgba(55,90,133,0.3)",
+  likertWrap: { gap: spacing.sm },
+  likertRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    paddingHorizontal: 4,
   },
-
-  radioCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+  likertItem: { alignItems: "center", gap: 6, flex: 1 },
+  likertCircle: {
     borderWidth: 2,
-    borderColor: "rgba(150,160,180,0.55)",
+    borderColor: "rgba(150,160,180,0.4)",
+    backgroundColor: "rgba(255,255,255,0.7)",
     alignItems: "center",
     justifyContent: "center",
-    flexShrink: 0,
   },
-
-  radioCircleSelected: {
-    borderColor: colors.text.primary,
-  },
-
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.text.primary,
-  },
-
-  optionText: {
-    ...typography.body,
+  likertNum: { fontSize: 14, fontWeight: "700", color: colors.text.secondary },
+  likertNumSelected: { color: "#fff" },
+  likertLabel: {
+    fontSize: 10,
+    fontWeight: "500",
     color: colors.text.secondary,
-    flex: 1,
-    lineHeight: 21,
+    textAlign: "center",
+    lineHeight: 13,
   },
 
-  optionTextSelected: {
-    color: colors.text.primary,
-    fontWeight: "600",
-  },
-
-  // ── LOADING ────────────────────────────────────
+  // ── LOADING ───────────────────────────────────────
   loadingContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.lg,
   },
-
   loadingText: {
     ...typography.body,
     color: colors.text.secondary,
     fontStyle: "italic",
   },
 
-  // ── RESULT ─────────────────────────────────────
-  resultCard: {
-    alignItems: "center",
-    gap: spacing.md,
-    paddingVertical: spacing.xl,
-  },
-
+  // ── RESULT ────────────────────────────────────────
   resultLabel: {
-    ...typography.caption,
-    color: colors.text.secondary,
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#1a2d4a",
     textTransform: "uppercase",
     letterSpacing: 1,
-    marginTop: spacing.xs,
-  },
-
-  resultType: {
-    ...typography.name,
-    color: colors.text.primary,
-  },
-
-  resultDescription: {
-    ...typography.body,
-    color: colors.text.secondary,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-
-  scoresWrap: {
-    width: "100%",
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-  },
-
-  scoresTitle: {
-    ...typography.caption,
-    color: colors.text.secondary,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
     marginBottom: spacing.xs,
   },
-
-  scoreRow: {
+  traitCard: { gap: spacing.sm, paddingVertical: spacing.md },
+  traitCardHeader: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: spacing.sm,
   },
-
-  scoreLabel: {
-    ...typography.caption,
-    color: colors.text.secondary,
-    width: 70,
+  traitIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
-
-  scoreBarBg: {
-    flex: 1,
-    height: 8,
+  traitCardInfo: { flex: 1 },
+  traitCardLabel: {
+    ...typography.small,
+    fontWeight: "700",
+    color: "#1a2d4a",
+    marginBottom: 2,
+  },
+  traitCardDesc: { ...typography.caption, color: "#454850", lineHeight: 17 },
+  levelBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    flexShrink: 0,
+  },
+  levelBadgeText: { fontSize: 11, fontWeight: "700" },
+  barBg: {
+    height: 7,
     borderRadius: 4,
-    backgroundColor: "rgba(200,200,220,0.35)",
+    backgroundColor: "rgba(200,200,220,0.3)",
     overflow: "hidden",
   },
-
-  scoreBarFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-
-  scoreNum: {
-    ...typography.caption,
-    color: colors.text.secondary,
-    width: 16,
-    textAlign: "right",
-    fontWeight: "700",
-  },
+  barFill: { height: "100%", borderRadius: 4 },
+  scoreText: { fontSize: 12, fontWeight: "700", textAlign: "right" },
 });

@@ -5,7 +5,6 @@ type Props = {
   previewImage?: any;
 };
 
-// Pre-load domyślnego obrazka
 const DEFAULT_CLOUD = require("../../../../../assets/cloud.png");
 
 function ShopAvatar({ previewImage }: Props) {
@@ -13,15 +12,15 @@ function ShopAvatar({ previewImage }: Props) {
 
   useEffect(() => {
     const animation = Animated.loop(
-   Animated.timing(progress, {
+      Animated.timing(progress, {
         toValue: 1,
         duration: 4200,
         easing: Easing.inOut(Easing.sin),
         useNativeDriver: true,
       }),
- { resetBeforeIteration: true }
+      { resetBeforeIteration: true }
     );
- animation.start();
+    animation.start();
 
     return () => animation.stop();
   }, [progress]);
@@ -47,11 +46,11 @@ function ShopAvatar({ previewImage }: Props) {
       <View style={styles.avatarGlow}>
         <Animated.View style={animatedStyle}>
           <Image
-   source={imageSource}
-style={styles.avatar}
-   resizeMode="contain"
-  fadeDuration={0}
-/>
+            source={imageSource}
+            style={styles.avatar}
+            resizeMode="contain"
+            fadeDuration={0}
+          />
         </Animated.View>
       </View>
 
@@ -62,6 +61,7 @@ style={styles.avatar}
 }
 
 export default memo(ShopAvatar);
+
 
 const styles = StyleSheet.create({
   container: {

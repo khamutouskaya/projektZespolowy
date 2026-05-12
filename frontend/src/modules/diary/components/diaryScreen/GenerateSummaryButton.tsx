@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, ActivityIndicator, Alert } from "react-nat
 import { colors } from "@/shared/theme/colors";
 import { diaryApi } from "@/services/api/diaryApi";
 import { diarySyncService } from "@/modules/diary/services/diarySyncService";
+import { streakApi } from "@/services/api/streakApi";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -22,6 +23,14 @@ export default function GenerateSummaryButton({ onGenerated, todayEntriesContent
       await diarySyncService.syncPending(userId);
       await diaryApi.generateSummary(new Date().toISOString(), todayEntriesContent);
       await diarySyncService.fullSync(userId);
+
+      // Trigger streak check after both journal entry and summary are on backend
+      try {
+        await streakApi.triggerDaily();
+      } catch {
+        // Streak trigger is best-effort — don't block the user
+      }
+
       Alert.alert("Sukces", "Wygenerowano podsumowanie dnia!");
       onGenerated?.();
     } catch (e: any) {

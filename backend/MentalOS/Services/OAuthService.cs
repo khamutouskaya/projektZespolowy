@@ -8,8 +8,8 @@ using System.Text.Json;
 namespace MentalOS.Services
 {
     /// <summary>
-    /// Autoryzacja OAuth - obs³uguje logowanie/rejestracjê przez Google i Facebook
-    /// Waliduje tokeny, tworzy/aktualizuje u¿ytkowników, przypisuje domyœln¹ rolê "user"
+    /// Autoryzacja OAuth - obsï¿½uguje logowanie/rejestracjï¿½ przez Google i Facebook
+    /// Waliduje tokeny, tworzy/aktualizuje uï¿½ytkownikï¿½w, przypisuje domyï¿½lnï¿½ rolï¿½ "user"
     /// </summary>
     public class OAuthService : IOAuthService
     {
@@ -30,9 +30,14 @@ namespace MentalOS.Services
         {
             try
             {
+                var audiences = new List<string> { _configuration["OAuth:Google:ClientId"]! };
+                var iosClientId = _configuration["OAuth:Google:IosClientId"];
+                if (!string.IsNullOrEmpty(iosClientId))
+                    audiences.Add(iosClientId);
+
                 var settings = new GoogleJsonWebSignature.ValidationSettings
                 {
-                    Audience = new[] { _configuration["OAuth:Google:ClientId"]! }
+                    Audience = audiences
                 };
 
                 var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);

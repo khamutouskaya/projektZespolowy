@@ -154,6 +154,39 @@ namespace MentalOS.Controllers
             return Ok(_questions);
         }
 
+        [HttpGet("result")]
+        public async Task<IActionResult> GetResult()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized(new { message = "User is unauthorized" });
+
+            var profile = await _context.PersonalityProfiles
+                .FirstOrDefaultAsync(p => p.UserId == userId.Value);
+
+            if (profile == null)
+                return NotFound(new { message = "No quiz result found." });
+
+            var scores = new Dictionary<string, int>();
+            try
+            {
+                scores = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(
+                    profile.Traits ?? "{}") ?? new();
+            }
+            catch { }
+
+            var (title, description) = _descriptions.TryGetValue(profile.PersonalityType, out var desc)
+                ? desc
+                : (profile.PersonalityType, "Twój unikalny typ osobowości.");
+
+            return Ok(new QuizResultDto
+            {
+                PersonalityType = profile.PersonalityType,
+                Title = title,
+                Description = description,
+                Scores = scores,
+            });
+        }
+
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitQuiz([FromBody] SubmitQuizDto dto)
         {

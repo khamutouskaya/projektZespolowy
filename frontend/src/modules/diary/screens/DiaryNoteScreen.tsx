@@ -5,6 +5,8 @@ import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Keyboard,
   Pressable,
   ScrollView,
@@ -13,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { diaryApi } from "@/services/api/diaryApi";
 import DiaryInput from "../components/diaryNote/DayInput";
 import DiaryNoteHeader from "../components/diaryNote/DiaryNoteHeader";
 import MoodSelector from "../components/diaryNote/MoodSelector";
@@ -20,6 +23,8 @@ import SummaryInput from "../components/diaryNote/SummaryInput";
 import TagSelector from "../components/diaryNote/TagSelector";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { diaryService } from "@/modules/diary/services/diaryService";
+import { diarySyncService } from "@/modules/diary/services/diarySyncService";
+import { streakApi } from "@/services/api/streakApi";
 
 
 export default function DiaryNoteScreen() {
@@ -33,6 +38,7 @@ export default function DiaryNoteScreen() {
   const [selectedTag, setSelectedTag] = useState<string | null>(params.tag ?? null);
   const [noteText, setNoteText] = useState(params.text ?? "");
   const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const user = useAuthStore((state) => state.user);
   const startTimeRef = useRef<number>(Date.now());
 
@@ -59,6 +65,22 @@ export default function DiaryNoteScreen() {
       }
     }, []),
   );
+
+  const handleGenerateSummary = async () => {
+    if (!noteText.trim()) {
+      Alert.alert("Brak treści", "Najpierw napisz coś w notatce, żeby wygenerować podsumowanie.");
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const text = await diaryApi.generateSummaryText(new Date().toISOString(), noteText);
+      setpreview(text);
+    } catch {
+      Alert.alert("Błąd", "Nie udało się wygenerować podsumowania. Spróbuj ponownie.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSave = () => {
     if (!noteText.trim() && !preview.trim()) {
@@ -94,6 +116,16 @@ export default function DiaryNoteScreen() {
     } else {
       addEntry(payload);
     }
+
+    // Sync to backend immediately so home screen sees updated state
+    // Then trigger streak check — backend decides if both tasks are done
+    if (user?.id) {
+      const userId = user.id;
+      diarySyncService.syncPending(userId)
+        .then(() => streakApi.triggerDaily())
+        .catch(() => {});
+    }
+
     router.back();
   };
 
@@ -134,10 +166,21 @@ export default function DiaryNoteScreen() {
 
           {/* SUMMARY */}
           <View style={styles.inputCard}>
-            <View style={styles.summaryTitleRow}>
-              <Text style={styles.summaryTitle}>Podsumowanie dnia</Text>
+            <Text style={styles.summaryTitle}>Podsumowanie dnia</Text>
+            <View style={styles.summaryActions}>
               <Pressable
-                style={styles.testChip}
+                style={[styles.chip, styles.chipGenerate, isGenerating && styles.chipDisabled]}
+                onPress={handleGenerateSummary}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <ActivityIndicator size="small" color="#375a85" />
+                ) : (
+                  <Text style={styles.chipText}>✦ Generuj</Text>
+                )}
+              </Pressable>
+              <Pressable
+                style={[styles.chip, styles.chipTest]}
                 onPress={() =>
                   router.push(
                     testResult
@@ -146,12 +189,12 @@ export default function DiaryNoteScreen() {
                   )
                 }
               >
-                <Text style={styles.testChipText}>
+                <Text style={styles.chipText}>
                   {testResult ? "Podgląd testu ›" : "Zrób test ›"}
                 </Text>
               </Pressable>
             </View>
-            <SummaryInput summary={preview} onChangeSummary={setpreview} />
+            <SummaryInput summary={preview} />
           </View>
 
           {/* MOOD */}
@@ -200,28 +243,35 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#375a85",
+    marginBottom: 10,
   },
-  summaryTitleRow: {
+  summaryActions: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
+    gap: 8,
+    marginBottom: 14,
+    flexWrap: "wrap",
   },
-  testChip: {
-    backgroundColor: "hsl(253, 45%, 90%)",
-    paddingHorizontal: 16,
-    paddingVertical: 7,
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: "hsl(200, 2%, 74%)",
-    shadowColor: "#375a85",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 44,
   },
-  testChipText: {
-    fontSize: 15,
+  chipGenerate: {
+    backgroundColor: "hsl(253, 45%, 90%)",
+  },
+  chipTest: {
+    backgroundColor: "#f0f4fb",
+  },
+  chipDisabled: {
+    opacity: 0.6,
+  },
+  chipText: {
+    fontSize: 14,
     fontWeight: "600",
     color: "#375a85",
   },

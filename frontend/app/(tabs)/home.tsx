@@ -5,9 +5,11 @@ import { typography } from "@/shared/theme/typography";
 import { spacing } from "@/shared/theme/spacing";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Image,
   Modal,
@@ -15,13 +17,35 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { useShopStore } from "@/services/store/useShopStore";
+import { streakApi } from "@/services/api/streakApi";
+import { gardenService } from "@/modules/garden/garden.service";
+
+const GOLD = "#f9dd0c";
+
+const DAILY_TREE_IMAGES: Record<number, any> = {
+  0: require("../../assets/garden/tree-stage-0.png"),
+  1: require("../../assets/garden/tree-stage-1.png"),
+  2: require("../../assets/garden/tree-stage-2.png"),
+};
+
+const PREMIUM_FEATURES = [
+  { icon: "people-outline", label: "Praca z psychologiem" },
+  { icon: "analytics-outline", label: "Głęboka analiza wzorców" },
+  { icon: "flash-outline", label: "Wykrywanie triggerów stresu" },
+  { icon: "bar-chart-outline", label: "Analiza nastroju (tydzień / miesiąc)" },
+  { icon: "bulb-outline", label: "AI-porady na podstawie zachowania" },
+  { icon: "trophy-outline", label: "Adaptacyjne cele" },
+] as const;
 
 export default function Home() {
   const router = useRouter();
+  const isPremium = useAuthStore((s) => s.user?.isPremium ?? false);
+  const buyPremium = useAuthStore((s) => s.buyPremium);
 
   const { isAuthenticated } = useAuthStore();
   const { fetchEquippedItem, equippedPreviewImage } = useShopStore();
@@ -30,11 +54,55 @@ export default function Home() {
     if (isAuthenticated) {
       fetchEquippedItem();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchEquippedItem]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated) return;
+      loadDailyStatus();
+
+      // Auto-refresh every 30 seconds so streak and coins stay live during demo
+      const interval = setInterval(() => {
+        loadDailyStatus();
+      }, 30_000);
+
+      return () => clearInterval(interval);
+    }, [isAuthenticated, loadDailyStatus])
+  );
 
   const [showOracle, setShowOracle] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const [showFruitModal, setShowFruitModal] = useState(false);
+  const [isClaimingFruit, setIsClaimingFruit] = useState(false);
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
   const [isOracleThinking, setIsOracleThinking] = useState(false);
+
+  const [dailyProgress, setDailyProgress] = useState(0);
+  const [fruitsBalance, setFruitsBalance] = useState(0);
+  const [hasPendingFruit, setHasPendingFruit] = useState(false);
+  const [streakCount, setStreakCount] = useState(0);
+  const [coinsBalance, setCoinsBalance] = useState(0);
+
+  const loadDailyStatus = useCallback(async () => {
+    try {
+      const status = await streakApi.getDailyStatus();
+      setDailyProgress(status.progress);
+      setFruitsBalance(status.fruitsBalance);
+      setHasPendingFruit(status.hasPendingFruit);
+      setStreakCount(status.streakCount ?? 0);
+      setCoinsBalance(status.coinsBalance ?? 0);
+      // Sync coins to auth store so other screens stay consistent
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser && status.coinsBalance !== undefined) {
+        useAuthStore.setState({
+          user: { ...currentUser, coinsBalance: status.coinsBalance, streakCount: status.streakCount ?? currentUser.streakCount },
+        });
+      }
+    } catch {
+      // keep defaults if offline
+    }
+  }, []);
 
   // Home cloud float
   const cloudFloat = useRef(new Animated.Value(0)).current;
@@ -171,6 +239,53 @@ export default function Home() {
 
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
+  const progress = dailyProgress;
+  const isReady = hasPendingFruit || fruitsBalance > 0;
+
+  const handleOdbierzPress = async () => {
+    if (hasPendingFruit) {
+      setIsClaimingFruit(true);
+      try {
+        await streakApi.claimFruit();
+        await loadDailyStatus();
+      } catch {
+        Alert.alert("Błąd", "Nie udało się odebrać nagrody.");
+        setIsClaimingFruit(false);
+        return;
+      } finally {
+        setIsClaimingFruit(false);
+      }
+    }
+    setShowFruitModal(true);
+  };
+
+  const handlePlantFruit = async () => {
+    setIsClaimingFruit(true);
+    try {
+      await gardenService.plantTree();
+      setShowFruitModal(false);
+      await loadDailyStatus();
+      Alert.alert("Posadzono!", "Owoc został posadzony w ogródku. 🌱");
+    } catch {
+      Alert.alert("Błąd", "Nie udało się posadzić owocu.");
+    } finally {
+      setIsClaimingFruit(false);
+    }
+  };
+
+  const handleExchangeFruit = async () => {
+    setIsClaimingFruit(true);
+    try {
+      await gardenService.exchangeFruit();
+      setShowFruitModal(false);
+      await loadDailyStatus();
+      Alert.alert("Wymieniono!", "Owoc został wymieniony na 10 monet. 🪙");
+    } catch {
+      Alert.alert("Błąd", "Nie udało się wymienić owocu.");
+    } finally {
+      setIsClaimingFruit(false);
+    }
+  };
 
   const handleOracleOpen = () => {
     setShowOracle(true);
@@ -257,6 +372,29 @@ export default function Home() {
     thinkingPulse.setValue(1);
   };
 
+  const handlePsychologistPress = () => {
+    if (isPremium) {
+      router.push("../psychologists");
+    } else {
+      setShowPaywall(true);
+    }
+  };
+
+  const handleBuyPremium = async () => {
+    setIsBuying(true);
+    try {
+      await buyPremium();
+      setShowPaywall(false);
+      router.push("../psychologists");
+    } catch (e: any) {
+      const detail =
+        e?.response?.data?.message ?? e?.message ?? "Nieznany błąd";
+      Alert.alert("Błąd", `Nie udało się aktywować Premium.\n${detail}`);
+    } finally {
+      setIsBuying(false);
+    }
+  };
+
   return (
     <>
       <LayoutContainer>
@@ -297,15 +435,60 @@ export default function Home() {
               <Text style={styles.title}>Jak się dziś czujesz?</Text>
             </View>
 
-            {/* Status card */}
+            {/* DRZEWO DNIA CARD */}
             <View style={[cardStyles.card, styles.statusCard]}>
-              <Text style={styles.sectionLabel}>Twój stan emocjonalny</Text>
-              <View style={styles.statusPill}>
-                <Text style={styles.statusText}>2 dni z rzędu</Text>
-                <View style={styles.dot} />
-                <Text style={styles.statusText}>Dobra ciągłość</Text>
-                <View style={styles.sproutWrap}>
-                  <Ionicons name="leaf" size={15} color="#6FAE7A" />
+              <View style={styles.compactStreakRow}>
+                <View style={styles.dailyTreeWrap}>
+                  <Image
+                    source={DAILY_TREE_IMAGES[progress] ?? DAILY_TREE_IMAGES[0]}
+                    style={styles.dailyTree}
+                    resizeMode="contain"
+                    fadeDuration={0}
+                  />
+                  {progress === 2 && (
+                    <Image
+                      source={require("../../assets/images/fruit.png")}
+                      style={styles.dailyTreeFruit}
+                      resizeMode="contain"
+                    />
+                  )}
+                </View>
+
+                <View style={styles.compactStreakContent}>
+                  <View style={styles.compactStreakTop}>
+                    <View style={styles.compactTitleRow}>
+                      <Text style={styles.compactTitle}>Drzewo Dnia</Text>
+                      {streakCount > 0 && (
+                        <View style={styles.streakChip}>
+                          <Text style={styles.streakChipText}>🔥 {streakCount}</Text>
+                        </View>
+                      )}
+                    </View>
+                    {isReady ? (
+                      <Pressable
+                        style={[styles.claimFruitMiniButton, isClaimingFruit && { opacity: 0.6 }]}
+                        onPress={handleOdbierzPress}
+                        disabled={isClaimingFruit}
+                      >
+                        <Text style={styles.claimFruitMiniText}>Odbierz 🍎</Text>
+                      </Pressable>
+                    ) : progress === 2 ? (
+                      <Text style={styles.compactDone}>✓ Odebrano</Text>
+                    ) : (
+                      <Text style={styles.compactProgress}>{progress}/2</Text>
+                    )}
+                  </View>
+                  <View style={styles.progressBar}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${(progress / 2) * 100}%` },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.compactSubtitle}>
+                    Wpis w dzienniku · Podsumowanie dnia
+                  </Text>
                 </View>
               </View>
             </View>
@@ -360,7 +543,7 @@ export default function Home() {
                styles.extraCard,
                    pressed && { opacity: 0.85 },
                      ]}
-                onPress={() => router.push("/psychologists")}
+                onPress={handlePsychologistPress}
                           >
                     <View
                   style={[
@@ -406,6 +589,109 @@ export default function Home() {
         </Animated.View>
       </LayoutContainer>
 
+      {/* Paywall modal */}
+      <Modal
+        visible={showPaywall}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowPaywall(false)}
+      >
+        <Pressable
+          style={styles.paywallOverlay}
+          onPress={() => setShowPaywall(false)}
+        >
+          <Pressable style={styles.paywallCard} onPress={() => {}}>
+            <View style={styles.paywallHandle} />
+            <View style={styles.paywallHeader}>
+              <Text style={styles.paywallTitle}>Plan Premium</Text>
+              <Pressable
+                style={styles.paywallClose}
+                onPress={() => setShowPaywall(false)}
+              >
+                <Ionicons
+                  name="close"
+                  size={16}
+                  color={colors.text.secondary}
+                />
+              </Pressable>
+            </View>
+
+            <Text style={styles.paywallIntro}>
+              Odblokuj pracę z psychologiem i zaawansowane funkcje AI.
+            </Text>
+
+            {PREMIUM_FEATURES.map((f, i) => (
+              <View key={i} style={styles.paywallFeature}>
+                <View style={styles.paywallFeatureIcon}>
+                  <Ionicons name={f.icon} size={16} color="#6670ff" />
+                </View>
+                <Text style={styles.paywallFeatureText}>{f.label}</Text>
+              </View>
+            ))}
+
+            <Text style={styles.paywallPrice}>od 29 zł / miesiąc</Text>
+
+            <TouchableOpacity
+              style={styles.paywallBuyBtn}
+              onPress={handleBuyPremium}
+              disabled={isBuying}
+              activeOpacity={0.82}
+            >
+              <LinearGradient
+                colors={["#b6b9ee", "#838bf5", "#6670ff"]}
+                start={{ x: 0.15, y: 0 }}
+                end={{ x: 0.85, y: 1 }}
+                style={styles.paywallBuyGradient}
+              >
+                <Ionicons name="star" size={16} color={GOLD} />
+                <Text style={styles.paywallBuyText}>
+                  {isBuying ? "Aktywowanie..." : "Kup Premium"}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={showFruitModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowFruitModal(false)}
+      >
+        <View style={styles.fruitModalRoot}>
+          <Pressable
+            style={styles.fruitModalBackdrop}
+            onPress={() => setShowFruitModal(false)}
+          />
+
+          <View style={styles.fruitModalCard}>
+            <Image
+              source={require("../../assets/images/fruit.png")}
+              style={styles.fruitModalImage}
+            />
+
+            <Text style={styles.fruitModalTitle}>Owoc dojrzał!</Text>
+            <Text style={styles.fruitModalText}>Co chcesz z nim zrobić?</Text>
+
+            <Pressable
+              style={[styles.fruitModalPlantButton, isClaimingFruit && { opacity: 0.6 }]}
+              onPress={handlePlantFruit}
+              disabled={isClaimingFruit}
+            >
+              <Text style={styles.fruitModalPlantText}>Zasadź w ogródku 🌱</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.fruitModalExchangeButton, isClaimingFruit && { opacity: 0.6 }]}
+              onPress={handleExchangeFruit}
+              disabled={isClaimingFruit}
+            >
+              <Text style={styles.fruitModalExchangeText}>Wymień na 10 monet 🪙</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       <Modal
         visible={showOracle}
         transparent
@@ -631,7 +917,7 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     alignItems: "center",
-    paddingBottom: 100,
+    paddingBottom: 100, //bylo 100
   },
 
   cloud: {
@@ -661,6 +947,8 @@ const styles = StyleSheet.create({
   statusCard: {
     width: "92%",
     marginTop: spacing.md,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
   },
 
   sectionLabel: {
@@ -901,9 +1189,402 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     textAlign: "center",
   },
+  streakHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.sm,
+  },
 
+  streakSub: {
+    fontSize: 12,
+    color: colors.text.secondary,
+    opacity: 0.7,
+    paddingLeft: spacing.s,
+    marginTop: -4,
+  },
+
+  streakBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(173,219,183,0.35)",
+  },
+
+  streakBadgeText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: colors.text.secondary,
+  },
+
+  fruitRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+
+  fruitWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fruitImage: {
+    width: 62,
+    height: 62,
+    resizeMode: "contain",
+  },
+
+  tasksWrap: {
+    flex: 1,
+    gap: 8,
+  },
+
+  taskRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  taskText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.text.secondary,
+  },
+
+  progressText: {
+    marginTop: 2,
+    fontSize: 13,
+    fontWeight: "700",
+    color: "rgba(70,80,90,0.65)",
+  },
+
+  readyActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4,
+  },
+
+  actionButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.35)",
+    alignItems: "center",
+  },
+
+  actionButtonSecondary: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(245,220,150,0.45)",
+    alignItems: "center",
+  },
+
+  actionText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#4f7f58",
+  },
+
+  actionTextSecondary: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#7b6730",
+  },
+  compactStreakRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  compactTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  streakChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,180,60,0.18)",
+  },
+
+  streakChipText: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#b36a00",
+  },
+
+  compactFruit: {
+    width: 54,
+    height: 54,
+    resizeMode: "contain",
+  },
+
+  dailyTreeWrap: {
+    width: 62,
+    height: 72,
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+
+  dailyTree: {
+    width: 62,
+    height: 62,
+  },
+
+  dailyTreeFruit: {
+    position: "absolute",
+    top: 0,
+    right: -4,
+    width: 22,
+    height: 22,
+  },
+
+  compactDone: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "rgba(111,174,122,0.85)",
+  },
+
+  compactStreakContent: {
+    flex: 1,
+  },
+
+  compactStreakTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+
+  compactTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.text.secondary,
+  },
+
+  compactProgress: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "rgba(70,80,90,0.55)",
+  },
+
+  progressBar: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(70,80,90,0.10)",
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.55)",
+  },
+
+  compactSubtitle: {
+    marginTop: 7,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "rgba(70,80,90,0.55)",
+  },
+
+  claimFruitMiniButton: {
+    paddingHorizontal: 14,
+    height: 30,
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.28)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  claimFruitMiniText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#4f7f58",
+  },
+
+  fruitModalRoot: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fruitModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(30,40,60,0.55)",
+  },
+
+  fruitModalCard: {
+    width: "82%",
+    borderRadius: 28,
+    padding: 22,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+  },
+
+  fruitModalImage: {
+    width: 82,
+    height: 82,
+    resizeMode: "contain",
+    marginBottom: 8,
+  },
+
+  fruitModalTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.text.primary,
+    marginBottom: 6,
+  },
+
+  fruitModalText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text.secondary,
+    marginBottom: 16,
+  },
+
+  fruitModalPlantButton: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: "rgba(111,174,122,0.28)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  fruitModalPlantText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#4f7f58",
+  },
+
+  fruitModalExchangeButton: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: "rgba(245,220,150,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  fruitModalExchangeText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#7b6730",
+  },
   star: {
     position: "absolute",
     color: "rgba(80,100,160,0.65)",
+  },
+
+  paywallOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "flex-end",
+  },
+
+  paywallCard: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: spacing.lg,
+    paddingBottom: 40,
+  },
+
+  paywallHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(150,160,180,0.4)",
+    alignSelf: "center",
+    marginBottom: spacing.md,
+  },
+
+  paywallHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
+
+  paywallTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: colors.text.primary,
+  },
+
+  paywallClose: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(150,160,180,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  paywallIntro: {
+    ...typography.small,
+    color: colors.text.secondary,
+    marginBottom: spacing.md,
+    lineHeight: 20,
+  },
+
+  paywallFeature: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingVertical: 7,
+  },
+
+  paywallFeatureIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: "rgba(100,110,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  paywallFeatureText: {
+    ...typography.small,
+    fontWeight: "600",
+    color: colors.text.primary,
+  },
+
+  paywallPrice: {
+    textAlign: "center",
+    ...typography.small,
+    color: colors.text.tertiary,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+
+  paywallBuyBtn: {
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+
+  paywallBuyGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    paddingVertical: 15,
+    paddingHorizontal: spacing.lg,
+  },
+
+  paywallBuyText: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#fff",
+    letterSpacing: 0.3,
   },
 });

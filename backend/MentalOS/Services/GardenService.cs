@@ -25,13 +25,13 @@ namespace MentalOS.Services
                 return;
             }
 
-            var days = (DateTime.UtcNow - bed.PlantedAt.Value).TotalDays;
+            var minutes = (DateTime.UtcNow - bed.PlantedAt.Value).TotalMinutes;
 
-            if (days < 1)
+            if (minutes < 2)
                 bed.TreeState = TreeState.Sprout;
-            else if (days < 2)
+            else if (minutes < 4)
                 bed.TreeState = TreeState.Sapling;
-            else if (days < 3)
+            else if (minutes < 6)
                 bed.TreeState = TreeState.Mature;
             else
                 bed.TreeState = TreeState.Fruiting;
@@ -58,7 +58,7 @@ namespace MentalOS.Services
             return beds;
         }
 
-        public async Task<List<GardenBedDto>> GetGardenStatusAsync(Guid userId)
+        public async Task<GardenStatusDto> GetGardenStatusAsync(Guid userId)
         {
             var garden = await _context.Gardens
                 .Include(g => g.GardenBeds)
@@ -88,18 +88,38 @@ namespace MentalOS.Services
 
             await _context.SaveChangesAsync();
 
-            var result = beds.Select(b => new GardenBedDto
-            {
-                Id = b.Id,
-                TreeState = b.TreeState,
-                X = b.X,
-                Y = b.Y
-            }).ToList();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-            return result;
+            return new GardenStatusDto
+            {
+                Beds = beds.Select(b => new GardenBedDto
+                {
+                    Id = b.Id,
+                    TreeState = b.TreeState,
+                    X = b.X,
+                    Y = b.Y
+                }).ToList(),
+                FruitsBalance = user?.FruitsBalance ?? 0
+            };
         }
 
-        public async Task HarvestTreeAsync(Guid userId, Guid gardenBedId)
+        public async Task ExchangeFruitAsync(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            if (user.FruitsBalance <= 0)
+                throw new Exception("No fruits available");
+
+            user.FruitsBalance -= 1;
+            user.CoinsBalance += 10;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> HarvestTreeAsync(Guid userId, Guid gardenBedId)
         {
             var garden = await _context.Gardens
                 .FirstOrDefaultAsync(g => g.UserId == userId);
@@ -131,10 +151,20 @@ namespace MentalOS.Services
             bed.PlantedAt = null;
 
             await _context.SaveChangesAsync();
+
+            return user.CoinsBalance;
         }
 
         public async Task PlantTreeAsync(Guid userId)
         {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            if (user.FruitsBalance <= 0)
+                throw new Exception("No fruits available");
+
             var garden = await _context.Gardens
                 .Include(g => g.GardenBeds)
                 .FirstOrDefaultAsync(g => g.UserId == userId);
@@ -166,15 +196,11 @@ namespace MentalOS.Services
             if (freeBed == null)
                 throw new Exception("No free garden beds");
 
-
-            if (freeBed.TreeState != TreeState.Empty)
-                throw new Exception("Bed already taken");
-
+            user.FruitsBalance -= 1;
             freeBed.PlantedAt = DateTime.UtcNow;
             freeBed.TreeState = TreeState.Sprout;
 
             await _context.SaveChangesAsync();
         }
-
     }
 }

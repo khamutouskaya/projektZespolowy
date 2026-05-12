@@ -25,6 +25,7 @@ namespace MentalOS.Controllers
         public class AssistantMessageRequest
         {
             public string Message { get; set; } = null!;
+            public string? PersonalityHint { get; set; }
         }
 
         [HttpPost("chat")]
@@ -46,10 +47,11 @@ namespace MentalOS.Controllers
                 sessionId = session.Id;
             }
 
-            var response = await _chatService.SendMessageAsync(userId, new ChatRequestDto 
-            { 
-                SessionId = sessionId, 
-                Message = request.Message 
+            var response = await _chatService.SendMessageAsync(userId, new ChatRequestDto
+            {
+                SessionId = sessionId,
+                Message = request.Message,
+                PersonalityHint = request.PersonalityHint
             });
 
             return Ok(new { reply = response.Responce });

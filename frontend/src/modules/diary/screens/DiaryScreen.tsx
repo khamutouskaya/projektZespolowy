@@ -20,7 +20,6 @@ import DiaryHeader from "@/modules/diary/components/diaryScreen/DiaryHeader";
 import DiaryEntriesSection from "@/modules/diary/components/diaryScreen/DiaryEntriesSection";
 import DiarySearch from "@/modules/diary/components/diaryScreen/DiarySearch";
 import AddEntryButton from "@/modules/diary/components/diaryScreen/AddEntryButton";
-import GenerateSummaryButton from "@/modules/diary/components/diaryScreen/GenerateSummaryButton";
 
 
 import LayoutContainer from "@/shared/layout/LayoutContainer";
@@ -159,9 +158,11 @@ export default function DiaryScreen() {
   const sortByNewest = (a: DiaryEntry, b: DiaryEntry) =>
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
 
-  const today = filtered.filter((e) => e.date === todayDate).sort(sortByNewest);
+  const todayAll = filtered.filter((e) => e.date === todayDate && !e.isSummary).sort(sortByNewest);
+  const todayWithPreview = todayAll.filter((e) => !!e.preview?.trim());
+  const today = todayWithPreview.length > 0 ? todayWithPreview : todayAll;
   const earlier = filtered
-    .filter((e) => e.date !== todayDate)
+    .filter((e) => e.date !== todayDate && !e.isSummary)
     .sort(sortByNewest);
   const isSearching = searchQuery.trim().length > 0;
   const noSearchResults = isSearching && filtered.length === 0;
@@ -174,17 +175,25 @@ export default function DiaryScreen() {
       >
         <View style={styles.headerRow}>
           <DiaryHeader />
-          <View style={{ flexDirection: "row", gap: 12 }}>
-            <GenerateSummaryButton
-              onGenerated={() => reload()}
-              todayEntriesContent={today.map((e) => e.content).join("\n\n")}
-            />
-            <AddEntryButton
-              onPress={() => {
+          <AddEntryButton
+            onPress={() => {
+              const todayNote = today[0];
+              if (todayNote) {
+                router.push({
+                  pathname: "/(tabs)/diary/note",
+                  params: {
+                    id: todayNote.id,
+                    text: todayNote.content,
+                    preview: todayNote.preview ?? "",
+                    mood: todayNote.mood ?? "",
+                    tag: JSON.parse(todayNote.tags || "[]")[0] ?? "",
+                  },
+                });
+              } else {
                 router.push("/(tabs)/diary/note");
-              }}
-            />
-          </View>
+              }
+            }}
+          />
         </View>
 
         <View style={styles.searchWrapper}>

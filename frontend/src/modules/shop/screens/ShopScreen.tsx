@@ -10,7 +10,6 @@ import { apiClient } from "../../../services/api/client";
 import { useAuthStore } from "../../../services/store/useAuthStore";
 import { useShopStore } from "../../../services/store/useShopStore";
 
-// Pre-load tła
 const BACKGROUND_IMAGE = require("../../../../assets/background.png");
 
 function ShopScreen() {
@@ -34,19 +33,18 @@ function ShopScreen() {
   }, []);
 
   const handleBuy = useCallback(async (item: ShopItem) => {
-    console.log("BUY ITEM:", item);
     try {
       await apiClient.post(`/shop/buy?itemId=${item.id}`, {
-     frontendAccesoriesId: item.id,
+        frontendAccesoriesId: item.id,
         name: item.name,
         description: item.name,
         type: item.category,
-      price: item.price
+        price: item.price,
       });
       Alert.alert("Sukces", "Przedmiot został zakupiony!");
       const currentStore = useAuthStore.getState();
-   if(currentStore.user) {
-         useAuthStore.setState({ user: { ...currentStore.user, coinsBalance: currentStore.user.coinsBalance - item.price } });
+      if (currentStore.user) {
+        useAuthStore.setState({ user: { ...currentStore.user, coinsBalance: currentStore.user.coinsBalance - item.price } });
       }
       await fetchEquippedItem();
     } catch (error: any) {
@@ -61,24 +59,24 @@ function ShopScreen() {
     try {
       await apiClient.post(`/shop/equip-item?itemId=${item.id}`);
       Alert.alert("Sukces", "Przedmiot został założony!");
-   await fetchEquippedItem();
-  } catch (err: any) {
+      await fetchEquippedItem();
+    } catch (err: any) {
       console.error(err);
-   Alert.alert("Błąd", "Nie udało się założyć przedmiotu.");
-  }
+      Alert.alert("Błąd", "Nie udało się założyć przedmiotu.");
+    }
     setIsPreviewVisible(false);
     setSelectedItem(null);
   }, [fetchEquippedItem]);
 
   const listData = useMemo(() => {
     const data: Array<ShopSectionData & { isOwnedSection?: boolean }> = [];
-  if (ownedItems.length > 0) {
+    if (ownedItems.length > 0) {
       data.push({ id: "owned", title: "Twoje przedmioty", items: ownedItems, isOwnedSection: true });
     }
 
     const ownedIds = new Set(ownedItems.map(o => o.id));
     shopSectionsMock.forEach((section) => {
-const availableItems = section.items.filter(item => !ownedIds.has(item.id));
+      const availableItems = section.items.filter(item => !ownedIds.has(item.id));
       if (availableItems.length > 0) {
         data.push({ ...section, items: availableItems, isOwnedSection: false });
       }
@@ -101,14 +99,14 @@ const availableItems = section.items.filter(item => !ownedIds.has(item.id));
     <ShopAvatar previewImage={equippedPreviewImage} />
   ), [equippedPreviewImage]);
 
-  const isOwned = useMemo(() => 
+  const isOwned = useMemo(() =>
     selectedItem ? ownedItems.some(o => o.id === selectedItem.id) : false,
-[selectedItem, ownedItems]);
+  [selectedItem, ownedItems]);
 
   return (
     <ImageBackground
       source={BACKGROUND_IMAGE}
-    style={styles.background}
+      style={styles.background}
       resizeMode="cover"
       fadeDuration={0}
     >
@@ -124,7 +122,7 @@ const availableItems = section.items.filter(item => !ownedIds.has(item.id));
         removeClippedSubviews={true}
         maxToRenderPerBatch={5}
         windowSize={5}
-    initialNumToRender={3}
+        initialNumToRender={3}
       />
 
       <ShopPreviewModal
@@ -141,6 +139,7 @@ const availableItems = section.items.filter(item => !ownedIds.has(item.id));
 
 export default memo(ShopScreen);
 
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -148,9 +147,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: 36,
     paddingBottom: 48,
-    paddingHorizontal: 18,
-  },
-  content: {
     paddingHorizontal: 18,
   },
 });

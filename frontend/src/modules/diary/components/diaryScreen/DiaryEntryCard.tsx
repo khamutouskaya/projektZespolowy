@@ -60,7 +60,8 @@ export default function DiaryEntryCard({
   const title = entry.title?.trim() || entry.date;
   const tags = parseTags(entry.tags);
   const newlineIdx = entry.content?.indexOf("\n") ?? -1;
-  const bodyText = newlineIdx !== -1 ? entry.content.slice(newlineIdx + 1).trim() : "";
+  const bodyText =
+    newlineIdx !== -1 ? entry.content.slice(newlineIdx + 1).trim() : "";
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateXAnim = useRef(new Animated.Value(0)).current;
@@ -196,40 +197,45 @@ export default function DiaryEntryCard({
                     { scale: scaleAnim },
                   ],
                 },
-                       ]}
-                >
-                   <View style={styles.header}>
-               <Text style={styles.icon}>{entry.icon || DEFAULT_ICON}</Text>
-                             <Text style={styles.title} numberOfLines={1}>
-                       {entry.isSummary ? "Podsumowanie dnia" : title}
-                        </Text>
+              ]}
+            >
+              <View style={styles.header}>
+                <Text style={styles.icon}>{entry.icon || DEFAULT_ICON}</Text>
+                <Text style={styles.title} numberOfLines={1}>
+                  {entry.isSummary ? "Podsumowanie dnia" : title}
+                </Text>
               </View>
 
-                   {bodyText ? (
-                        <Text 
-               style={[styles.preview, entry.isSummary && styles.summaryPreview]} 
-                             numberOfLines={2}
-                  >
-                   {bodyText.length > 80 ? bodyText.slice(0, 80) + "..." : bodyText}
-                             </Text>
-                      ) : null}
+              {bodyText ? (
+                <Text
+                  style={[
+                    styles.preview,
+                    entry.isSummary && styles.summaryPreview,
+                  ]}
+                  numberOfLines={2}
+                >
+                  {bodyText.length > 80
+                    ? bodyText.slice(0, 80) + "..."
+                    : bodyText}
+                </Text>
+              ) : null}
 
-               <View style={styles.footer}>
-                 <Text style={styles.meta}>
-                      {entry.date} {entry.duration ? `~ ${entry.duration}` : ""}
-                   </Text>
+              <View style={styles.footer}>
+                <Text style={styles.meta}>
+                  {entry.date} {entry.duration ? `~ ${entry.duration}` : ""}
+                </Text>
 
-                   {tags.length > 0 && (
-                     <View style={styles.tagsRow}>
-                     {tags.map((label) => (
-                <Text key={label} style={styles.tag}>
-                       {TAG_MAP[label] ?? ""} {label}
-                   </Text>
-                     ))}
-                </View>
-                         )}
+                {tags.length > 0 && (
+                  <View style={styles.tagsRow}>
+                    {tags.map((label) => (
+                      <Text key={label} style={styles.tag}>
+                        {TAG_MAP[label] ?? ""} {label}
+                      </Text>
+                    ))}
                   </View>
-                         </Animated.View>
+                )}
+              </View>
+            </Animated.View>
           )}
         </Pressable>
       </Swipeable>
@@ -240,8 +246,8 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     minHeight: 76,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   cardPressed: {
     opacity: 0.92,

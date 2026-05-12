@@ -6,3 +6,8 @@ export type GardenSlotType = {
   x: number;
   y: number;
 };
+
+export type GardenStatusType = {
+  beds: GardenSlotType[];
+  fruitsBalance: number;
+};

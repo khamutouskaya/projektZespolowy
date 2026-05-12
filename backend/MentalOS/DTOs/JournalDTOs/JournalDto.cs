@@ -5,6 +5,7 @@ namespace MentalOS.DTOs.JournalDTOs
         public Guid Id { get; set; }
         public string? Title { get; set; }
         public string Content { get; set; } = string.Empty;
+        public string? Preview { get; set; }
         public int? MoodScore { get; set; }
         public string? Emotions { get; set; }
         public bool IsSummary { get; set; }
@@ -17,6 +18,7 @@ namespace MentalOS.DTOs.JournalDTOs
     {
         public string? Title { get; set; }
         public string Content { get; set; } = string.Empty;
+        public string? Preview { get; set; }
         public int? MoodScore { get; set; }
         public string? Emotions { get; set; }
         public bool IsSummary { get; set; }
@@ -27,6 +29,7 @@ namespace MentalOS.DTOs.JournalDTOs
     {
         public string? Title { get; set; }
         public string Content { get; set; } = string.Empty;
+        public string? Preview { get; set; }
         public int? MoodScore { get; set; }
         public string? Emotions { get; set; }
         public DateTime? EntryDate { get; set; }

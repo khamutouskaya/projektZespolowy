@@ -77,6 +77,8 @@ export default function VideoCard({ item, isActive, onPress, player }: Props) {
               <Image
                 source={{ uri: item.thumbnail }}
                 style={StyleSheet.absoluteFillObject}
+                resizeMode="cover"
+                fadeDuration={0}
               />
               <View style={styles.overlay} />
             </>

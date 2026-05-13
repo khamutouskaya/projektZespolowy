@@ -26,6 +26,7 @@ export const notificationService = {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: settings.diaryHour,
           minute: settings.diaryMinute,
+          channelId: "diary-reminders",
         },
       });
     }

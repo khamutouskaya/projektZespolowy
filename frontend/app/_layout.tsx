@@ -8,6 +8,7 @@ import { useAuthStore } from "../src/services/store/useAuthStore";
 import * as Notifications from "expo-notifications";
 import { settingsStorage } from "../src/services/store/settingsStorage";
 import { notificationService } from "../src/services/notifications/notificationService";
+import { setAudioModeAsync } from "expo-audio";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -24,6 +25,14 @@ function AppInit() {
 
   useEffect(() => {
     hydrate();
+    setAudioModeAsync({ playsInSilentMode: true });
+
+    Notifications.setNotificationChannelAsync("diary-reminders", {
+      name: "Przypomnienia dziennika",
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#375a85",
+    });
 
     settingsStorage.getNotificationSettings().then(async (settings) => {
       await notificationService.requestPermission();

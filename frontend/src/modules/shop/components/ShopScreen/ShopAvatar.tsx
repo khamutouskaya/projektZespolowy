@@ -9,21 +9,44 @@ const DEFAULT_CLOUD = require("../../../../../assets/cloud.png");
 
 function ShopAvatar({ previewImage }: Props) {
   const progress = useRef(new Animated.Value(0)).current;
+  const dropY = useRef(new Animated.Value(-35)).current;
+  const fadeIn = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.timing(progress, {
-        toValue: 1,
-        duration: 4200,
-        easing: Easing.inOut(Easing.sin),
+    let loopAnim: Animated.CompositeAnimation | null = null;
+
+    const entranceAnim = Animated.parallel([
+      Animated.spring(dropY, {
+        toValue: 0,
+        friction: 7,
+        tension: 55,
         useNativeDriver: true,
       }),
-      { resetBeforeIteration: true }
-    );
-    animation.start();
+      Animated.timing(fadeIn, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]);
 
-    return () => animation.stop();
-  }, [progress]);
+    entranceAnim.start(() => {
+      loopAnim = Animated.loop(
+        Animated.timing(progress, {
+          toValue: 1,
+          duration: 4200,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        { resetBeforeIteration: true }
+      );
+      loopAnim.start();
+    });
+
+    return () => {
+      entranceAnim.stop();
+      loopAnim?.stop();
+    };
+  }, []);
 
   const translateY = progress.interpolate({
     inputRange: [0, 0.5, 1],
@@ -36,8 +59,9 @@ function ShopAvatar({ previewImage }: Props) {
   });
 
   const animatedStyle = useMemo(() => ({
-    transform: [{ translateY }, { translateX }],
-  }), [translateY, translateX]);
+    opacity: fadeIn,
+    transform: [{ translateY: Animated.add(translateY, dropY) }, { translateX }],
+  }), [translateY, translateX, dropY, fadeIn]);
 
   const imageSource = previewImage || DEFAULT_CLOUD;
 

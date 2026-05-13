@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#d8e4f0",
   },
 
   overlay: {

@@ -2,7 +2,7 @@ import { memo } from "react";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import GardenBoard from "../components/gardenScreen/GardenBoard";
 
-const GARDEN_BACKGROUND = require("../../../../assets/garden/garden-background.png");
+const GARDEN_BACKGROUND = require("../../../../assets/garden/garden-background.jpg");
 
 function GardenScreen() {
   return (

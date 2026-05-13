@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   Keyboard,
   KeyboardAvoidingView,
@@ -10,6 +11,7 @@ import {
   UIManager,
   View,
 } from "react-native";
+import { colors } from "@/shared/theme/colors";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import PlannerHeader from "../components/plannerScreen/PlannerHeader";
 import PlannerTaskCard from "../components/plannerScreen/PlannerTaskCard";
@@ -30,6 +32,7 @@ type ReminderPreset = "today" | "tomorrow" | "nextWeek" | null;
 
 export default function PlannerScreen() {
   const [tasks, setTasks] = useState<PlannerTask[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
@@ -40,6 +43,8 @@ export default function PlannerScreen() {
         setTasks(fetchedTasks);
       } catch (err) {
         console.error("Failed to fetch planner tasks", err);
+      } finally {
+        setIsLoading(false);
       }
     };
     loadTasks();
@@ -444,7 +449,11 @@ export default function PlannerScreen() {
             />
           </View>
 
-          {activeTasks.length === 0 && completedTasks.length > 0 ? (
+          {isLoading ? (
+            <View style={styles.loadingCenter}>
+              <ActivityIndicator size="small" color={colors.text.primary} />
+            </View>
+          ) : activeTasks.length === 0 && completedTasks.length > 0 ? (
             <PlannerCompletedSection
               tasks={completedTasks}
               isExpanded={showCompleted}
@@ -482,6 +491,7 @@ export default function PlannerScreen() {
               />
             </>
           )}
+
         </ScrollView>
 
         <Animated.View
@@ -606,5 +616,9 @@ const styles = StyleSheet.create({
   },
   plannerHeader: {
     marginTop: -4,
+  },
+  loadingCenter: {
+    paddingTop: 48,
+    alignItems: "center",
   },
 });

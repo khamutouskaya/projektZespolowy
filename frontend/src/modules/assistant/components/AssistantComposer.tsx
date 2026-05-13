@@ -5,30 +5,33 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-Alert,
+  Alert,
   Animated,
 } from "react-native";
-import { useAudioRecorder, AudioModule, RecordingPresets, AudioSource } from "expo-audio";
+import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
 import { colors } from "@/shared/theme/colors";
 
 type Props = {
   bottomOffset: Animated.Value | number;
   isLoading: boolean;
   onSendPress: (text: string) => void;
-  onVoiceRecordingComplete?: (uri: string) => void;
+  transcribeUri?: (uri: string) => Promise<string>;
 };
 
 export const AssistantComposer = memo(function AssistantComposer({
   bottomOffset,
   isLoading,
   onSendPress,
-  onVoiceRecordingComplete,
+  transcribeUri,
 }: Props) {
   const [text, setText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const isSendDisabled = !text.trim() || isLoading;
+  const inputRef = useRef<TextInput>(null);
+  const isBusy = isLoading || isRecording || isTranscribing;
+  const isSendDisabled = !text.trim() || isBusy;
 
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
@@ -87,18 +90,25 @@ export const AssistantComposer = memo(function AssistantComposer({
         await audioRecorder.stop();
         setIsRecording(false);
 
-        // Poczekaj chwilę na zapisanie pliku
         await new Promise(resolve => setTimeout(resolve, 300));
 
         const recordingUri = audioRecorder.uri;
 
-        if (recordingUri && onVoiceRecordingComplete) {
-          onVoiceRecordingComplete(recordingUri);
-        } else {
-          Alert.alert("Błąd", "Nie udało się zapisać nagrania. Spróbuj ponownie.");
+        if (recordingUri && transcribeUri) {
+          setIsTranscribing(true);
+          try {
+            const transcribed = await transcribeUri(recordingUri);
+            if (transcribed.trim()) {
+              setText(transcribed.trim());
+              setTimeout(() => inputRef.current?.focus(), 50);
+            }
+          } catch {
+            // Brak mowy lub zbyt krótkie nagranie — nic nie robimy
+          } finally {
+            setIsTranscribing(false);
+          }
         }
-      } catch (error) {
-        console.error("Błąd podczas zatrzymywania nagrywania:", error);
+      } catch {
         setIsRecording(false);
         Alert.alert("Błąd", "Nie udało się przetworzyć nagrania. Spróbuj ponownie.");
       }
@@ -111,18 +121,18 @@ export const AssistantComposer = memo(function AssistantComposer({
         await audioRecorder.prepareToRecordAsync();
         audioRecorder.record();
         setIsRecording(true);
-      } catch (error) {
-        console.error("Błąd podczas rozpoczynania nagrywania:", error);
+      } catch {
         Alert.alert("Błąd", "Nie udało się rozpocząć nagrywania. Sprawdź uprawnienia mikrofonu.");
       }
     }
   }, [
     isLoading,
     isRecording,
+    isTranscribing,
     permissionGranted,
     requestPermission,
     audioRecorder,
-    onVoiceRecordingComplete,
+    transcribeUri,
   ]);
 
   const handleSend = () => {
@@ -135,17 +145,26 @@ export const AssistantComposer = memo(function AssistantComposer({
   return (
     <Animated.View style={[styles.inputRow, { marginBottom: bottomOffset }]}>
       <TextInput
- style={styles.input}
+        ref={inputRef}
+        style={styles.input}
         value={text}
         onChangeText={setText}
-        placeholder={isRecording ? "Nagrywanie..." : "Napisz wiadomość..."}
-        placeholderTextColor={isRecording ? "#C62828" : "rgba(49,66,77,0.45)"}
+        placeholder={
+          isRecording
+            ? "Nagrywanie..."
+            : isTranscribing
+            ? "Przetwarzanie..."
+            : "Napisz wiadomość..."
+        }
+        placeholderTextColor={
+          isRecording || isTranscribing ? "#C62828" : "rgba(49,66,77,0.45)"
+        }
         multiline
         textAlignVertical="top"
         returnKeyType="send"
         blurOnSubmit={false}
         onSubmitEditing={handleSend}
-        editable={!isRecording}
+        editable={!isRecording && !isTranscribing}
       />
 
       <View style={styles.actions}>
@@ -156,9 +175,9 @@ export const AssistantComposer = memo(function AssistantComposer({
               isRecording && styles.recordingButton,
       ]}
         onPress={handleVoicePress}
-      disabled={isLoading}
+            disabled={isLoading || isTranscribing}
             accessibilityRole="button"
-      accessibilityLabel={isRecording ? "Zatrzymaj nagrywanie" : "Rozpocznij nagrywanie głosowe"}
+            accessibilityLabel={isRecording ? "Zatrzymaj nagrywanie" : "Rozpocznij nagrywanie głosowe"}
           >
             <Ionicons
       name={isRecording ? "stop" : "mic-outline"}
@@ -170,12 +189,12 @@ export const AssistantComposer = memo(function AssistantComposer({
 
  <TouchableOpacity
           style={[
-     styles.iconButton,
-       styles.sendButton,
-            (isSendDisabled || isRecording) && styles.sendButtonDisabled,
-    ]}
-    onPress={handleSend}
-      disabled={isSendDisabled || isRecording}
+            styles.iconButton,
+            styles.sendButton,
+            isSendDisabled && styles.sendButtonDisabled,
+          ]}
+          onPress={handleSend}
+          disabled={isSendDisabled}
           accessibilityRole="button"
           accessibilityLabel="Wyślij wiadomość"
         >

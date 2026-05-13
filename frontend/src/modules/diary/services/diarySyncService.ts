@@ -23,28 +23,36 @@ const fromApiResponse = (data: any, userId: string): Partial<DiaryEntry> => ({
   userId,
 });
 
+let syncPendingRunning = false;
+
 export const diarySyncService = {
   // Wypchnij wszystkie pending wpisy na serwer
   syncPending: async (userId: string): Promise<void> => {
-    const pending = diaryService.getPending(userId);
-    if (pending.length === 0) return;
+    if (syncPendingRunning) return;
+    syncPendingRunning = true;
+    try {
+      const pending = diaryService.getPending(userId);
+      if (pending.length === 0) return;
 
-    const syncOne = async (entry: (typeof pending)[number]) => {
-      if (entry.serverId) {
-        await apiClient.put(`/journal/${entry.serverId}`, toApiPayload(entry));
-        diaryService.markSynced(entry.id, entry.serverId);
-      } else {
-        const response = await apiClient.post("/journal", toApiPayload(entry));
-        diaryService.markSynced(entry.id, response.data.id);
-      }
-    };
+      const syncOne = async (entry: (typeof pending)[number]) => {
+        if (entry.serverId) {
+          await apiClient.put(`/journal/${entry.serverId}`, toApiPayload(entry));
+          diaryService.markSynced(entry.id, entry.serverId);
+        } else {
+          const response = await apiClient.post("/journal", toApiPayload(entry));
+          diaryService.markSynced(entry.id, response.data.id);
+        }
+      };
 
-    const results = await Promise.allSettled(pending.map(syncOne));
-    results.forEach((result, i) => {
-      if (result.status === "rejected") {
-        console.warn(`[SYNC] Błąd synchronizacji wpisu ${pending[i].id}:`, result.reason);
-      }
-    });
+      const results = await Promise.allSettled(pending.map(syncOne));
+      results.forEach((result, i) => {
+        if (result.status === "rejected") {
+          console.warn(`[SYNC] Błąd synchronizacji wpisu ${pending[i].id}:`, result.reason);
+        }
+      });
+    } finally {
+      syncPendingRunning = false;
+    }
   },
 
   // Pobierz wpisy z serwera i zapisz lokalnie
@@ -71,8 +79,17 @@ export const diarySyncService = {
             );
           }
         } else {
-          // Nowy wpis z serwera — zapisz lokalnie
-          diaryService.createFromServer(userId, serverEntry);
+          // Before creating, check if local entry with same date exists (prevents duplicates)
+          const entryDate = new Date(serverEntry.entryDate).toLocaleDateString("pl-PL");
+          const sameDay = diaryService
+            .getAll(userId)
+            .find((e) => e.date === entryDate && !e.isSummary && !serverEntry.isSummary);
+          if (sameDay) {
+            diaryService.update(sameDay.id, userId, fromApiResponse(serverEntry, userId));
+            diaryService.markSynced(sameDay.id, serverEntry.id);
+          } else {
+            diaryService.createFromServer(userId, serverEntry);
+          }
         }
       }
     } catch (e) {

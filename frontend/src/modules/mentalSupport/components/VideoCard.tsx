@@ -58,37 +58,36 @@ export default function VideoCard({ item, isActive, onPress, player }: Props) {
         },
       ]}
     >
-      <Pressable
-        onPress={onPress}
-        onPressIn={handleTouchStart}
-        onPressOut={handleTouchEnd}
-      >
-        <View style={styles.video}>
-          {isActive ? (
-            <VideoView
-              player={player}
+      <View style={styles.video}>
+        {isActive ? (
+          <VideoView
+            player={player}
+            style={StyleSheet.absoluteFillObject}
+            contentFit="cover"
+            allowsFullscreen
+            nativeControls
+          />
+        ) : (
+          <Pressable
+            onPress={onPress}
+            onPressIn={handleTouchStart}
+            onPressOut={handleTouchEnd}
+            style={StyleSheet.absoluteFillObject}
+          >
+            <Image
+              source={{ uri: item.thumbnail }}
               style={StyleSheet.absoluteFillObject}
-              contentFit="cover"
-              allowsFullscreen
-              nativeControls
+              resizeMode="cover"
+              fadeDuration={0}
             />
-          ) : (
-            <>
-              <Image
-                source={{ uri: item.thumbnail }}
-                style={StyleSheet.absoluteFillObject}
-                resizeMode="cover"
-                fadeDuration={0}
-              />
-              <View style={styles.overlay} />
-            </>
-          )}
-        </View>
+            <View style={styles.overlay} />
+          </Pressable>
+        )}
+      </View>
 
-        <Text numberOfLines={1} style={styles.videoTitle}>
-          {item.title}
-        </Text>
-      </Pressable>
+      <Text numberOfLines={1} style={styles.videoTitle}>
+        {item.title}
+      </Text>
     </Animated.View>
   );
 }
@@ -119,6 +118,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#d8e4f0",
   },
 
   overlay: {

@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   Modal,
   Pressable,
@@ -15,6 +16,7 @@ type Props = {
   onBuy: (item: ShopItem) => void;
   isOwned?: boolean;
   onEquip?: (item: ShopItem) => void;
+  isBuying?: boolean;
 };
 
 export default function ShopPreviewModal({
@@ -24,6 +26,7 @@ export default function ShopPreviewModal({
   onBuy,
   isOwned,
   onEquip,
+  isBuying = false,
 }: Props) {
   if (!item) return null;
 
@@ -47,17 +50,31 @@ export default function ShopPreviewModal({
           )}
 
           {isOwned ? (
-            <Pressable style={styles.buyButton} onPress={() => onEquip && onEquip(item)}>
-              <Text style={styles.buyText}>Załóż</Text>
+            <Pressable
+              style={[styles.buyButton, isBuying && styles.buyButtonDisabled]}
+              onPress={() => !isBuying && onEquip && onEquip(item)}
+              disabled={isBuying}
+            >
+              {isBuying
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <Text style={styles.buyText}>Załóż</Text>
+              }
             </Pressable>
           ) : (
-            <Pressable style={styles.buyButton} onPress={() => onBuy(item)}>
-              <Text style={styles.buyText}>Kup teraz</Text>
+            <Pressable
+              style={[styles.buyButton, isBuying && styles.buyButtonDisabled]}
+              onPress={() => !isBuying && onBuy(item)}
+              disabled={isBuying}
+            >
+              {isBuying
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <Text style={styles.buyText}>Kup teraz</Text>
+              }
             </Pressable>
           )}
 
-          <Pressable onPress={onClose}>
-            <Text style={styles.closeText}>Zamknij</Text>
+          <Pressable onPress={!isBuying ? onClose : undefined} disabled={isBuying}>
+            <Text style={[styles.closeText, isBuying && { opacity: 0.4 }]}>Zamknij</Text>
           </Pressable>
         </View>
       </View>
@@ -119,6 +136,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#6f83f6",
     marginBottom: 14,
+  },
+  buyButtonDisabled: {
+    opacity: 0.7,
   },
   buyText: {
     color: "#fff",

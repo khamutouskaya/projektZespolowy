@@ -1,7 +1,5 @@
-import { View, StyleSheet, FlatList, Text } from "react-native";
-
+import { View, StyleSheet, FlatList, Text, ActivityIndicator, InteractionManager } from "react-native";
 import { useState, useRef, useEffect } from "react";
-import { setAudioModeAsync } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useLocalSearchParams } from "expo-router";
 import { sections } from "@/modules/mentalSupport/data/trening";
@@ -14,33 +12,21 @@ import LayoutContainer from "@/shared/layout/LayoutContainer";
 import Header from "../components/shared/Header";
 import MeditationCard from "../components/MeditationCard";
 
-export default function MeditationScreen() {
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null); //Ten stan steruje: czy pokazać player/jakie wideo odtwarzać
-
+function TrainingContent() {
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const { videoId } = useLocalSearchParams<{ videoId?: string }>();
-  const player = useVideoPlayer("");
+  const player = useVideoPlayer(null);
   const flatListRef = useRef<any>(null);
 
-  //[] → wykona się tylko raz po załadowaniu ekranu, ustawia tryb audio
   useEffect(() => {
     if (typeof videoId !== "string") return;
-
     const initialVideo = sections
       .flatMap((section) => section.data)
       .find((video) => video.id === videoId);
-
     if (!initialVideo) return;
-
     setSelectedVideo(initialVideo.videoUrl);
-    flatListRef.current?.scrollToOffset({
-      offset: 0,
-      animated: true,
-    });
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, [videoId]);
-
-  useEffect(() => {
-    setAudioModeAsync({ playsInSilentMode: true });
-  }, []);
 
   useEffect(() => {
     if (!selectedVideo) return;
@@ -49,7 +35,7 @@ export default function MeditationScreen() {
   }, [player, selectedVideo]);
 
   return (
-    <LayoutContainer>
+    <>
       <View style={styles.headerArea}>
         <Header
           title="Treningi"
@@ -71,28 +57,26 @@ export default function MeditationScreen() {
         data={sections}
         keyExtractor={(item) => item.title}
         contentContainerStyle={styles.content}
+        initialNumToRender={3}
         renderItem={({ item }) => (
           <View style={styles.section}>
             <View style={{ paddingHorizontal: 20 }}>
               <Text style={styles.sectionTitle}>{item.title}</Text>
             </View>
-
             <FlatList
               data={item.data}
               horizontal
               showsHorizontalScrollIndicator={false}
               keyExtractor={(video) => video.id}
               contentContainerStyle={styles.cardsList}
+              initialNumToRender={3}
               renderItem={({ item: video }) => (
                 <MeditationCard
                   video={video}
                   isActive={selectedVideo === video.videoUrl}
                   onPress={() => {
                     setSelectedVideo(video.videoUrl);
-                    flatListRef.current?.scrollToOffset({
-                      offset: 0,
-                      animated: true,
-                    });
+                    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
                   }}
                 />
               )}
@@ -100,42 +84,63 @@ export default function MeditationScreen() {
           </View>
         )}
       />
+    </>
+  );
+}
+
+export default function TrainingScreen() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => setReady(true));
+    return () => task.cancel();
+  }, []);
+
+  return (
+    <LayoutContainer>
+      {ready ? (
+        <TrainingContent />
+      ) : (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.text.primary} />
+        </View>
+      )}
     </LayoutContainer>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 80, // żeby ostatnia sekcja nie była przyklejona do dołu
+    paddingBottom: 80,
     paddingTop: 10,
   },
-
   headerArea: {
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-
   section: {
     marginBottom: 10,
   },
-
   cardsList: {
     paddingLeft: 20,
     paddingRight: 12,
     paddingVertical: 8,
   },
-
   sectionTitle: {
     ...typography.title,
     color: colors.text.tertiary,
     paddingLeft: spacing.xs,
     marginBottom: spacing.xs,
   },
-
   videoPlayer: {
     width: "100%",
     height: 220,
     borderRadius: 16,
     marginBottom: 20,
+  },
+  loading: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

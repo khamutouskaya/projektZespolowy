@@ -160,6 +160,8 @@ try
         db.Database.Migrate();
 
         db.Database.ExecuteSqlRaw(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS fruits_balance integer NOT NULL DEFAULT 0;");
+        db.Database.ExecuteSqlRaw(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_pending_fruit boolean NOT NULL DEFAULT false;");
 
         var canConnect = true;

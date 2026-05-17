@@ -6,7 +6,10 @@
       "Bash(find src *)",
       "Bash(ipconfig)",
       "Bash(cat appsettings.json)",
-      "Bash(cat appsettings.Development.json)"
+      "Bash(cat appsettings.Development.json)",
+      "Bash(git -C \"d:\\\\projektZespolowy\\\\myApp\\\\projektZespolowy\" status --short)",
+      "Bash(git -C \"d:\\\\projektZespolowy\\\\myApp\\\\projektZespolowy\" rm -r --cached .vs/)",
+      "PowerShell(Set-Location \"d:\\\\projektZespolowy\\\\myApp\\\\projektZespolowy\"; git rm -r --cached .vs/ | Out-Null; Write-Host \"Done: exit $LASTEXITCODE\")"
     ]
   }
 }

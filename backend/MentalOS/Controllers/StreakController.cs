@@ -98,7 +98,12 @@ namespace MentalOS.Controllers
 
             var progress = (hasJournalEntry ? 1 : 0) + (hasDaySummary ? 1 : 0);
 
-            return Ok(new { hasJournalEntry, hasDaySummary, progress, fruitsBalance, hasPendingFruit, streakCount, coinsBalance });
+            var hasDailyFruitUsed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "fruit_action"
+                             && sh.Date == startOfDay);
+
+            return Ok(new { hasJournalEntry, hasDaySummary, progress, fruitsBalance, hasPendingFruit, streakCount, coinsBalance, hasDailyFruitUsed });
         }
 
         [HttpPost("claim-fruit")]
@@ -113,6 +118,17 @@ namespace MentalOS.Controllers
             user.HasPendingFruit = false;
             await _context.SaveChangesAsync();
 
+            return Ok(new { fruitsBalance = user.FruitsBalance });
+        }
+
+        [HttpPost("debug/add-fruits")]
+        public async Task<IActionResult> DebugAddFruits([FromQuery] int amount = 5)
+        {
+            var userId = GetUserId();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return Unauthorized();
+            user.FruitsBalance += amount;
+            await _context.SaveChangesAsync();
             return Ok(new { fruitsBalance = user.FruitsBalance });
         }
 

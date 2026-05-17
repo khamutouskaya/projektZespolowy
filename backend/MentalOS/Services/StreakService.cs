@@ -40,14 +40,15 @@ namespace MentalOS.Services
             var hasNewJournalEntry = await _context.JournalEntries
                 .AnyAsync(j => j.UserId == userId && !j.IsSummary && j.CreatedAt > since);
 
+            
             var hasNewSummary = await _context.JournalEntries
                 .AnyAsync(j => j.UserId == userId && j.CreatedAt > since
                             && (j.IsSummary || (j.Preview != null && j.Preview != "")));
 
-            if (hasNewJournalEntry && hasNewSummary)
+            if (hasNewJournalEntry && hasNewSummary) // swap to -  if (hasNewJournalEntry) 
             {
                 await AddInternal(user, 1, "daily");
-                user.FruitsBalance += 1;
+                user.HasPendingFruit = true;
                 user.LastActivityDate = DateTime.UtcNow;
             }
 

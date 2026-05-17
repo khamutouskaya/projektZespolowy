@@ -5,7 +5,6 @@ import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Keyboard,
   Pressable,
@@ -25,6 +24,7 @@ import { useAuthStore } from "@/services/store/useAuthStore";
 import { diaryService } from "@/modules/diary/services/diaryService";
 import { diarySyncService } from "@/modules/diary/services/diarySyncService";
 import { streakApi } from "@/services/api/streakApi";
+import SummaryLoadingOverlay from "../components/diaryScreen/SummaryLoadingOverlay";
 
 
 export default function DiaryNoteScreen() {
@@ -62,6 +62,7 @@ export default function DiaryNoteScreen() {
       const result = testResultTransfer.get();
       if (result !== null) {
         setTestResult(result);
+        testResultTransfer.clear();
       }
     }, []),
   );
@@ -114,7 +115,15 @@ export default function DiaryNoteScreen() {
     if (isEditing && params.id) {
       updateEntry(params.id, payload);
     } else {
-      addEntry(payload);
+      const todayDate = new Date().toLocaleDateString("pl-PL");
+      const existingToday = user?.id
+        ? diaryService.getAll(user.id).find((e) => e.date === todayDate && !e.isSummary)
+        : null;
+      if (existingToday) {
+        updateEntry(existingToday.id, payload);
+      } else {
+        addEntry(payload);
+      }
     }
 
     // Sync to backend immediately so home screen sees updated state
@@ -131,6 +140,7 @@ export default function DiaryNoteScreen() {
 
   return (
     <LayoutContainer>
+      <SummaryLoadingOverlay visible={isGenerating} />
       <View style={styles.stickyHeader}>
         <DiaryNoteHeader
           date={new Date().toLocaleDateString("pl-PL")}
@@ -173,11 +183,7 @@ export default function DiaryNoteScreen() {
                 onPress={handleGenerateSummary}
                 disabled={isGenerating}
               >
-                {isGenerating ? (
-                  <ActivityIndicator size="small" color="#375a85" />
-                ) : (
-                  <Text style={styles.chipText}>✦ Generuj</Text>
-                )}
+                <Text style={styles.chipText}>✦ Generuj</Text>
               </Pressable>
               <Pressable
                 style={[styles.chip, styles.chipTest]}

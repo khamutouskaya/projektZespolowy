@@ -218,9 +218,10 @@ function OnboardingIntro({ onStart }: { onStart: () => void }) {
   return (
     <Animated.View style={{ flex: 1, opacity: screenFade }}>
       <ImageBackground
-        source={require("../assets/background.png")}
+        source={require("../assets/background.jpg")}
         style={{ flex: 1 }}
         resizeMode="cover"
+        fadeDuration={0}
       >
         <View
           style={[
@@ -504,9 +505,10 @@ export default function Onboarding() {
     <View style={{ flex: 1 }}>
       <Stack.Screen options={{ headerShown: false }} />
       <ImageBackground
-        source={require("../assets/background.png")}
+        source={require("../assets/background.jpg")}
         style={{ flex: 1 }}
         resizeMode="cover"
+        fadeDuration={0}
       >
         <View
           style={[

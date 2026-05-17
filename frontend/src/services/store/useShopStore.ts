@@ -8,6 +8,7 @@ interface ShopState {
   ownedItems: ShopItem[];
   fetchEquippedItem: () => Promise<void>;
   setEquippedPreview: (image: any | null) => void;
+  reset: () => void;
 }
 
 export const useShopStore = create<ShopState>((set) => ({
@@ -36,4 +37,5 @@ export const useShopStore = create<ShopState>((set) => ({
     }
   },
   setEquippedPreview: (image) => set({ equippedPreviewImage: image }),
+  reset: () => set({ equippedPreviewImage: null, ownedItems: [] }),
 }));

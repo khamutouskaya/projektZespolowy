@@ -103,9 +103,10 @@ export default function Login() {
         <Stack.Screen options={{ headerShown: false }} />
 
         <ImageBackground
-          source={require("../assets/background.png")}
+          source={require("../assets/background.jpg")}
           style={styles.background}
           resizeMode="cover"
+          fadeDuration={0}
         >
           <SafeAreaView style={styles.safe}>
             <KeyboardAvoidingView

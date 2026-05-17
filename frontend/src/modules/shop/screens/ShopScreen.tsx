@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
-import { ImageBackground, FlatList, StyleSheet, View, Alert } from "react-native";
+import { ImageBackground, FlatList, StyleSheet, View, Alert, ActivityIndicator } from "react-native";
 import ShopAvatar from "../components/ShopScreen/ShopAvatar";
 import ShopBalance from "../components/ShopScreen/ShopBalance";
 import ShopPreviewModal from "../components/ShopScreen/ShopPreviewModal";
@@ -10,11 +10,12 @@ import { apiClient } from "../../../services/api/client";
 import { useAuthStore } from "../../../services/store/useAuthStore";
 import { useShopStore } from "../../../services/store/useShopStore";
 
-const BACKGROUND_IMAGE = require("../../../../assets/background.png");
+const BACKGROUND_IMAGE = require("../../../../assets/background.jpg");
 
 function ShopScreen() {
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
   const { fetchEquippedItem, equippedPreviewImage, ownedItems } = useShopStore();
   const { user } = useAuthStore();
 
@@ -33,6 +34,7 @@ function ShopScreen() {
   }, []);
 
   const handleBuy = useCallback(async (item: ShopItem) => {
+    setIsBuying(true);
     try {
       await apiClient.post(`/shop/buy?itemId=${item.id}`, {
         frontendAccesoriesId: item.id,
@@ -50,12 +52,15 @@ function ShopScreen() {
     } catch (error: any) {
       console.error(error);
       Alert.alert("Błąd", error.response?.data?.error || "Nie udało się kupić przedmiotu.");
+    } finally {
+      setIsBuying(false);
+      setIsPreviewVisible(false);
+      setSelectedItem(null);
     }
-    setIsPreviewVisible(false);
-    setSelectedItem(null);
   }, [fetchEquippedItem]);
 
   const handleEquip = useCallback(async (item: ShopItem) => {
+    setIsBuying(true);
     try {
       await apiClient.post(`/shop/equip-item?itemId=${item.id}`);
       Alert.alert("Sukces", "Przedmiot został założony!");
@@ -63,9 +68,11 @@ function ShopScreen() {
     } catch (err: any) {
       console.error(err);
       Alert.alert("Błąd", "Nie udało się założyć przedmiotu.");
+    } finally {
+      setIsBuying(false);
+      setIsPreviewVisible(false);
+      setSelectedItem(null);
     }
-    setIsPreviewVisible(false);
-    setSelectedItem(null);
   }, [fetchEquippedItem]);
 
   const listData = useMemo(() => {
@@ -132,6 +139,7 @@ function ShopScreen() {
         onBuy={handleBuy}
         isOwned={isOwned}
         onEquip={handleEquip}
+        isBuying={isBuying}
       />
     </ImageBackground>
   );

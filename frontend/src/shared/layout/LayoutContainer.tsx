@@ -11,9 +11,10 @@ export default function LayoutContainer({ children }: Props) {
 
   return (
     <ImageBackground
-      source={require("../../../assets/images/background.png")}
+      source={require("../../../assets/images/background.jpg")}
       style={styles.background}
       resizeMode="cover"
+      fadeDuration={0}
     >
       <View
         style={[

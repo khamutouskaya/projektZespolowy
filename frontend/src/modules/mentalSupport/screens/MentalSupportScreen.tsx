@@ -20,11 +20,10 @@ export default function MentalSupportScreen() {
         <View style={styles.quote}>
           <Quote />
         </View>
-
-        <Text style={styles.sectionTitle}>Polecane na dziś:</Text>
       </View>
 
       <View style={styles.video}>
+        <Text style={[styles.sectionTitle, styles.videoTitle]}>Polecane na dziś:</Text>
         <RecentVideos />
       </View>
 
@@ -85,6 +84,11 @@ const styles = StyleSheet.create({
 
   video: {
     marginBottom: spacing.md,
+  },
+
+  videoTitle: {
+    paddingLeft: 24,
+    marginBottom: spacing.xs,
   },
 
   grid: {

@@ -4,20 +4,10 @@ import { typography } from "@/shared/theme/typography";
 
 import { colors } from "@/shared/theme/colors";
 import { spacing } from "@/shared/theme/spacing";
+import { mentalSupportQuotes } from "@/shared/constants/quotes";
 
 export default function Quote() {
-  const quotes = [
-    "Nie jesteś sam. Jesteśmy tu, by cię wspierać.",
-    "Każdy dzień to nowa szansa na lepsze jutro.",
-    "Twoje uczucia są ważne. Pozwól sobie je odczuwać.",
-    "Małe kroki prowadzą do wielkich zmian.",
-    "Jesteś silniejszy, niż myślisz.",
-    "Nie musisz być doskonały, by być wartościowy.",
-    "Twoja historia jest ważna. Podziel się nią, jeśli chcesz.",
-    "Każdy ma prawo do wsparcia i zrozumienia.",
-    "Nie bój się prosić o pomoc. To oznaka siły, nie słabości.",
-    "Twoje emocje są ważne. Znajdź sposób, by je wyrazić.",
-  ];
+  const quotes = mentalSupportQuotes;
 
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(14)).current;

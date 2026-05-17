@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, ActivityIndicator, Alert } from "react-native";
+import { Pressable, StyleSheet, Alert } from "react-native";
 import { colors } from "@/shared/theme/colors";
 import { diaryApi } from "@/services/api/diaryApi";
 import { diarySyncService } from "@/modules/diary/services/diarySyncService";
 import { streakApi } from "@/services/api/streakApi";
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
+import SummaryLoadingOverlay from "./SummaryLoadingOverlay";
 
 type Props = {
   onGenerated?: () => void;
@@ -42,13 +43,12 @@ export default function GenerateSummaryButton({ onGenerated, todayEntriesContent
   };
 
   return (
-    <Pressable style={styles.button} onPress={handleGenerate} disabled={isLoading}>
-      {isLoading ? (
-        <ActivityIndicator color={colors.text.primary} />
-      ) : (
+    <>
+      <SummaryLoadingOverlay visible={isLoading} />
+      <Pressable style={[styles.button, isLoading && styles.buttonLoading]} onPress={handleGenerate} disabled={isLoading}>
         <Ionicons name="sparkles-outline" size={24} color={colors.text.primary} />
-      )}
-    </Pressable>
+      </Pressable>
+    </>
   );
 }
 
@@ -65,5 +65,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
+  },
+  buttonLoading: {
+    opacity: 0.5,
   },
 });

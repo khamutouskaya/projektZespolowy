@@ -6,6 +6,9 @@ import { storage } from "../storage";
 import NetInfo from "@react-native-community/netinfo";
 import { canReachBackend } from "../network/networkUtils";
 import { apiClient } from "../api/client";
+import { useVisitStore } from "./useVisitStore";
+import { useShopStore } from "./useShopStore";
+import { testResultTransfer } from "../../modules/diary/services/testResultTransfer";
 
 //useAuthStore — twój globalny store, z którego pobierany jest token.
 // Ten store zarządza stanem autoryzacji użytkownika, przechowując token i dane usera zarówno w RAMie (stan aplikacji), jak i na dysku (SecureStore) dla trwałości sesji.
@@ -32,7 +35,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (token: string, user: UserPayload) => {
     await storage.saveToken(token);
     await storage.saveUser(JSON.stringify(user));
+    useShopStore.getState().reset();
+    testResultTransfer.clear();
     set({ token, user, isAuthenticated: true });
+    await useVisitStore.getState().loadForUser(user.id);
     router.replace("/");
   },
 
@@ -40,16 +46,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     await storage.saveToken(token);
     await storage.saveUser(JSON.stringify(user));
     set({ token, user, isAuthenticated: true });
+    useVisitStore.getState().loadForUser(user.id);
   },
 
   logout: async () => {
-    // Czyścimy dysk
     await storage.clearToken();
     await storage.removeUser();
-
-    // Czyścimy RAM
+    useVisitStore.getState().reset();
+    useShopStore.getState().reset();
+    testResultTransfer.clear();
     set({ token: null, user: null, isAuthenticated: false });
-
     router.replace("/login");
   },
 
@@ -79,6 +85,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             // Brak połączenia z serwerem → wpuść mimo wygasłego tokenu
             const user: UserPayload = JSON.parse(userRaw);
             set({ token, user, isAuthenticated: true });
+            useVisitStore.getState().loadForUser(user.id);
             console.warn(
               "[TOKEN] Wygasły, ale serwer nieosiągalny — sesja tymczasowo aktywna",
             );
@@ -87,6 +94,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           // Token ważny — normalne logowanie
           const user: UserPayload = JSON.parse(userRaw);
           set({ token, user, isAuthenticated: true });
+          useVisitStore.getState().loadForUser(user.id);
         }
       } else {
         if (token || userRaw) {

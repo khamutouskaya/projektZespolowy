@@ -222,6 +222,8 @@ function RecommendedVideoCard({ video, isActive, onPress }: Props) {
           <Image
             source={{ uri: video.thumbnail }}
             style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+            fadeDuration={0}
           />
           <View style={styles.overlay} />
 
@@ -303,8 +305,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-
-    // тень
+    backgroundColor: "#d8e4f0",
     shadowColor: "#000",
   },
 

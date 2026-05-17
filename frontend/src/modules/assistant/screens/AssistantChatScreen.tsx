@@ -1,6 +1,6 @@
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   Animated,
   FlatList,
@@ -9,7 +9,6 @@ import {
   Platform,
   StyleSheet,
   View,
-  Alert,
 } from "react-native";
 import { AssistantComposer } from "../components/AssistantComposer";
 import { AssistantEmptyState } from "../components/AssistantEmptyState";
@@ -33,27 +32,8 @@ export function AssistantChatScreen() {
   const [selectedPersonality, setSelectedPersonality] =
     useState<Personality | null>(null);
   const animatedPadding = useRef(new Animated.Value(tabBarHeight + 20)).current;
-  const [isTranscribing, setIsTranscribing] = useState(false);
   const drawerOpenRef = useRef(drawerOpen);
   drawerOpenRef.current = drawerOpen;
-
-  const handleVoiceRecordingComplete = useCallback(async (uri: string) => {
-    setIsTranscribing(true);
-    try {
-      const transcribedText = await assistantApi.transcribeAudio(uri);
-      if (transcribedText.trim()) {
-        await sendMessage(transcribedText, selectedPersonality?.systemHint);
-      }
-    } catch (error) {
-      console.error("Błąd transkrypcji:", error);
-      Alert.alert(
-    "Błąd transkrypcji",
-        "Nie udało się przekształcić nagrania w tekst. Spróbuj ponownie."
- );
- } finally {
-      setIsTranscribing(false);
-    }
-  }, [sendMessage]);
 
   const edgePanResponder = useRef(
     PanResponder.create({
@@ -150,13 +130,13 @@ export function AssistantChatScreen() {
 
         <AssistantComposer
           bottomOffset={0}
-       isLoading={isLoading || isTranscribing}
-    onSendPress={(text) => {
+          isLoading={isLoading}
+          onSendPress={(text) => {
             void sendMessage(text, selectedPersonality?.systemHint);
             Keyboard.dismiss();
           }}
-          onVoiceRecordingComplete={handleVoiceRecordingComplete}
-     />
+          transcribeUri={assistantApi.transcribeAudio}
+        />
       </Animated.View>
     </LayoutContainer>
   );

@@ -154,6 +154,49 @@ namespace MentalOS.Controllers
             });
         }
 
+        [HttpDelete("me")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized(new { message = "User is unauthorized" });
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            // Delete avatar file
+            if (!string.IsNullOrEmpty(user.Avatar))
+            {
+                var avatarPath = Path.Combine(_environment.WebRootPath, "avatars", Path.GetFileName(user.Avatar));
+                if (System.IO.File.Exists(avatarPath))
+                    System.IO.File.Delete(avatarPath);
+            }
+
+            // Manual deletes (no cascade from User defined)
+            var chatSessions = await _context.ChatSessions.Where(c => c.UserId == userId).ToListAsync();
+            _context.ChatSessions.RemoveRange(chatSessions); // ChatMessages cascade from ChatSession
+
+            var userItems = await _context.UserItems.Where(u => u.UserId == userId).ToListAsync();
+            _context.UserItems.RemoveRange(userItems);
+
+            var coinTransactions = await _context.CoinTransactions.Where(c => c.UserId == userId).ToListAsync();
+            _context.CoinTransactions.RemoveRange(coinTransactions);
+
+            var streakHistory = await _context.StreakHistories.Where(s => s.UserId == userId).ToListAsync();
+            _context.StreakHistories.RemoveRange(streakHistory);
+
+            var gardens = await _context.Gardens.Where(g => g.UserId == userId).ToListAsync();
+            _context.Gardens.RemoveRange(gardens); // GardenBeds cascade from Garden
+
+            // Removing the user cascades: PersonalityProfile, UserRoles, PasswordResetTokens, JournalEntries, PlannerTasks
+            _context.Users.Remove(user);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Account deleted successfully" });
+        }
+
         [HttpDelete("me/premium")]
         public async Task<IActionResult> CancelPremium()
         {

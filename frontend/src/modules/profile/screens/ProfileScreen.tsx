@@ -173,13 +173,21 @@ export default function ProfileScreen() {
   const handleDeleteAccount = () => {
     Alert.alert(
       "Usuń konto",
-      "Czy na pewno chcesz usunąć konto? Ta operacja jest nieodwracalna.",
+      "Czy na pewno chcesz usunąć konto? Ta operacja jest nieodwracalna i usunie wszystkie Twoje dane.",
       [
         { text: "Anuluj", style: "cancel" },
         {
           text: "Usuń",
           style: "destructive",
-          onPress: async () => await logout(),
+          onPress: async () => {
+            try {
+              await apiClient.delete("/users/me");
+            } catch (e: any) {
+              Alert.alert("Błąd", "Nie udało się usunąć konta. Spróbuj ponownie.");
+              return;
+            }
+            await logout();
+          },
         },
       ],
     );
@@ -193,9 +201,10 @@ export default function ProfileScreen() {
 
   return (
     <ImageBackground
-      source={require("../../../../assets/images/background.png")}
+      source={require("../../../../assets/images/background.jpg")}
       style={styles.background}
       resizeMode="cover"
+      fadeDuration={0}
     >
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <ScrollView

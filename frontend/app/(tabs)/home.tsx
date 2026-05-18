@@ -10,7 +10,6 @@ import { useRouter, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Easing,
   Image,
   Modal,
   Pressable,
@@ -54,12 +53,7 @@ export default function Home() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
   const [showFruitModal, setShowFruitModal] = useState(false);
-  const [showAppleSuccess, setShowAppleSuccess] = useState(false);
   const [isClaimingFruit, setIsClaimingFruit] = useState(false);
-
-  const appleCardScale = useRef(new Animated.Value(0.72)).current;
-  const appleCardOpacity = useRef(new Animated.Value(0)).current;
-  const appleFloat = useRef(new Animated.Value(0)).current;
   const [showStreakInfo, setShowStreakInfo] = useState<"noEntry" | "claimed" | null>(null);
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
   const [isOracleThinking, setIsOracleThinking] = useState(false);
@@ -256,29 +250,6 @@ export default function Home() {
     setShowFruitModal(true);
   };
 
-  const openAppleSuccess = () => {
-    appleCardScale.setValue(0.72);
-    appleCardOpacity.setValue(0);
-    appleFloat.setValue(0);
-    setShowAppleSuccess(true);
-    Animated.parallel([
-      Animated.spring(appleCardScale, { toValue: 1, friction: 7, tension: 60, useNativeDriver: true }),
-      Animated.timing(appleCardOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
-    ]).start();
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(appleFloat, { toValue: -8, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-        Animated.timing(appleFloat, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-      ]),
-    ).start();
-  };
-
-  const closeAppleSuccess = () => {
-    appleFloat.stopAnimation();
-    appleFloat.setValue(0);
-    setShowAppleSuccess(false);
-  };
-
   const handleClaimDailyFruit = async () => {
     setIsClaimingFruit(true);
     try {
@@ -287,7 +258,6 @@ export default function Home() {
       setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
-      openAppleSuccess();
     } catch {
       useToastStore.getState().show("Ups!", "Nie udało się odebrać jabłka. Spróbuj ponownie.", "error");
     } finally {
@@ -735,46 +705,6 @@ export default function Home() {
               </Text>
             </Pressable>
           </View>
-        </View>
-      </Modal>
-      {/* Apple claimed success modal */}
-      <Modal
-        visible={showAppleSuccess}
-        transparent
-        animationType="none"
-        onRequestClose={closeAppleSuccess}
-        statusBarTranslucent
-      >
-        <View style={styles.appleSuccessBackdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={closeAppleSuccess} />
-          <Animated.View
-            style={[
-              styles.appleSuccessCard,
-              { transform: [{ scale: appleCardScale }], opacity: appleCardOpacity },
-            ]}
-          >
-            <Animated.Text
-              style={[styles.appleEmoji, { transform: [{ translateY: appleFloat }] }]}
-            >
-              🍎
-            </Animated.Text>
-            <Text style={styles.appleSuccessTitle}>Jabłko odebrane!</Text>
-            <Text style={styles.appleSuccessDesc}>
-              Trafiło na Twoje konto.{"\n"}Zasadź je w ogródku i wyhoduj drzewo.
-            </Text>
-            <Pressable
-              style={styles.appleSuccessPrimary}
-              onPress={() => {
-                closeAppleSuccess();
-                router.push("../garden");
-              }}
-            >
-              <Text style={styles.appleSuccessPrimaryText}>Idź do ogródka 🌳</Text>
-            </Pressable>
-            <Pressable style={styles.appleSuccessSecondary} onPress={closeAppleSuccess}>
-              <Text style={styles.appleSuccessSecondaryText}>Zamknij</Text>
-            </Pressable>
-          </Animated.View>
         </View>
       </Modal>
 
@@ -1768,80 +1698,5 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#fff",
     letterSpacing: 0.3,
-  },
-
-  appleSuccessBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(20, 30, 50, 0.58)",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 28,
-  },
-  appleSuccessCard: {
-    width: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.98)",
-    borderRadius: 28,
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    shadowColor: "#375a85",
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 14,
-  },
-  appleEmoji: {
-    fontSize: 66,
-    marginBottom: 16,
-  },
-  appleSuccessTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: colors.text.primary,
-    textAlign: "center",
-    marginBottom: 10,
-    letterSpacing: -0.3,
-  },
-  appleSuccessDesc: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.text.secondary,
-    textAlign: "center",
-    lineHeight: 21,
-    marginBottom: 28,
-    paddingHorizontal: 4,
-  },
-  appleSuccessPrimary: {
-    width: "100%",
-    height: 50,
-    borderRadius: 999,
-    backgroundColor: colors.text.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-    shadowColor: colors.text.primary,
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-  appleSuccessPrimaryText: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#fff",
-    letterSpacing: 0.2,
-  },
-  appleSuccessSecondary: {
-    width: "100%",
-    height: 44,
-    borderRadius: 999,
-    backgroundColor: "rgba(70,80,90,0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  appleSuccessSecondaryText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: colors.text.secondary,
   },
 });

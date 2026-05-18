@@ -6,11 +6,7 @@ import { useAuthStore } from "../../src/services/store/useAuthStore"; //TODO tym
 
 const TabBarBackground = () => (
   <View style={styles.tabBarBackgroundContainer}>
-    <BlurView
-      intensity={10}
-      tint="light"
-      style={styles.blurView}
-    />
+    <BlurView intensity={10} tint="light" style={styles.blurView} />
   </View>
 );
 
@@ -37,7 +33,11 @@ export default function TabLayout() {
         options={{
           title: "Planer",
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? "today" : "today-outline"} size={size} color={color} />
+            <Ionicons
+              name={focused ? "today" : "today-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -47,7 +47,11 @@ export default function TabLayout() {
         options={{
           title: "Dziennik",
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? "create" : "create-outline"} size={size} color={color} />
+            <Ionicons
+              name={focused ? "create" : "create-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -71,7 +75,11 @@ export default function TabLayout() {
         options={{
           title: "Mental Support",
           tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? "heart-circle" : "heart-circle-outline"} size={size} color={color} />
+            <Ionicons
+              name={focused ? "heart-circle" : "heart-circle-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />

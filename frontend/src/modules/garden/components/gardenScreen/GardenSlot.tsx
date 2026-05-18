@@ -1,9 +1,10 @@
 import { memo, useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { GardenSlotType } from "../../garden.types";
 import GardenTree from "./GardenTree";
 import { gardenService } from "../../garden.service";
 import { useAuthStore } from "@/services/store/useAuthStore";
+import { useToastStore } from "@/services/store/useToastStore";
 
 type Props = {
   slot: GardenSlotType;
@@ -29,7 +30,7 @@ function GardenSlot({ slot, fruitsBalance, onRefresh }: Props) {
     setLoading(true);
     try {
       if (canPlant) {
-        await gardenService.plantTree();
+        await gardenService.plantTree(slot.id);
       } else if (canHarvest) {
         const result = await gardenService.harvestTree(slot.id);
         const currentUser = useAuthStore.getState().user;
@@ -38,11 +39,12 @@ function GardenSlot({ slot, fruitsBalance, onRefresh }: Props) {
             user: { ...currentUser, coinsBalance: result.coinsBalance },
           });
         }
+        useToastStore.getState().show("Zbiory zebrane! 🌳", "+30 monet trafiło na Twoje konto.", "success");
       }
       await onRefresh();
     } catch (error: any) {
       const msg = error?.response?.data?.message ?? error?.message ?? "Nieznany błąd";
-      Alert.alert("Błąd", msg);
+      useToastStore.getState().show("Błąd", msg, "error");
     } finally {
       setLoading(false);
     }

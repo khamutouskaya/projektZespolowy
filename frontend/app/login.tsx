@@ -6,7 +6,6 @@ import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageBackground,
   Keyboard,
@@ -21,6 +20,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useToastStore } from "@/services/store/useToastStore";
 import { Ionicons } from "@expo/vector-icons";
 import { authApi } from "@/services/api/auth";
 import { useAuthStore } from "@/services/store/useAuthStore";
@@ -55,7 +55,10 @@ export default function Login() {
   );
 
   const handleLogin = () => {
-    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    if (!email || !password) {
+      useToastStore.getState().show("Uzupełnij dane", "Wpisz email i hasło, aby się zalogować.", "error");
+      return;
+    }
     loginMutation.mutate({ email, password });
   };
 
@@ -79,7 +82,7 @@ export default function Login() {
         );
         const idToken = tokenResult.idToken;
         if (!idToken) {
-          Alert.alert("Błąd", "Nie udało się pobrać tokenu Google.");
+          useToastStore.getState().show("Błąd Google", "Nie udało się pobrać tokenu. Spróbuj ponownie.", "error");
           return;
         }
         const data = await authApi.googleLogin(idToken);
@@ -88,7 +91,7 @@ export default function Login() {
       }
     } catch (e) {
       console.error("[OAuth] error:", e);
-      Alert.alert("Błąd", "Nie udało się zalogować przez Google.");
+      useToastStore.getState().show("Błąd Google", "Nie udało się zalogować przez Google.", "error");
     } finally {
       setIsGooglePending(false);
     }

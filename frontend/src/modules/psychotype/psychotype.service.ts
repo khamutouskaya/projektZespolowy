@@ -1,5 +1,6 @@
 import { apiClient } from "@/services/api/client";
 import { PersonalityAnswer, PersonalityQuestion, PersonalityResult } from "./psychotype.types";
+import type { WelcomeReward } from "@/services/api/streakApi";
 
 export const psychotypeService = {
   getQuestions: async (): Promise<PersonalityQuestion[]> => {
@@ -7,8 +8,8 @@ export const psychotypeService = {
     return data;
   },
 
-  submitAnswers: async (answers: PersonalityAnswer[]): Promise<PersonalityResult> => {
-    const { data } = await apiClient.post<PersonalityResult>("/personality/submit", { answers });
+  submitAnswers: async (answers: PersonalityAnswer[]): Promise<PersonalityResult & { welcomeReward?: WelcomeReward }> => {
+    const { data } = await apiClient.post<PersonalityResult & { welcomeReward?: WelcomeReward }>("/personality/submit", { answers });
     return data;
   },
 

@@ -115,10 +115,9 @@ export default function Register() {
         <Stack.Screen options={{ headerShown: false }} />
 
         <ImageBackground
-          source={require("../assets/background.jpg")}
+          source={require("../assets/background.png")}
           style={styles.background}
           resizeMode="cover"
-          fadeDuration={0}
         >
           <SafeAreaView style={styles.safe}>
             <ScrollView
@@ -234,7 +233,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 50,
-    paddingBottom: 100,
+    paddingBottom: 40,
     paddingHorizontal: 20,
   },
   header: {

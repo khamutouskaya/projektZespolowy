@@ -5,7 +5,6 @@ import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
-  Alert,
   Keyboard,
   Pressable,
   ScrollView,
@@ -25,6 +24,8 @@ import { diaryService } from "@/modules/diary/services/diaryService";
 import { diarySyncService } from "@/modules/diary/services/diarySyncService";
 import { streakApi } from "@/services/api/streakApi";
 import SummaryLoadingOverlay from "../components/diaryScreen/SummaryLoadingOverlay";
+import { useToastStore } from "@/services/store/useToastStore";
+import { useRewardModalStore } from "@/services/store/useRewardModalStore";
 
 
 export default function DiaryNoteScreen() {
@@ -69,7 +70,7 @@ export default function DiaryNoteScreen() {
 
   const handleGenerateSummary = async () => {
     if (!noteText.trim()) {
-      Alert.alert("Brak treści", "Najpierw napisz coś w notatce, żeby wygenerować podsumowanie.");
+      useToastStore.getState().show("Brak treści", "Najpierw napisz coś w notatce, aby wygenerować podsumowanie.", "info");
       return;
     }
     setIsGenerating(true);
@@ -77,13 +78,13 @@ export default function DiaryNoteScreen() {
       const text = await diaryApi.generateSummaryText(new Date().toISOString(), noteText);
       setpreview(text);
     } catch {
-      Alert.alert("Błąd", "Nie udało się wygenerować podsumowania. Spróbuj ponownie.");
+      useToastStore.getState().show("Błąd AI", "Nie udało się wygenerować podsumowania. Spróbuj ponownie.", "error");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!noteText.trim() && !preview.trim()) {
       router.back();
       return;
@@ -126,13 +127,16 @@ export default function DiaryNoteScreen() {
       }
     }
 
-    // Sync to backend immediately so home screen sees updated state
-    // Then trigger streak check — backend decides if both tasks are done
+    // Await sync so backend has the entry before home screen loads
     if (user?.id) {
       const userId = user.id;
-      diarySyncService.syncPending(userId)
-        .then(() => streakApi.triggerDaily())
-        .catch(() => {});
+      try {
+        const reward = await diarySyncService.syncPending(userId);
+        if (reward?.granted) {
+          useRewardModalStore.getState().show(reward.coinsAwarded, "note");
+        }
+      } catch {}
+      streakApi.triggerDaily().catch(() => {});
     }
 
     router.back();

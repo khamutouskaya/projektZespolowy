@@ -4,6 +4,7 @@ import { initDiaryDb } from "../db/diaryDb";
 import { DiaryEntry } from "../diary.types";
 import { diaryService } from "../services/diaryService";
 import { diarySyncService } from "../services/diarySyncService";
+import { apiClient } from "@/services/api/client";
 
 export const useDiaryEntries = () => {
   const userId = useAuthStore((state) => state.user?.id ?? "");
@@ -46,8 +47,12 @@ export const useDiaryEntries = () => {
   const deleteEntry = useCallback(
     (id: string) => {
       if (!userId) return;
+      const entry = diaryService.getById(id, userId);
       diaryService.delete(id, userId);
       load();
+      if (entry?.serverId) {
+        apiClient.delete(`/journal/${entry.serverId}`).catch(() => {});
+      }
     },
     [userId, load],
   );

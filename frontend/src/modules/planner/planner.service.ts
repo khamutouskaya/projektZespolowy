@@ -1,6 +1,7 @@
 // ...existing code...
 import { apiClient } from "../../services/api/client";
 import { PlannerTask } from "./planner.types";
+import type { WelcomeReward } from "@/services/api/streakApi";
 
 const mapToPlannerTask = (dto: any): PlannerTask => ({
   id: dto.id,
@@ -54,12 +55,15 @@ export const plannerService = {
     return mapToPlannerTask(res.data);
   },
 
-  async toggleComplete(id: string): Promise<PlannerTask> {
+  async toggleComplete(id: string): Promise<{ task: PlannerTask; welcomeReward: WelcomeReward | null }> {
     const existingRes = await apiClient.get(`/planner/${id}`);
     const isCompleted = !existingRes.data.isCompleted;
-    
+
     const res = await apiClient.patch(`/planner/${id}/complete?isCompleted=${isCompleted}`);
-    return mapToPlannerTask(res.data);
+    return {
+      task: mapToPlannerTask(res.data),
+      welcomeReward: res.data.welcomeReward ?? null,
+    };
   },
 
   async deleteTask(id: string): Promise<void> {

@@ -10,5 +10,6 @@ export interface UserPayload {
   streakCount: number;
   streakActive: boolean;
   coinsBalance: number;
+  fruitsBalance: number;
   createdAt?: string;
 }

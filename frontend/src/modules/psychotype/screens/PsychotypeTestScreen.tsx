@@ -5,6 +5,7 @@ import { typography } from "@/shared/theme/typography";
 import { spacing } from "@/shared/theme/spacing";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useRewardModalStore } from "@/services/store/useRewardModalStore";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -219,6 +220,9 @@ export default function PsychotypeTestScreen() {
           useNativeDriver: true,
         }),
       ]).start();
+      if (res.welcomeReward?.granted) {
+        useRewardModalStore.getState().show(res.welcomeReward.coinsAwarded, "quiz");
+      }
     } catch {
       setError("Nie udało się przetworzyć wyników. Spróbuj ponownie.");
       setPhase("quiz");

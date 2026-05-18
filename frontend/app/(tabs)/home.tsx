@@ -9,8 +9,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
+  Easing,
   Image,
   Modal,
   Pressable,
@@ -23,7 +23,7 @@ import {
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { useShopStore } from "@/services/store/useShopStore";
 import { streakApi } from "@/services/api/streakApi";
-import { gardenService } from "@/modules/garden/garden.service";
+import { useToastStore } from "@/services/store/useToastStore";
 
 const GOLD = "#f9dd0c";
 
@@ -54,24 +54,37 @@ export default function Home() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
   const [showFruitModal, setShowFruitModal] = useState(false);
+  const [showAppleSuccess, setShowAppleSuccess] = useState(false);
   const [isClaimingFruit, setIsClaimingFruit] = useState(false);
+
+  const appleCardScale = useRef(new Animated.Value(0.72)).current;
+  const appleCardOpacity = useRef(new Animated.Value(0)).current;
+  const appleFloat = useRef(new Animated.Value(0)).current;
+  const [showStreakInfo, setShowStreakInfo] = useState<"noEntry" | "claimed" | null>(null);
   const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
   const [isOracleThinking, setIsOracleThinking] = useState(false);
 
   const [dailyProgress, setDailyProgress] = useState(0);
-  const [fruitsBalance, setFruitsBalance] = useState(0);
-  const [hasPendingFruit, setHasPendingFruit] = useState(false);
   const [hasDailyFruitUsed, setHasDailyFruitUsed] = useState(false);
+  const [hasDailyRewardClaimed, setHasDailyRewardClaimed] = useState(false);
+  const [hasJournalEntry, setHasJournalEntry] = useState(false);
   const [streakCount, setStreakCount] = useState(0);
   const [coinsBalance, setCoinsBalance] = useState(0);
+
+  // Once the daily reward is claimed it must stay "claimed" for the whole session,
+  // regardless of note deletions or navigation that might reset state before the
+  // next loadDailyStatus() call returns.
+  const claimedThisSessionRef = useRef(false);
 
   const loadDailyStatus = useCallback(async () => {
     try {
       const status = await streakApi.getDailyStatus();
       setDailyProgress(status.progress);
-      setFruitsBalance(status.fruitsBalance);
-      setHasPendingFruit(status.hasPendingFruit);
       setHasDailyFruitUsed(status.hasDailyFruitUsed ?? false);
+      const claimed = (status.hasDailyRewardClaimed ?? false) || claimedThisSessionRef.current;
+      if (claimed) claimedThisSessionRef.current = true;
+      setHasDailyRewardClaimed(claimed);
+      setHasJournalEntry(status.hasJournalEntry ?? false);
       setStreakCount(status.streakCount ?? 0);
       setCoinsBalance(status.coinsBalance ?? 0);
       const currentUser = useAuthStore.getState().user;
@@ -80,6 +93,7 @@ export default function Home() {
           user: {
             ...currentUser,
             coinsBalance: status.coinsBalance,
+            fruitsBalance: status.fruitsBalance ?? currentUser.fruitsBalance,
             streakCount: status.streakCount ?? currentUser.streakCount,
           },
         });
@@ -225,48 +239,73 @@ export default function Home() {
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
   const progress = dailyProgress;
-  const isReady = (hasPendingFruit || fruitsBalance > 0) && !hasDailyFruitUsed;
+  // Reward available only when user has a diary entry today and hasn't claimed yet
+  const isReady = hasJournalEntry && !hasDailyRewardClaimed;
 
-  const handleOdbierzPress = async () => {
-    if (hasPendingFruit) {
-      setIsClaimingFruit(true);
-      try {
-        await streakApi.claimFruit();
-        await loadDailyStatus();
-      } catch {
-        Alert.alert("Błąd", "Nie udało się odebrać nagrody.");
-        setIsClaimingFruit(false);
-        return;
-      } finally {
-        setIsClaimingFruit(false);
-      }
+  const handleStreakCardPress = () => {
+    if (!hasJournalEntry) {
+      setShowStreakInfo("noEntry");
+    } else if (hasDailyRewardClaimed) {
+      setShowStreakInfo("claimed");
+    } else if (isReady) {
+      setShowFruitModal(true);
     }
+  };
+
+  const handleOdbierzPress = () => {
     setShowFruitModal(true);
   };
 
-  const handlePlantFruit = async () => {
+  const openAppleSuccess = () => {
+    appleCardScale.setValue(0.72);
+    appleCardOpacity.setValue(0);
+    appleFloat.setValue(0);
+    setShowAppleSuccess(true);
+    Animated.parallel([
+      Animated.spring(appleCardScale, { toValue: 1, friction: 7, tension: 60, useNativeDriver: true }),
+      Animated.timing(appleCardOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
+    ]).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(appleFloat, { toValue: -8, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(appleFloat, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ]),
+    ).start();
+  };
+
+  const closeAppleSuccess = () => {
+    appleFloat.stopAnimation();
+    appleFloat.setValue(0);
+    setShowAppleSuccess(false);
+  };
+
+  const handleClaimDailyFruit = async () => {
     setIsClaimingFruit(true);
     try {
-      await gardenService.plantTree();
+      await streakApi.claimDailyReward("fruit");
+      claimedThisSessionRef.current = true;
+      setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
-      Alert.alert("Posadzono!", "Owoc został posadzony w ogródku. 🌱");
+      openAppleSuccess();
     } catch {
-      Alert.alert("Błąd", "Nie udało się posadzić owocu.");
+      useToastStore.getState().show("Ups!", "Nie udało się odebrać jabłka. Spróbuj ponownie.", "error");
     } finally {
       setIsClaimingFruit(false);
     }
   };
 
-  const handleExchangeFruit = async () => {
+  const handleClaimDailyCoins = async () => {
     setIsClaimingFruit(true);
     try {
-      await gardenService.exchangeFruit();
+      await streakApi.claimDailyReward("coins");
+      claimedThisSessionRef.current = true;
+      setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
-      Alert.alert("Wymieniono!", "Owoc został wymieniony na 10 monet. 🪙");
+      useToastStore.getState().show("Monety odebrane!", "+10 monet trafiło na Twoje konto.", "success");
     } catch {
-      Alert.alert("Błąd", "Nie udało się wymienić owocu.");
+      useToastStore.getState().show("Ups!", "Nie udało się odebrać monet. Spróbuj ponownie.", "error");
     } finally {
       setIsClaimingFruit(false);
     }
@@ -374,7 +413,7 @@ export default function Home() {
     } catch (e: any) {
       const detail =
         e?.response?.data?.message ?? e?.message ?? "Nieznany błąd";
-      Alert.alert("Błąd", `Nie udało się aktywować Premium.\n${detail}`);
+      useToastStore.getState().show("Błąd Premium", detail, "error");
     } finally {
       setIsBuying(false);
     }
@@ -423,7 +462,10 @@ export default function Home() {
             </View>
 
             {/* DRZEWO DNIA CARD */}
-            <View style={[cardStyles.card, styles.statusCard]}>
+            <Pressable
+              style={({ pressed }) => [cardStyles.card, styles.statusCard, pressed && { opacity: 0.88 }]}
+              onPress={handleStreakCardPress}
+            >
               <View style={styles.compactStreakRow}>
                 <View style={styles.dailyTreeWrap}>
                   <Image
@@ -468,26 +510,26 @@ export default function Home() {
                       </Pressable>
                     ) : hasDailyFruitUsed ? (
                       <Text style={styles.compactDone}>✓ Użyto dziś</Text>
-                    ) : progress === 2 ? (
+                    ) : hasJournalEntry ? (
                       <Text style={styles.compactDone}>✓ Odebrano</Text>
                     ) : (
-                      <Text style={styles.compactProgress}>{progress}/2</Text>
+                      <Text style={styles.compactProgress}>0/1</Text>
                     )}
                   </View>
                   <View style={styles.progressBar}>
                     <View
                       style={[
                         styles.progressFill,
-                        { width: `${(progress / 2) * 100}%` },
+                        { width: hasJournalEntry ? "100%" : "0%" },
                       ]}
                     />
                   </View>
                   <Text style={styles.compactSubtitle}>
-                    Wpis w dzienniku · Podsumowanie dnia
+                    Dodaj wpis do dziennika
                   </Text>
                 </View>
               </View>
-            </View>
+            </Pressable>
 
             {/* Tiles row */}
             <View style={styles.tilesRow}>
@@ -666,20 +708,18 @@ export default function Home() {
               style={styles.fruitModalImage}
             />
 
-            <Text style={styles.fruitModalTitle}>Owoc dojrzał!</Text>
-            <Text style={styles.fruitModalText}>Co chcesz z nim zrobić?</Text>
+            <Text style={styles.fruitModalTitle}>Dzienna nagroda!</Text>
+            <Text style={styles.fruitModalText}>Co chcesz odebrać?</Text>
 
             <Pressable
               style={[
                 styles.fruitModalPlantButton,
                 isClaimingFruit && { opacity: 0.6 },
               ]}
-              onPress={handlePlantFruit}
+              onPress={handleClaimDailyFruit}
               disabled={isClaimingFruit}
             >
-              <Text style={styles.fruitModalPlantText}>
-                Zasadź w ogródku 🌱
-              </Text>
+              <Text style={styles.fruitModalPlantText}>Odbierz jabłko 🍎</Text>
             </Pressable>
 
             <Pressable
@@ -687,16 +727,111 @@ export default function Home() {
                 styles.fruitModalExchangeButton,
                 isClaimingFruit && { opacity: 0.6 },
               ]}
-              onPress={handleExchangeFruit}
+              onPress={handleClaimDailyCoins}
               disabled={isClaimingFruit}
             >
               <Text style={styles.fruitModalExchangeText}>
-                Wymień na 10 monet 🪙
+                Odbierz 10 monet 🪙
               </Text>
             </Pressable>
           </View>
         </View>
       </Modal>
+      {/* Apple claimed success modal */}
+      <Modal
+        visible={showAppleSuccess}
+        transparent
+        animationType="none"
+        onRequestClose={closeAppleSuccess}
+        statusBarTranslucent
+      >
+        <View style={styles.appleSuccessBackdrop}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={closeAppleSuccess} />
+          <Animated.View
+            style={[
+              styles.appleSuccessCard,
+              { transform: [{ scale: appleCardScale }], opacity: appleCardOpacity },
+            ]}
+          >
+            <Animated.Text
+              style={[styles.appleEmoji, { transform: [{ translateY: appleFloat }] }]}
+            >
+              🍎
+            </Animated.Text>
+            <Text style={styles.appleSuccessTitle}>Jabłko odebrane!</Text>
+            <Text style={styles.appleSuccessDesc}>
+              Trafiło na Twoje konto.{"\n"}Zasadź je w ogródku i wyhoduj drzewo.
+            </Text>
+            <Pressable
+              style={styles.appleSuccessPrimary}
+              onPress={() => {
+                closeAppleSuccess();
+                router.push("../garden");
+              }}
+            >
+              <Text style={styles.appleSuccessPrimaryText}>Idź do ogródka 🌳</Text>
+            </Pressable>
+            <Pressable style={styles.appleSuccessSecondary} onPress={closeAppleSuccess}>
+              <Text style={styles.appleSuccessSecondaryText}>Zamknij</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showStreakInfo !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowStreakInfo(null)}
+      >
+        <View style={styles.fruitModalRoot}>
+          <Pressable
+            style={styles.fruitModalBackdrop}
+            onPress={() => setShowStreakInfo(null)}
+          />
+          <View style={styles.fruitModalCard}>
+            {showStreakInfo === "noEntry" ? (
+              <>
+                <Text style={styles.streakInfoEmoji}>🌱</Text>
+                <Text style={styles.fruitModalTitle}>Drzewo czeka</Text>
+                <Text style={styles.streakInfoText}>
+                  Napisz wpis w dzienniku, aby podlać swoje drzewo dnia i odebrać nagrodę.
+                </Text>
+                <Pressable
+                  style={styles.streakInfoPrimaryBtn}
+                  onPress={() => {
+                    setShowStreakInfo(null);
+                    router.push("/(tabs)/diary");
+                  }}
+                >
+                  <Text style={styles.streakInfoPrimaryText}>Idź do dziennika →</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.streakInfoSecondaryBtn}
+                  onPress={() => setShowStreakInfo(null)}
+                >
+                  <Text style={styles.streakInfoSecondaryText}>Zamknij</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={styles.streakInfoEmoji}>✅</Text>
+                <Text style={styles.fruitModalTitle}>Odebrano!</Text>
+                <Text style={styles.streakInfoText}>
+                  Dzienna nagroda została już odebrana. Wróć jutro, żeby podlać drzewo ponownie!
+                </Text>
+                <Pressable
+                  style={styles.streakInfoPrimaryBtn}
+                  onPress={() => setShowStreakInfo(null)}
+                >
+                  <Text style={styles.streakInfoPrimaryText}>OK</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={showOracle}
         transparent
@@ -1397,7 +1532,7 @@ const styles = StyleSheet.create({
   },
 
   claimFruitMiniButton: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
     height: 30,
     borderRadius: 999,
     backgroundColor: "rgba(111,174,122,0.28)",
@@ -1481,6 +1616,52 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#7b6730",
   },
+  streakInfoEmoji: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+
+  streakInfoText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.text.secondary,
+    textAlign: "center",
+    lineHeight: 21,
+    marginBottom: 20,
+    paddingHorizontal: 4,
+  },
+
+  streakInfoPrimaryBtn: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: colors.text.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  streakInfoPrimaryText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#fff",
+  },
+
+  streakInfoSecondaryBtn: {
+    width: "100%",
+    height: 38,
+    borderRadius: 999,
+    backgroundColor: "rgba(70,80,90,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  streakInfoSecondaryText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text.secondary,
+  },
+
   star: {
     position: "absolute",
     color: "rgba(80,100,160,0.65)",
@@ -1587,5 +1768,80 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#fff",
     letterSpacing: 0.3,
+  },
+
+  appleSuccessBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(20, 30, 50, 0.58)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 28,
+  },
+  appleSuccessCard: {
+    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.98)",
+    borderRadius: 28,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    shadowColor: "#375a85",
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 14,
+  },
+  appleEmoji: {
+    fontSize: 66,
+    marginBottom: 16,
+  },
+  appleSuccessTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: colors.text.primary,
+    textAlign: "center",
+    marginBottom: 10,
+    letterSpacing: -0.3,
+  },
+  appleSuccessDesc: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.text.secondary,
+    textAlign: "center",
+    lineHeight: 21,
+    marginBottom: 28,
+    paddingHorizontal: 4,
+  },
+  appleSuccessPrimary: {
+    width: "100%",
+    height: 50,
+    borderRadius: 999,
+    backgroundColor: colors.text.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+    shadowColor: colors.text.primary,
+    shadowOpacity: 0.22,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  appleSuccessPrimaryText: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#fff",
+    letterSpacing: 0.2,
+  },
+  appleSuccessSecondary: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: "rgba(70,80,90,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  appleSuccessSecondaryText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.text.secondary,
   },
 });

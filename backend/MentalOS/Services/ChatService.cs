@@ -7,9 +7,12 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace MentalOS.Services
 {
+    /// <summary>
+    /// Serwis czatu AI — zarządzanie sesjami rozmów, zapis historii wiadomości i komunikacja z modelem OpenAI
+    /// </summary>
     public class ChatService : IChatService
     {
-        private const int MAX_HISTORY_MESSAGES = 20;
+        private const int MAX_HISTORY_MESSAGES = 20; // maksymalna liczba wiadomości dołączanych do kontekstu AI
 
         private readonly AppDbContext _db;
         private readonly IContextBuilder _contextBuilder;

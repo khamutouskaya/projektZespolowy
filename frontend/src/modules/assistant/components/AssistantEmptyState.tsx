@@ -38,16 +38,16 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "hsla(300, 1%, 61%, 0.50)",
 
-    // backgroundColor: colors.background.glass, // стеклянный фон
-    // borderRadius: 20, // скругление
-    // padding: spacing.md, // внутренний отступ
+    // backgroundColor: colors.background.glass, // szklane tło
+    // borderRadius: 20, // zaokrąglenie rogów
+    // padding: spacing.md, // wewnętrzny odstęp
 
-    // shadowColor: colors.shadow.primary, // цвет тени
+    // shadowColor: colors.shadow.primary, // kolor cienia (iOS)
     // shadowOpacity: 0.2,
     // shadowRadius: 10,
     // shadowOffset: { width: 0, height: 4 },
 
-    // elevation: 6, // Android тень
+    // elevation: 6, // cień na Androidzie
   },
 
   title: {

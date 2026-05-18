@@ -1,6 +1,7 @@
 import { DiaryEntry } from "../diary.types";
 import { apiClient } from "@/services/api/client";
 import { diaryService } from "./diaryService";
+import type { WelcomeReward } from "@/services/api/streakApi";
 
 const toApiPayload = (entry: DiaryEntry) => ({
   title: entry.title ?? "",
@@ -24,15 +25,20 @@ const fromApiResponse = (data: any, userId: string): Partial<DiaryEntry> => ({
 });
 
 let syncPendingRunning = false;
+// Blokada na poziomie sesji: zapobiega pojawieniu się toastu powitalnej nagrody więcej niż raz
+// podczas jednej sesji, nawet jeśli odpowiedź serwera zostanie zduplikowana.
+let welcomeRewardShownThisSession = false;
 
 export const diarySyncService = {
   // Wypchnij wszystkie pending wpisy na serwer
-  syncPending: async (userId: string): Promise<void> => {
-    if (syncPendingRunning) return;
+  // Zwraca pierwszą otrzymaną nagrodę powitalną (jeśli istnieje)
+  syncPending: async (userId: string): Promise<WelcomeReward | null> => {
+    if (syncPendingRunning) return null;
     syncPendingRunning = true;
+    let earnedReward: WelcomeReward | null = null;
     try {
       const pending = diaryService.getPending(userId);
-      if (pending.length === 0) return;
+      if (pending.length === 0) return null;
 
       const syncOne = async (entry: (typeof pending)[number]) => {
         if (entry.serverId) {
@@ -41,6 +47,11 @@ export const diarySyncService = {
         } else {
           const response = await apiClient.post("/journal", toApiPayload(entry));
           diaryService.markSynced(entry.id, response.data.id);
+          const reward: WelcomeReward | undefined = response.data.welcomeReward;
+          if (reward?.granted && !earnedReward && !welcomeRewardShownThisSession) {
+            earnedReward = reward;
+            welcomeRewardShownThisSession = true;
+          }
         }
       };
 
@@ -53,6 +64,7 @@ export const diarySyncService = {
     } finally {
       syncPendingRunning = false;
     }
+    return earnedReward;
   },
 
   // Pobierz wpisy z serwera i zapisz lokalnie
@@ -79,7 +91,7 @@ export const diarySyncService = {
             );
           }
         } else {
-          // Before creating, check if local entry with same date exists (prevents duplicates)
+          // Przed utworzeniem sprawdź, czy istnieje lokalny wpis z tą samą datą (zapobiega duplikatom)
           const entryDate = new Date(serverEntry.entryDate).toLocaleDateString("pl-PL");
           const sameDay = diaryService
             .getAll(userId)

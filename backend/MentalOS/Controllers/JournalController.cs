@@ -409,16 +409,11 @@ Zwróć czysty tekst z wydzielonymi akapitami, bez nagłówków markdown.";
 
         private async Task TryUpdateStreakAsync(Guid userId)
         {
-            var today = DateTime.UtcNow.Date;
             var user = await _context.Users.FindAsync(userId);
-            if (user == null) return;
+            if (user == null || user.HasPendingFruit) return;
 
-            bool recentlyCompleted = user.LastActivityDate.HasValue &&
-                (DateTime.UtcNow - user.LastActivityDate.Value).TotalMinutes < 2;
-            if (recentlyCompleted) return;
-
-            var startOfDay = today;
-            var endOfDay = today.AddDays(1);
+            var startOfDay = DateTime.UtcNow.Date;
+            var endOfDay = startOfDay.AddDays(1);
 
             bool hasContent = await _context.JournalEntries
                 .AnyAsync(j => j.UserId == userId && !j.IsSummary
@@ -430,18 +425,8 @@ Zwróć czysty tekst z wydzielonymi akapitami, bez nagłówków markdown.";
                             && !string.IsNullOrEmpty(j.Preview)
                             && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
 
-            if (!hasContent || !hasPreview) return;
-
-            if (user.LastActivityDate.HasValue &&
-                (DateTime.UtcNow - user.LastActivityDate.Value).TotalMinutes < 30)
-                user.StreakCount += 1;
-            else
-                user.StreakCount = 1;
-
-            user.StreakActive = true;
-            user.LastActivityDate = DateTime.UtcNow;
-            user.HasPendingFruit = true;
-            user.CoinsBalance += user.StreakCount * 5;
+            if (hasContent && hasPreview)
+                user.HasPendingFruit = true;
         }
 
         private static string BuildPersonalityContext(MentalOS.Domain.PersonalityProfile? personality)

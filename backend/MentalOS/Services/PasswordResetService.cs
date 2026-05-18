@@ -36,6 +36,9 @@ namespace MentalOS.Services
         public NotLocalAccountException() : base("This account does not use a local password. Try Google or Facebook login.") { }
         public NotLocalAccountException(string message) : base(message) { }
     }
+    /// <summary>
+    /// Serwis resetowania hasła — generuje jednorazowe tokeny, waliduje je i zapisuje nowe zahaszowane hasło
+    /// </summary>
     public class PasswordResetService : IPasswordResetService
     {
         private readonly AppDbContext _context;
@@ -79,7 +82,7 @@ namespace MentalOS.Services
                 _logger.LogWarning("Password reset requested for non-local account: {Email}", email);
                 throw new NotLocalAccountException();
             }
-            if (string.IsNullOrEmpty(user.PasswordHash)) // for bugfix with OAuth/Local accounts problem
+            if (string.IsNullOrEmpty(user.PasswordHash)) // naprawa błędu: konto lokalne bez hasła (problem OAuth/local)
             {
                 _logger.LogError("Local account without password hash detected. UserId: {UserId}, Email: {Email}", user.Id, user.Email);
                 throw new InvalidOperationException("Local account does not have a password hash.");
@@ -127,7 +130,7 @@ namespace MentalOS.Services
                 throw new InvalidResetTokenException("Reset token cannot be empty.");
             }
 
-            _passwordPolicy.Validate(newPassword); // Validate password strength, change validation logic as needed
+            _passwordPolicy.Validate(newPassword); // walidacja siły hasła zgodnie z polityką haseł
 
             var now = DateTime.UtcNow;
             var tokenHash = Sha256Hex(token);
@@ -158,10 +161,10 @@ namespace MentalOS.Services
             if(user.Provider != "local")
             {
                 _logger.LogWarning("Password reset attempted for non-local account: {UserId}", user.Id);
-                throw new NotLocalAccountException(); // change to retun null if you want to hide this information about account type (OAuth or local)
+                throw new NotLocalAccountException(); // zwróć null zamiast wyjątku, jeśli chcesz ukryć typ konta (OAuth lub lokalne)
             }
 
-            if (string.IsNullOrEmpty(user.PasswordHash)) // for bugfix with OAuth/Local accounts problem
+            if (string.IsNullOrEmpty(user.PasswordHash)) // naprawa błędu: konto lokalne bez hasła (problem OAuth/local)
             {
                 _logger.LogError("Local account without password hash detected. UserId: {UserId}, Email: {Email}", user.Id, user.Email);
                 throw new InvalidOperationException("Local account does not have a password hash.");

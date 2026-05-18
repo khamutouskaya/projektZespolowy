@@ -6,11 +6,7 @@ import { useAuthStore } from "../../src/services/store/useAuthStore"; //TODO tym
 
 const TabBarBackground = () => (
   <View style={styles.tabBarBackgroundContainer}>
-    <BlurView
-      intensity={10}
-      tint="light"
-      style={styles.blurView}
-    />
+    <BlurView intensity={10} tint="light" style={styles.blurView} />
   </View>
 );
 
@@ -36,8 +32,12 @@ export default function TabLayout() {
         name="planer"
         options={{
           title: "Planer",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "today" : "today-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -46,8 +46,12 @@ export default function TabLayout() {
         name="diary"
         options={{
           title: "Dziennik",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "create" : "create-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -70,8 +74,12 @@ export default function TabLayout() {
         name="mentalSupport"
         options={{
           title: "Mental Support",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sunny-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "heart-circle" : "heart-circle-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -80,9 +88,9 @@ export default function TabLayout() {
         name="assistant"
         options={{
           title: "Asystent",
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name="chatbubble-ellipses-outline"
+              name={focused ? "color-wand" : "color-wand-outline"}
               size={size}
               color={color}
             />

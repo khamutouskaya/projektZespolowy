@@ -19,7 +19,7 @@ export function AssistantScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   return (
-    // KeyboardAvoidingView — поднимает поле ввода когда появляется клавиатура
+    // KeyboardAvoidingView — unosi pole wprowadzania gdy pojawia się klawiatura
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -33,7 +33,7 @@ export function AssistantScreen() {
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }
-        // Плейсхолдер когда чат пустой
+        // Widok zastępczy gdy czat jest pusty
         ListEmptyComponent={
           <View style={styles.placeholder}>
             <Text style={styles.placeholderEmoji}>🤖</Text>
@@ -46,7 +46,7 @@ export function AssistantScreen() {
         }
       />
 
-      {/* Индикатор "печатает..." */}
+      {/* Wskaźnik "pisze..." */}
       {isLoading && (
         <View style={styles.typing}>
           <ActivityIndicator size="small" />
@@ -54,7 +54,7 @@ export function AssistantScreen() {
         </View>
       )}
 
-      {/* Поле ввода */}
+      {/* Pole wprowadzania wiadomości */}
       <View style={styles.inputRow}>
         <TextInput
           style={styles.input}

@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { colors } from "@/shared/theme/colors";
+import { useRewardModalStore } from "@/services/store/useRewardModalStore";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import PlannerHeader from "../components/plannerScreen/PlannerHeader";
 import PlannerTaskCard from "../components/plannerScreen/PlannerTaskCard";
@@ -303,7 +304,10 @@ export default function PlannerScreen() {
       );
     }, 40);
     try {
-      await plannerService.toggleComplete(id);
+      const { welcomeReward } = await plannerService.toggleComplete(id);
+      if (welcomeReward?.granted) {
+        useRewardModalStore.getState().show(welcomeReward.coinsAwarded, "task");
+      }
     } catch (err) {
       console.error(err);
     }

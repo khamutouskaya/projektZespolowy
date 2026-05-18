@@ -9,6 +9,9 @@ using MentalOS.Services;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy czatu AI — tworzenie sesji, wysyłanie wiadomości i pobieranie historii rozmowy
+    /// </summary>
     [ApiController]
     [Route("api/chat")]
     [Authorize]

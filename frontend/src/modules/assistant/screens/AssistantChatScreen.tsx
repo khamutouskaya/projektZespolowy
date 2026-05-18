@@ -2,7 +2,6 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import LayoutContainer from "@/shared/layout/LayoutContainer";
 import { useRef, useEffect, useState } from "react";
 import {
-  Animated,
   FlatList,
   Keyboard,
   PanResponder,
@@ -28,10 +27,10 @@ export function AssistantChatScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const hasMessages = messages.length > 0;
   const [isScrolled, setIsScrolled] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedPersonality, setSelectedPersonality] =
     useState<Personality | null>(null);
-  const animatedPadding = useRef(new Animated.Value(tabBarHeight + 20)).current;
   const drawerOpenRef = useRef(drawerOpen);
   drawerOpenRef.current = drawerOpen;
 
@@ -54,28 +53,19 @@ export function AssistantChatScreen() {
   useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
     const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-
     const show = Keyboard.addListener(showEvent, (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
       flatListRef.current?.scrollToEnd({ animated: true });
-      Animated.timing(animatedPadding, {
-        toValue: e.endCoordinates.height + 14,
-        duration: e.duration || 250,
-        useNativeDriver: false,
-      }).start();
     });
-    const hide = Keyboard.addListener(hideEvent, (e) => {
+    const hide = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
       flatListRef.current?.scrollToEnd({ animated: true });
-      Animated.timing(animatedPadding, {
-        toValue: tabBarHeight + 20,
-        duration: e.duration || 250,
-        useNativeDriver: false,
-      }).start();
     });
     return () => {
       show.remove();
       hide.remove();
     };
-  }, [animatedPadding, tabBarHeight]);
+  }, []);
 
   return (
     <LayoutContainer>
@@ -89,7 +79,7 @@ export function AssistantChatScreen() {
       {/* Thin left-edge zone — swipe right here to open the drawer */}
       <View style={styles.edgeZone} {...edgePanResponder.panHandlers} />
 
-      <Animated.View style={[styles.root, { paddingBottom: animatedPadding }]}>
+      <View style={[styles.root, { paddingBottom: keyboardHeight > 0 ? keyboardHeight : tabBarHeight + 20 }]}>
         <View style={styles.header}>
           <AssistantHeader
             title="Asystent"
@@ -101,43 +91,45 @@ export function AssistantChatScreen() {
           />
         </View>
 
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          style={styles.list}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <MessageBubble message={item} />}
-          onScroll={(e) => setIsScrolled(e.nativeEvent.contentOffset.y > 5)}
-          scrollEventThrottle={16}
-          keyboardShouldPersistTaps="handled"
-          scrollIndicatorInsets={{ right: 2 }}
-          contentContainerStyle={[
-            styles.listContent,
-            !hasMessages && styles.listContentEmpty,
-          ]}
-          onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({ animated: hasMessages })
-          }
-          ListEmptyComponent={
-            <AssistantEmptyState
-              prompts={assistantStarterPrompts}
-              onPromptPress={(prompt) => void sendMessage(prompt)}
-            />
-          }
-        />
+        <View style={{ flex: 1 }}>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            style={styles.list}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <MessageBubble message={item} />}
+            onScroll={(e) => setIsScrolled(e.nativeEvent.contentOffset.y > 5)}
+            scrollEventThrottle={16}
+            keyboardShouldPersistTaps="handled"
+            scrollIndicatorInsets={{ right: 2 }}
+            contentContainerStyle={[
+              styles.listContent,
+              !hasMessages && styles.listContentEmpty,
+            ]}
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: hasMessages })
+            }
+            ListEmptyComponent={
+              <AssistantEmptyState
+                prompts={assistantStarterPrompts}
+                onPromptPress={(prompt) => void sendMessage(prompt)}
+              />
+            }
+          />
 
-        {isLoading && <AssistantTypingIndicator />}
+          {isLoading && <AssistantTypingIndicator />}
 
-        <AssistantComposer
-          bottomOffset={0}
-          isLoading={isLoading}
-          onSendPress={(text) => {
-            void sendMessage(text, selectedPersonality?.systemHint);
-            Keyboard.dismiss();
-          }}
-          transcribeUri={assistantApi.transcribeAudio}
-        />
-      </Animated.View>
+          <AssistantComposer
+            bottomOffset={8}
+            isLoading={isLoading}
+            onSendPress={(text) => {
+              void sendMessage(text, selectedPersonality?.systemHint);
+              Keyboard.dismiss();
+            }}
+            transcribeUri={assistantApi.transcribeAudio}
+          />
+        </View>
+      </View>
     </LayoutContainer>
   );
 }

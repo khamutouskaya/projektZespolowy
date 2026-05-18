@@ -2,14 +2,30 @@ import { View, StyleSheet, Text, Pressable } from "react-native";
 import { WebView } from "react-native-webview";
 import { useLocalSearchParams } from "expo-router";
 import { Linking } from "react-native";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { streakApi } from "@/services/api/streakApi";
+import { useRewardModalStore } from "@/services/store/useRewardModalStore";
 
 export default function VideoScreen() {
   const { id } = useLocalSearchParams();
   const [hasError, setHasError] = useState(false);
+  const rewardChecked = useRef(false);
 
   const openInYoutube = () => {
     Linking.openURL(`https://www.youtube.com/watch?v=${id}`);
+  };
+
+  const handleVideoLoad = async () => {
+    if (rewardChecked.current) return;
+    rewardChecked.current = true;
+    try {
+      const reward = await streakApi.trackVideoWatched();
+      if (reward?.granted) {
+        useRewardModalStore.getState().show(reward.coinsAwarded, "video");
+      }
+    } catch {
+      // aktualizacja nagrody jest opcjonalna — nie blokuje odtwarzania
+    }
   };
 
   if (hasError) {
@@ -29,6 +45,7 @@ export default function VideoScreen() {
       <WebView
         source={{ uri: `https://www.youtube.com/embed/${id}` }}
         allowsFullscreenVideo
+        onLoad={handleVideoLoad}
         onError={() => setHasError(true)}
       />
     </View>

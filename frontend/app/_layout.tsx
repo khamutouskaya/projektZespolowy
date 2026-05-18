@@ -5,6 +5,8 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "../src/services/store/useAuthStore";
+import AppToast from "../src/shared/components/AppToast";
+import WelcomeRewardModal from "../src/shared/components/WelcomeRewardModal";
 import * as Notifications from "expo-notifications";
 import { settingsStorage } from "../src/services/store/settingsStorage";
 import { notificationService } from "../src/services/notifications/notificationService";
@@ -56,6 +58,8 @@ export default function Layout() {
             headerShown: false,
           }}
         />
+        <AppToast />
+        <WelcomeRewardModal />
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

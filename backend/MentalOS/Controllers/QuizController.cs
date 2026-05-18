@@ -8,6 +8,9 @@ using System.Security.Claims;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy quizu osobowości — pobieranie pytań, przesyłanie odpowiedzi i odczyt wyznaczonego typu osobowości
+    /// </summary>
     [ApiController]
     [Route("api/quiz")]
     [Authorize]

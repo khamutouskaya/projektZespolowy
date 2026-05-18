@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "react-native";
 import { authApi, LoginRequest, RegisterRequest } from "../services/api/auth";
 import { useAuthStore } from "../services/store/useAuthStore";
+import { useToastStore } from "../services/store/useToastStore";
 
 // Hook do logowania
 export const useLoginMutation = () => {
@@ -10,15 +10,15 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authApi.login(credentials),
     onSuccess: async (data) => {
-      // Zapisujemy token i usera w store (store zrobi router.replace)
       await loginToStore(data.token, data.user);
     },
     onError: (error: any) => {
-      Alert.alert(
-        "Błąd logowania",
-        error.response?.data?.message || "Nieprawidłowy email lub hasło.",
+      const msg = error.response?.data?.message;
+      useToastStore.getState().show(
+        "Nie udało się zalogować",
+        msg || "Sprawdź email i hasło i spróbuj ponownie.",
+        "error",
       );
-      console.log("Błąd logowania");
     },
   });
 };
@@ -27,20 +27,15 @@ export const useLoginMutation = () => {
 export const useRegisterMutation = () => {
   return useMutation({
     mutationFn: (credentials: RegisterRequest) => authApi.register(credentials),
-    onSuccess: () => {
-      // Komunikat pokazywany po zakończeniu onboardingu
-    },
+    onSuccess: () => {},
     onError: (error: any) => {
-      Alert.alert(
-        "Błąd rejestracji",
-        error.response?.data?.message || "Użytkownik już istnieje.",
-      );
-      console.log("Błąd rejestracji");
-      console.log("[REGISTER] Status:", error.response?.status);
-      console.log("[REGISTER] Body:", JSON.stringify(error.response?.data));
-      console.log("[REGISTER] Message:", error.message);
-      console.log("[REGISTER] Config URL:", error.config?.url);
-      console.log("[REGISTER] Config BaseURL:", error.config?.baseURL);
+      const status = error.response?.status;
+      const msg = error.response?.data?.message;
+      const friendlyMsg =
+        status === 409 || (msg && msg.toLowerCase().includes("exist"))
+          ? "Konto z tym adresem email już istnieje. Zaloguj się lub użyj innego emaila."
+          : msg || "Nie udało się utworzyć konta. Spróbuj ponownie.";
+      useToastStore.getState().show("Błąd rejestracji", friendlyMsg, "error");
     },
   });
 };

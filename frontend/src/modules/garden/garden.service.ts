@@ -7,8 +7,8 @@ export const gardenService = {
     return res.data;
   },
 
-  async plantTree() {
-    await apiClient.post("/Garden/plant");
+  async plantTree(gardenBedId: string) {
+    await apiClient.post(`/garden/plant`);
   },
 
   async harvestTree(gardenBedId: string): Promise<{ coinsBalance: number }> {

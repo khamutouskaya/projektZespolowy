@@ -37,11 +37,7 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
         </View>
       ) : (
         <View style={styles.priceRow}>
-          <Image
-            source={COIN_IMAGE}
-            style={styles.coin}
-            contentFit="contain"
-          />
+          <Image source={COIN_IMAGE} style={styles.coin} contentFit="contain" />
           <Text style={styles.price}>{item.price}</Text>
         </View>
       )}
@@ -50,7 +46,6 @@ function ShopItemCard({ item, onPress, isOwned }: Props) {
 }
 
 export default memo(ShopItemCard);
-
 
 const styles = StyleSheet.create({
   card: {

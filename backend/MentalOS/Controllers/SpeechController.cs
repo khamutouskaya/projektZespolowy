@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy rozpoznawania mowy — transkrypcja przesłanego pliku audio za pomocą OpenAI Whisper
+    /// </summary>
     [ApiController]
     [Route("api/speech")]
     public class SpeechController : ControllerBase

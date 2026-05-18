@@ -3,7 +3,7 @@ export interface Personality {
   name: string;
   emoji: string;
   description: string;
-  systemHint: string; // used when a real LLM is connected
+  systemHint: string; // prompt systemowy przekazywany do modelu AI
 }
 
 export const personalities: Personality[] = [

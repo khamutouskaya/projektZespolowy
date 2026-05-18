@@ -5,6 +5,7 @@ import { typography } from "@/shared/theme/typography";
 import { spacing } from "@/shared/theme/spacing";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useRewardModalStore } from "@/services/store/useRewardModalStore";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -38,34 +39,34 @@ const TRAIT_META: Record<
     label: "Otwartość",
     description:
       "Ciekawość świata, wyobraźnia, kreatywność i otwartość na nowe doświadczenia.",
-    color: "rgba(124,107,232,0.85)",
+    color: "#7C6BE8",
     icon: "sparkles-outline",
   },
   C: {
     label: "Sumienność",
     description:
       "Zorganizowanie, wytrwałość, samodyscyplina i dbałość o szczegóły.",
-    color: "rgba(55,90,133,0.85)",
+    color: "#375A85",
     icon: "checkmark-circle-outline",
   },
   E: {
     label: "Ekstrawersja",
     description:
       "Towarzyskość, energiczność i aktywność w relacjach z innymi ludźmi.",
-    color: "rgba(247,183,49,0.9)",
+    color: "#D49A22",
     icon: "flash-outline",
   },
   A: {
     label: "Ugodowość",
     description: "Empatia, współpraca, życzliwość i troska o dobro innych.",
-    color: "rgba(76,175,146,0.85)",
+    color: "#3A9E7E",
     icon: "heart-outline",
   },
   N: {
     label: "Neurotyczność",
     description:
       "Podatność na stres, zmienność nastrojów i reaktywność emocjonalna.",
-    color: "rgba(239,83,80,0.85)",
+    color: "#D94F4C",
     icon: "warning-outline",
   },
 };
@@ -219,6 +220,9 @@ export default function PsychotypeTestScreen() {
           useNativeDriver: true,
         }),
       ]).start();
+      if (res.welcomeReward?.granted) {
+        useRewardModalStore.getState().show(res.welcomeReward.coinsAwarded, "quiz");
+      }
     } catch {
       setError("Nie udało się przetworzyć wyników. Spróbuj ponownie.");
       setPhase("quiz");
@@ -570,8 +574,8 @@ export default function PsychotypeTestScreen() {
                   score >= 3.5
                     ? meta.color
                     : score >= 2.5
-                      ? "rgba(150,160,180,0.9)"
-                      : "rgba(200,100,90,0.8)";
+                      ? "#5057b9"
+                      : "#C8514E";
                 return (
                   <View key={key} style={[cardStyles.card, styles.traitCard]}>
                     <View style={styles.traitCardHeader}>
@@ -596,7 +600,10 @@ export default function PsychotypeTestScreen() {
                       <View
                         style={[
                           styles.levelBadge,
-                          { backgroundColor: levelColor + "22" },
+                          {
+                            backgroundColor: levelColor + "1A",
+                            borderColor: levelColor + "55",
+                          },
                         ]}
                       >
                         <Text
@@ -655,7 +662,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   backButton: {
     width: 46,
@@ -669,8 +676,13 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
   },
-  headerTitle: { ...typography.title, color: colors.text.primary },
+  headerTitle: {
+    ...typography.title,
+    color: colors.text.primary,
+  },
+
   headerSpacer: { width: 46 },
+
   exitButton: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -886,18 +898,23 @@ const styles = StyleSheet.create({
     color: "#1a2d4a",
     textTransform: "uppercase",
     letterSpacing: 1,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.md,
+    paddingHorizontal: 10,
   },
-  traitCard: { gap: spacing.sm, paddingVertical: spacing.md },
+  traitCard: {
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.md,
+  },
   traitCardHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: spacing.sm,
   },
   traitIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
@@ -909,18 +926,19 @@ const styles = StyleSheet.create({
     color: "#1a2d4a",
     marginBottom: 2,
   },
-  traitCardDesc: { ...typography.caption, color: "#454850", lineHeight: 17 },
+  traitCardDesc: { ...typography.caption, color: "#5a6070", lineHeight: 17 },
   levelBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 10,
     flexShrink: 0,
+    borderWidth: 1,
   },
-  levelBadgeText: { fontSize: 11, fontWeight: "700" },
+  levelBadgeText: { fontSize: 13, fontWeight: "700" },
   barBg: {
-    height: 7,
+    height: 8,
     borderRadius: 4,
-    backgroundColor: "rgba(200,200,220,0.3)",
+    backgroundColor: "rgba(200,200,220,0.4)",
     overflow: "hidden",
   },
   barFill: { height: "100%", borderRadius: 4 },

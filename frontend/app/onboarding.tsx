@@ -1,10 +1,10 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Easing,
   ImageBackground,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -322,6 +322,28 @@ export default function Onboarding() {
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [selected, setSelected] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const successCardScale = useRef(new Animated.Value(0.72)).current;
+  const successCardOpacity = useRef(new Animated.Value(0)).current;
+  const successEmojiFloat = useRef(new Animated.Value(0)).current;
+
+  const openSuccessModal = () => {
+    successCardScale.setValue(0.72);
+    successCardOpacity.setValue(0);
+    successEmojiFloat.setValue(0);
+    setShowSuccessModal(true);
+    Animated.parallel([
+      Animated.spring(successCardScale, { toValue: 1, friction: 7, tension: 60, useNativeDriver: true }),
+      Animated.timing(successCardOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
+    ]).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(successEmojiFloat, { toValue: -8, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(successEmojiFloat, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ]),
+    ).start();
+  };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -472,11 +494,7 @@ export default function Onboarding() {
       } finally {
         setIsSaving(false);
       }
-      Alert.alert(
-        "Konto zostało utworzone! 🎉",
-        "Zalogowano. Możesz zacząć korzystać z aplikacji.",
-        [{ text: "Zaczynamy!", onPress: () => router.replace("/(tabs)/home") }],
-      );
+      openSuccessModal();
       return;
     }
 
@@ -504,6 +522,39 @@ export default function Onboarding() {
   return (
     <View style={{ flex: 1 }}>
       <Stack.Screen options={{ headerShown: false }} />
+
+      <Modal
+        visible={showSuccessModal}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+      >
+        <View style={q.successBackdrop}>
+          <Animated.View
+            style={[
+              q.successCard,
+              { transform: [{ scale: successCardScale }], opacity: successCardOpacity },
+            ]}
+          >
+            <Animated.Text
+              style={[q.successEmoji, { transform: [{ translateY: successEmojiFloat }] }]}
+            >
+              🎉
+            </Animated.Text>
+            <Text style={q.successTitle}>Konto utworzone!</Text>
+            <Text style={q.successDesc}>
+              Witaj w aplikacji!{"\n"}Wszystko gotowe — możesz zacząć.
+            </Text>
+            <Pressable
+              style={q.successBtn}
+              onPress={() => router.replace("/(tabs)/home")}
+            >
+              <Text style={q.successBtnText}>Zaczynamy! 🚀</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </Modal>
+
       <ImageBackground
         source={require("../assets/background.jpg")}
         style={{ flex: 1 }}
@@ -726,7 +777,7 @@ const q = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 99,
-    backgroundColor: "rgba(255,255,255,0.6)",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -756,10 +807,10 @@ const q = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingBottom: 48,
+    paddingBottom: 100,
   },
   questionIconWrap: {
-    marginBottom: 24,
+    marginBottom: 10,
   },
   questionIconBg: {
     width: 88,
@@ -778,33 +829,37 @@ const q = StyleSheet.create({
     color: colors.text.primary,
     textAlign: "center",
     lineHeight: 32,
-    marginBottom: 8,
+    marginBottom: 20,
     letterSpacing: -0.3,
   },
   hint: {
     fontSize: 13,
     color: colors.text.secondary,
     opacity: 0.65,
-    marginBottom: 24,
   },
   options: {
     width: "100%",
     gap: 10,
-    marginTop: 10,
+    marginTop: 20,
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    backgroundColor: "rgba(255,255,255,0.45)",
-    borderRadius: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderRadius: 20,
     paddingVertical: 15,
     paddingHorizontal: 18,
     borderWidth: 2,
     borderColor: "transparent",
+    shadowColor: "#5f5c5c",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   optionActive: {
-    backgroundColor: "rgba(255,255,255,0.88)",
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
     borderColor: colors.text.primary,
   },
   optionEmoji: {
@@ -852,5 +907,66 @@ const q = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
     color: "#fff",
+  },
+
+  successBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(20, 30, 50, 0.58)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 28,
+  },
+  successCard: {
+    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.98)",
+    borderRadius: 28,
+    paddingVertical: 36,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    shadowColor: "#375a85",
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 14,
+  },
+  successEmoji: {
+    fontSize: 66,
+    marginBottom: 18,
+  },
+  successTitle: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: colors.text.primary,
+    textAlign: "center",
+    marginBottom: 10,
+    letterSpacing: -0.3,
+  },
+  successDesc: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.text.secondary,
+    textAlign: "center",
+    lineHeight: 23,
+    marginBottom: 30,
+    paddingHorizontal: 4,
+  },
+  successBtn: {
+    width: "100%",
+    height: 54,
+    borderRadius: 999,
+    backgroundColor: colors.text.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.text.primary,
+    shadowOpacity: 0.22,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  successBtnText: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: "#fff",
+    letterSpacing: 0.2,
   },
 });

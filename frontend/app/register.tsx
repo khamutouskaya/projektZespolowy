@@ -46,7 +46,7 @@ export default function Register() {
       scopes: ["openid", "profile", "email"],
       usePKCE: true,
     },
-    discovery
+    discovery,
   );
 
   const handleRegister = () => {
@@ -88,7 +88,7 @@ export default function Register() {
               ? { code_verifier: request.codeVerifier }
               : undefined,
           },
-          { tokenEndpoint: "https://oauth2.googleapis.com/token" }
+          { tokenEndpoint: "https://oauth2.googleapis.com/token" },
         );
         const idToken = tokenResult.idToken;
         if (!idToken) {
@@ -115,10 +115,9 @@ export default function Register() {
         <Stack.Screen options={{ headerShown: false }} />
 
         <ImageBackground
-          source={require("../assets/background.jpg")}
+          source={require("../assets/background.png")}
           style={styles.background}
           resizeMode="cover"
-          fadeDuration={0}
         >
           <SafeAreaView style={styles.safe}>
             <ScrollView
@@ -350,7 +349,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(111,122,134,0.1)",
   },
-socialButtonTextDark: {
+  socialButtonTextDark: {
     fontSize: 14,
     fontWeight: "600",
     color: "#7B8794",

@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 namespace MentalOS.Services
 {
 
+    /// <summary>
+    /// Serwis sklepu — obsługa zakupów przedmiotów, ekwipowania, transakcji monetowych i historii zakupów
+    /// </summary>
     public class ShopService : IShopService
     {
         private readonly AppDbContext _context;

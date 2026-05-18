@@ -28,10 +28,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   rowLeft: {
-    alignItems: "flex-start", // AI — прижать влево
+    alignItems: "flex-start", // wiadomości AI — wyrównanie do lewej
   },
   rowRight: {
-    alignItems: "flex-end", // пользователь — прижать вправо
+    alignItems: "flex-end", // wiadomości użytkownika — wyrównanie do prawej
   },
   bubble: {
     maxWidth: "80%",
@@ -41,12 +41,12 @@ const styles = StyleSheet.create({
   },
   bubbleAI: {
     backgroundColor: "#F0F0F0",
-    borderBottomLeftRadius: 4, // "хвостик" пузырька слева
+    borderBottomLeftRadius: 4, // "ogon" dymka po lewej stronie
     borderWidth: 0.2,
     borderColor: "#ccc",
   },
   bubbleUser: {
-    backgroundColor: colors.text.primary, // ← замени на цвет твоей темы
+    backgroundColor: colors.text.primary, // kolor dymka użytkownika z palety kolorów motywu
     borderBottomRightRadius: 4,
     borderWidth: 0.2,
     borderColor: "#ccc",

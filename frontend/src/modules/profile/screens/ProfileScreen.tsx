@@ -27,7 +27,7 @@ import { spacing } from "@/shared/theme/spacing";
 import { cardStyles } from "@/shared/theme/styles";
 
 const ACCENT_LIGHT = "rgba(55,90,133,0.11)";
-const GOLD = "#c0aa07";
+const GOLD = "#ffe100";
 const GOLD_LIGHT = "rgba(200,156,0,0.12)";
 const DIVIDER = "rgba(150,175,200,0.35)";
 
@@ -183,7 +183,10 @@ export default function ProfileScreen() {
             try {
               await apiClient.delete("/users/me");
             } catch (e: any) {
-              Alert.alert("Błąd", "Nie udało się usunąć konta. Spróbuj ponownie.");
+              Alert.alert(
+                "Błąd",
+                "Nie udało się usunąć konta. Spróbuj ponownie.",
+              );
               return;
             }
             await logout();

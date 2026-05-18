@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MentalOS.Services
 {
+    /// <summary>
+    /// Serwis serii aktywności — obsługuje codzienną aktywność, zliczanie serii dni oraz zarządzanie saldem monet
+    /// </summary>
     public class StreakService : IStreakService
     {
         private readonly AppDbContext _context;
@@ -24,7 +27,7 @@ namespace MentalOS.Services
 
             await CheckStreak(userId);
 
-            // Get timestamp of last successful daily streak action
+            // Pobierz znacznik czasu ostatniej udanej akcji dziennej serii
             var lastDailyStreakAt = await _context.StreakHistories
                 .Where(sh => sh.UserId == userId && sh.Action == "daily")
                 .OrderByDescending(sh => sh.CreatedAt)
@@ -33,21 +36,21 @@ namespace MentalOS.Services
 
             var since = lastDailyStreakAt ?? DateTime.MinValue;
 
-            // Check if there's a new journal entry AND a new summary AFTER the last streak action.
-            // Summary counts as: AI-generated entry (IsSummary=true)
-            //                 OR regular entry with a non-empty Preview (written by user in DiaryNoteScreen).
-            // This allows multiple completions per day (demo mode).
+            // Sprawdź, czy jest nowy wpis I nowe podsumowanie PO ostatniej akcji serii.
+            // Podsumowanie to: wpis wygenerowany przez AI (IsSummary=true)
+            //               LUB zwykły wpis z niepustym polem Preview (napisany przez użytkownika).
             var hasNewJournalEntry = await _context.JournalEntries
                 .AnyAsync(j => j.UserId == userId && !j.IsSummary && j.CreatedAt > since);
 
+            
             var hasNewSummary = await _context.JournalEntries
                 .AnyAsync(j => j.UserId == userId && j.CreatedAt > since
                             && (j.IsSummary || (j.Preview != null && j.Preview != "")));
 
-            if (hasNewJournalEntry && hasNewSummary)
+            if (hasNewJournalEntry)
             {
                 await AddInternal(user, 1, "daily");
-                user.FruitsBalance += 1;
+                user.HasPendingFruit = true;
                 user.LastActivityDate = DateTime.UtcNow;
             }
 
@@ -104,7 +107,7 @@ namespace MentalOS.Services
         private async Task AddInternal(User user, int change, string action)
         {
             var newStreak = user.StreakCount + change;
-            // Coins awarded equal to the new streak count (day 1 = 1 coin, day 2 = 2 coins, etc.)
+            // Liczba monet równa wartości serii (dzień 1 = 1 moneta, dzień 2 = 2 monety itd.)
             var newBalance = user.CoinsBalance + newStreak;
 
             if (newStreak < 0 || newBalance < 0)

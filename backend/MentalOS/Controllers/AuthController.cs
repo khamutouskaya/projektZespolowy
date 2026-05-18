@@ -272,7 +272,7 @@ namespace MentalOS.Controllers
 
                 var link = baseUrl + token;
 
-                var subject = "Resset your password on MentalOS"; // Change this html block!!!
+                var subject = "Resset your password on MentalOS"; // TODO: zmień treść szablonu HTML emaila resetującego hasło
                 var body =
                 $"<p>To reset your password, open this link:</p>" +
                 $"<p><a href='{link}'>{link}</a></p>" +

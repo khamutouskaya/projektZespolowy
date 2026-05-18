@@ -6,6 +6,9 @@ using System.Security.Claims;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy ogrodu — pobieranie stanu grządek, sadzenie drzewek, zbieranie owoców i wymiana owoców na monety
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -32,30 +35,45 @@ namespace MentalOS.Controllers
         public async Task<IActionResult> PlantTree()
         {
             var userId = GetUserId();
-
-            await _gardenService.PlantTreeAsync(userId);
-
-            return Ok();
+            try
+            {
+                await _gardenService.PlantTreeAsync(userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("exchange-fruit")]
         public async Task<IActionResult> ExchangeFruit()
         {
             var userId = GetUserId();
-
-            await _gardenService.ExchangeFruitAsync(userId);
-
-            return Ok();
+            try
+            {
+                await _gardenService.ExchangeFruitAsync(userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("harvest/{gardenBedId}")]
         public async Task<IActionResult> HarvestTree(Guid gardenBedId)
         {
             var userId = GetUserId();
-
-            var newCoinsBalance = await _gardenService.HarvestTreeAsync(userId, gardenBedId);
-
-            return Ok(new { coinsBalance = newCoinsBalance });
+            try
+            {
+                var newCoinsBalance = await _gardenService.HarvestTreeAsync(userId, gardenBedId);
+                return Ok(new { coinsBalance = newCoinsBalance });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         private Guid GetUserId()

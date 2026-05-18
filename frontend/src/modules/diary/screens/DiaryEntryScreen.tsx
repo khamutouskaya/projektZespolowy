@@ -35,7 +35,7 @@ export default function DiaryEntryScreen() {
   const [isUnderline, setIsUnderline] = useState(false);
   const inputAccessoryViewID = "toolbar";
 
-  // New notes start in edit mode; existing notes start in read mode
+  // Nowe notatki zaczynają w trybie edycji; istniejące zaczynają w trybie podglądu
   const [isEditing, setIsEditing] = useState(isNew);
 
   const { isRecording, isTranscribing, pulseAnim, handleVoicePress } = useDiaryVoiceRecorder(
@@ -46,7 +46,7 @@ export default function DiaryEntryScreen() {
   const textRef = useRef(text);
   useEffect(() => { textRef.current = text; }, [text]);
 
-  // Save on any exit: swipe right or ‹ Notatka button
+  // Zapisz przy każdym wyjściu: przesunięcie w prawo lub przycisk ‹ Notatka
   useFocusEffect(
     useCallback(() => {
       return () => {
@@ -55,7 +55,7 @@ export default function DiaryEntryScreen() {
     }, [entryId]),
   );
 
-  // When keyboard hides (swipe-down), leave edit mode
+  // Przy chowaniu klawiatury (przeciągnięcie w dół) wyjdź z trybu edycji
   useEffect(() => {
     const event = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
     const sub = Keyboard.addListener(event, () => setIsEditing(false));

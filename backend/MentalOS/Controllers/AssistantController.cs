@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy asystenta AI — uproszczony interfejs czatu korzystający z automatycznie wybranej sesji użytkownika
+    /// </summary>
     [ApiController]
     [Route("api/assistant")]
     [Authorize]

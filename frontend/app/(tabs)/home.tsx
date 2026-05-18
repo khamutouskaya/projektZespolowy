@@ -9,7 +9,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Image,
   Modal,
@@ -23,7 +22,7 @@ import {
 import { useAuthStore } from "@/services/store/useAuthStore";
 import { useShopStore } from "@/services/store/useShopStore";
 import { streakApi } from "@/services/api/streakApi";
-import { gardenService } from "@/modules/garden/garden.service";
+import { useToastStore } from "@/services/store/useToastStore";
 
 const GOLD = "#f9dd0c";
 
@@ -50,6 +49,54 @@ export default function Home() {
   const { isAuthenticated } = useAuthStore();
   const { fetchEquippedItem, equippedPreviewImage } = useShopStore();
 
+  const [showOracle, setShowOracle] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const [showFruitModal, setShowFruitModal] = useState(false);
+  const [isClaimingFruit, setIsClaimingFruit] = useState(false);
+  const [showStreakInfo, setShowStreakInfo] = useState<"noEntry" | "claimed" | null>(null);
+  const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
+  const [isOracleThinking, setIsOracleThinking] = useState(false);
+
+  const [dailyProgress, setDailyProgress] = useState(0);
+  const [hasDailyFruitUsed, setHasDailyFruitUsed] = useState(false);
+  const [hasDailyRewardClaimed, setHasDailyRewardClaimed] = useState(false);
+  const [hasJournalEntry, setHasJournalEntry] = useState(false);
+  const [streakCount, setStreakCount] = useState(0);
+  const [coinsBalance, setCoinsBalance] = useState(0);
+
+  // Po odebraniu dziennej nagrody stan musi pozostać "odebrana" przez całą sesję,
+  // niezależnie od usunięcia notatek lub nawigacji która mogłaby zresetować stan
+  // przed zakończeniem kolejnego wywołania loadDailyStatus().
+  const claimedThisSessionRef = useRef(false);
+
+  const loadDailyStatus = useCallback(async () => {
+    try {
+      const status = await streakApi.getDailyStatus();
+      setDailyProgress(status.progress);
+      setHasDailyFruitUsed(status.hasDailyFruitUsed ?? false);
+      const claimed = (status.hasDailyRewardClaimed ?? false) || claimedThisSessionRef.current;
+      if (claimed) claimedThisSessionRef.current = true;
+      setHasDailyRewardClaimed(claimed);
+      setHasJournalEntry(status.hasJournalEntry ?? false);
+      setStreakCount(status.streakCount ?? 0);
+      setCoinsBalance(status.coinsBalance ?? 0);
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser && status.coinsBalance !== undefined) {
+        useAuthStore.setState({
+          user: {
+            ...currentUser,
+            coinsBalance: status.coinsBalance,
+            fruitsBalance: status.fruitsBalance ?? currentUser.fruitsBalance,
+            streakCount: status.streakCount ?? currentUser.streakCount,
+          },
+        });
+      }
+    } catch {
+      // pozostaw domyślne wartości gdy brak połączenia
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchEquippedItem();
@@ -61,62 +108,25 @@ export default function Home() {
       if (!isAuthenticated) return;
       loadDailyStatus();
 
-      // Auto-refresh every 30 seconds so streak and coins stay live during demo
       const interval = setInterval(() => {
         loadDailyStatus();
       }, 30_000);
 
       return () => clearInterval(interval);
-    }, [isAuthenticated, loadDailyStatus])
+    }, [isAuthenticated, loadDailyStatus]),
   );
 
-  const [showOracle, setShowOracle] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [isBuying, setIsBuying] = useState(false);
-  const [showFruitModal, setShowFruitModal] = useState(false);
-  const [isClaimingFruit, setIsClaimingFruit] = useState(false);
-  const [oracleAnswer, setOracleAnswer] = useState<string | null>(null);
-  const [isOracleThinking, setIsOracleThinking] = useState(false);
-
-  const [dailyProgress, setDailyProgress] = useState(0);
-  const [fruitsBalance, setFruitsBalance] = useState(0);
-  const [hasPendingFruit, setHasPendingFruit] = useState(false);
-  const [streakCount, setStreakCount] = useState(0);
-  const [coinsBalance, setCoinsBalance] = useState(0);
-
-  const loadDailyStatus = useCallback(async () => {
-    try {
-      const status = await streakApi.getDailyStatus();
-      setDailyProgress(status.progress);
-      setFruitsBalance(status.fruitsBalance);
-      setHasPendingFruit(status.hasPendingFruit);
-      setStreakCount(status.streakCount ?? 0);
-      setCoinsBalance(status.coinsBalance ?? 0);
-      // Sync coins to auth store so other screens stay consistent
-      const currentUser = useAuthStore.getState().user;
-      if (currentUser && status.coinsBalance !== undefined) {
-        useAuthStore.setState({
-          user: { ...currentUser, coinsBalance: status.coinsBalance, streakCount: status.streakCount ?? currentUser.streakCount },
-        });
-      }
-    } catch {
-      // keep defaults if offline
-    }
-  }, []);
-
-  // Home cloud float
+  // Animacja unoszenia chmury na ekranie głównym
   const cloudFloat = useRef(new Animated.Value(0)).current;
-  // Oracle cloud
+  // Chmura wyroczni
   const oracleFloat = useRef(new Animated.Value(0)).current;
   const oracleScale = useRef(new Animated.Value(1)).current;
-  // Answer reveal
+  // Pojawienie się odpowiedzi
   const answerScale = useRef(new Animated.Value(0)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
-  // Thinking pulse
+  // Pulsowanie wskaźnika myślenia
   const thinkingPulse = useRef(new Animated.Value(1)).current;
-  // Planet tile pulse
-  const tileGlow = useRef(new Animated.Value(1)).current;
-  // Stars
+  // Gwiazdy
   const star1 = useRef(new Animated.Value(0.3)).current;
   const star2 = useRef(new Animated.Value(0.7)).current;
   const star3 = useRef(new Animated.Value(0.5)).current;
@@ -124,7 +134,7 @@ export default function Home() {
   const star5 = useRef(new Animated.Value(0.8)).current;
   const star6 = useRef(new Animated.Value(0.4)).current;
 
-  // Screen mount fade-in
+  // Pojawienie ekranu po zamontowaniu (fade-in)
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenSlide = useRef(new Animated.Value(16)).current;
   useEffect(() => {
@@ -142,7 +152,7 @@ export default function Home() {
     ]).start();
   }, [screenOpacity, screenSlide]);
 
-  // Home cloud gentle float
+  // Delikatne unoszenie się chmury na ekranie głównym
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -160,25 +170,7 @@ export default function Home() {
     ).start();
   }, [cloudFloat]);
 
-  // Planet tile breathing pulse
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(tileGlow, {
-          toValue: 1.18,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(tileGlow, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, [tileGlow]);
-
-  // Oracle animations when modal opens/closes
+  // Animacje wyroczni przy otwieraniu/zamykaniu modala
   useEffect(() => {
     if (!showOracle) {
       oracleFloat.stopAnimation();
@@ -240,48 +232,49 @@ export default function Home() {
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
   const progress = dailyProgress;
-  const isReady = hasPendingFruit || fruitsBalance > 0;
+  // Nagroda dostępna tylko gdy użytkownik ma wpis w dzienniku i jeszcze jej nie odebrał
+  const isReady = hasJournalEntry && !hasDailyRewardClaimed;
 
-  const handleOdbierzPress = async () => {
-    if (hasPendingFruit) {
-      setIsClaimingFruit(true);
-      try {
-        await streakApi.claimFruit();
-        await loadDailyStatus();
-      } catch {
-        Alert.alert("Błąd", "Nie udało się odebrać nagrody.");
-        setIsClaimingFruit(false);
-        return;
-      } finally {
-        setIsClaimingFruit(false);
-      }
+  const handleStreakCardPress = () => {
+    if (!hasJournalEntry) {
+      setShowStreakInfo("noEntry");
+    } else if (hasDailyRewardClaimed) {
+      setShowStreakInfo("claimed");
+    } else if (isReady) {
+      setShowFruitModal(true);
     }
+  };
+
+  const handleOdbierzPress = () => {
     setShowFruitModal(true);
   };
 
-  const handlePlantFruit = async () => {
+  const handleClaimDailyFruit = async () => {
     setIsClaimingFruit(true);
     try {
-      await gardenService.plantTree();
+      await streakApi.claimDailyReward("fruit");
+      claimedThisSessionRef.current = true;
+      setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
-      Alert.alert("Posadzono!", "Owoc został posadzony w ogródku. 🌱");
     } catch {
-      Alert.alert("Błąd", "Nie udało się posadzić owocu.");
+      useToastStore.getState().show("Ups!", "Nie udało się odebrać jabłka. Spróbuj ponownie.", "error");
     } finally {
       setIsClaimingFruit(false);
     }
   };
 
-  const handleExchangeFruit = async () => {
+  const handleClaimDailyCoins = async () => {
     setIsClaimingFruit(true);
     try {
-      await gardenService.exchangeFruit();
+      await streakApi.claimDailyReward("coins");
+      claimedThisSessionRef.current = true;
+      setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
-      Alert.alert("Wymieniono!", "Owoc został wymieniony na 10 monet. 🪙");
+      useToastStore.getState().show("Monety odebrane!", "+10 monet trafiło na Twoje konto.", "success");
     } catch {
-      Alert.alert("Błąd", "Nie udało się wymienić owocu.");
+      useToastStore.getState().show("Ups!", "Nie udało się odebrać monet. Spróbuj ponownie.", "error");
     } finally {
       setIsClaimingFruit(false);
     }
@@ -303,7 +296,7 @@ export default function Home() {
     answerScale.setValue(0);
     answerOpacity.setValue(0);
 
-    // Cloud squish → spring bounce
+    // Ściśnięcie chmury → sprężysty powrót
     Animated.sequence([
       Animated.spring(oracleScale, {
         toValue: 0.86,
@@ -389,7 +382,7 @@ export default function Home() {
     } catch (e: any) {
       const detail =
         e?.response?.data?.message ?? e?.message ?? "Nieznany błąd";
-      Alert.alert("Błąd", `Nie udało się aktywować Premium.\n${detail}`);
+      useToastStore.getState().show("Błąd Premium", detail, "error");
     } finally {
       setIsBuying(false);
     }
@@ -424,7 +417,9 @@ export default function Home() {
             contentContainerStyle={styles.scrollContent}
           >
             <Animated.Image
-              source={equippedPreviewImage || require("../../assets/images/cloud.png")}
+              source={
+                equippedPreviewImage || require("../../assets/images/cloud.png")
+              }
               style={[
                 styles.cloud,
                 { transform: [{ translateY: cloudFloat }] },
@@ -436,7 +431,10 @@ export default function Home() {
             </View>
 
             {/* DRZEWO DNIA CARD */}
-            <View style={[cardStyles.card, styles.statusCard]}>
+            <Pressable
+              style={({ pressed }) => [cardStyles.card, styles.statusCard, pressed && { opacity: 0.88 }]}
+              onPress={handleStreakCardPress}
+            >
               <View style={styles.compactStreakRow}>
                 <View style={styles.dailyTreeWrap}>
                   <Image
@@ -460,38 +458,47 @@ export default function Home() {
                       <Text style={styles.compactTitle}>Drzewo Dnia</Text>
                       {streakCount > 0 && (
                         <View style={styles.streakChip}>
-                          <Text style={styles.streakChipText}>🔥 {streakCount}</Text>
+                          <Text style={styles.streakChipText}>
+                            🔥 {streakCount}
+                          </Text>
                         </View>
                       )}
                     </View>
                     {isReady ? (
                       <Pressable
-                        style={[styles.claimFruitMiniButton, isClaimingFruit && { opacity: 0.6 }]}
+                        style={[
+                          styles.claimFruitMiniButton,
+                          isClaimingFruit && { opacity: 0.6 },
+                        ]}
                         onPress={handleOdbierzPress}
                         disabled={isClaimingFruit}
                       >
-                        <Text style={styles.claimFruitMiniText}>Odbierz 🍎</Text>
+                        <Text style={styles.claimFruitMiniText}>
+                          Odbierz 🍎
+                        </Text>
                       </Pressable>
-                    ) : progress === 2 ? (
+                    ) : hasDailyFruitUsed ? (
+                      <Text style={styles.compactDone}>✓ Użyto dziś</Text>
+                    ) : hasJournalEntry ? (
                       <Text style={styles.compactDone}>✓ Odebrano</Text>
                     ) : (
-                      <Text style={styles.compactProgress}>{progress}/2</Text>
+                      <Text style={styles.compactProgress}>0/1</Text>
                     )}
                   </View>
                   <View style={styles.progressBar}>
                     <View
                       style={[
                         styles.progressFill,
-                        { width: `${(progress / 2) * 100}%` },
+                        { width: hasJournalEntry ? "100%" : "0%" },
                       ]}
                     />
                   </View>
                   <Text style={styles.compactSubtitle}>
-                    Wpis w dzienniku · Podsumowanie dnia
+                    Dodaj wpis do dziennika
                   </Text>
                 </View>
               </View>
-            </View>
+            </Pressable>
 
             {/* Tiles row */}
             <View style={styles.tilesRow}>
@@ -500,10 +507,9 @@ export default function Home() {
                 sub="Zapytaj chmurkę"
                 iconBg="rgba(182,182,230,0.4)"
                 onPress={handleOracleOpen}
-                glowAnim={tileGlow}
               />
               <Tile
-                icon="diamond-outline"
+                icon="sparkles-outline"
                 label="Akcesoria"
                 sub="Twoje zasoby"
                 iconBg="rgba(245,220,150,0.4)"
@@ -535,55 +541,55 @@ export default function Home() {
               </Text>
             </View>
 
-              {/* Praca z psychologiem + Test psychotypu */}
-                        <View style={styles.extraRow}>
-                  <Pressable
-                    style={({ pressed }) => [
-                              cardStyles.card,
-               styles.extraCard,
-                   pressed && { opacity: 0.85 },
-                     ]}
+            {/* Praca z psychologiem + Test psychotypu */}
+            <View style={styles.extraRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  cardStyles.card,
+                  styles.extraCard,
+                  pressed && { opacity: 0.85 },
+                ]}
                 onPress={handlePsychologistPress}
-                          >
-                    <View
-                  style={[
-             styles.extraIcon,
-                          { backgroundColor: "rgba(182,204,233,0.4)" },
-                 ]}
-                  >
-              <Ionicons
-                 name="people-outline"
-                  size={24}
-                     color={colors.text.primary}
-                    />
-              </View>
-               <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
-                            <Text style={styles.extraSub}>Umów konsultację online</Text>
-                          </Pressable>
-
-                        <Pressable
-                 style={({ pressed }) => [
-                cardStyles.card,
-                       styles.extraCard,
-                    pressed && { opacity: 0.85 },
-             ]}
-                 onPress={() => router.push("/psychotype")}
               >
-                            <View
-                 style={[
-             styles.extraIcon,
-                     { backgroundColor: "rgba(233,182,204,0.4)" },
-                       ]}
-                  >
-                         <Ionicons
-                      name="clipboard-outline"
-                        size={24}
-                          color={colors.text.primary}
+                <View
+                  style={[
+                    styles.extraIcon,
+                    { backgroundColor: "rgba(182,204,233,0.4)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="people-outline"
+                    size={24}
+                    color={colors.text.primary}
                   />
-                    </View>
-                    <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
+                </View>
+                <Text style={styles.extraTitle}>Praca z{"\n"}psychologiem</Text>
+                <Text style={styles.extraSub}>Umów konsultację online</Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  cardStyles.card,
+                  styles.extraCard,
+                  pressed && { opacity: 0.85 },
+                ]}
+                onPress={() => router.push("/psychotype")}
+              >
+                <View
+                  style={[
+                    styles.extraIcon,
+                    { backgroundColor: "rgba(233,182,204,0.4)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="clipboard-outline"
+                    size={24}
+                    color={colors.text.primary}
+                  />
+                </View>
+                <Text style={styles.extraTitle}>Test{"\n"}psychotypu</Text>
                 <Text style={styles.extraSub}>Poznaj swój profil</Text>
-                     </Pressable>
+              </Pressable>
             </View>
           </ScrollView>
         </Animated.View>
@@ -671,27 +677,90 @@ export default function Home() {
               style={styles.fruitModalImage}
             />
 
-            <Text style={styles.fruitModalTitle}>Owoc dojrzał!</Text>
-            <Text style={styles.fruitModalText}>Co chcesz z nim zrobić?</Text>
+            <Text style={styles.fruitModalTitle}>Dzienna nagroda!</Text>
+            <Text style={styles.fruitModalText}>Co chcesz odebrać?</Text>
 
             <Pressable
-              style={[styles.fruitModalPlantButton, isClaimingFruit && { opacity: 0.6 }]}
-              onPress={handlePlantFruit}
+              style={[
+                styles.fruitModalPlantButton,
+                isClaimingFruit && { opacity: 0.6 },
+              ]}
+              onPress={handleClaimDailyFruit}
               disabled={isClaimingFruit}
             >
-              <Text style={styles.fruitModalPlantText}>Zasadź w ogródku 🌱</Text>
+              <Text style={styles.fruitModalPlantText}>Odbierz jabłko 🍎</Text>
             </Pressable>
 
             <Pressable
-              style={[styles.fruitModalExchangeButton, isClaimingFruit && { opacity: 0.6 }]}
-              onPress={handleExchangeFruit}
+              style={[
+                styles.fruitModalExchangeButton,
+                isClaimingFruit && { opacity: 0.6 },
+              ]}
+              onPress={handleClaimDailyCoins}
               disabled={isClaimingFruit}
             >
-              <Text style={styles.fruitModalExchangeText}>Wymień na 10 monet 🪙</Text>
+              <Text style={styles.fruitModalExchangeText}>
+                Odbierz 10 monet 🪙
+              </Text>
             </Pressable>
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={showStreakInfo !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowStreakInfo(null)}
+      >
+        <View style={styles.fruitModalRoot}>
+          <Pressable
+            style={styles.fruitModalBackdrop}
+            onPress={() => setShowStreakInfo(null)}
+          />
+          <View style={styles.fruitModalCard}>
+            {showStreakInfo === "noEntry" ? (
+              <>
+                <Text style={styles.streakInfoEmoji}>🌱</Text>
+                <Text style={styles.fruitModalTitle}>Drzewo czeka</Text>
+                <Text style={styles.streakInfoText}>
+                  Napisz wpis w dzienniku, aby podlać swoje drzewo dnia i odebrać nagrodę.
+                </Text>
+                <Pressable
+                  style={styles.streakInfoPrimaryBtn}
+                  onPress={() => {
+                    setShowStreakInfo(null);
+                    router.push("/(tabs)/diary");
+                  }}
+                >
+                  <Text style={styles.streakInfoPrimaryText}>Idź do dziennika →</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.streakInfoSecondaryBtn}
+                  onPress={() => setShowStreakInfo(null)}
+                >
+                  <Text style={styles.streakInfoSecondaryText}>Zamknij</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={styles.streakInfoEmoji}>✅</Text>
+                <Text style={styles.fruitModalTitle}>Odebrano!</Text>
+                <Text style={styles.streakInfoText}>
+                  Dzienna nagroda została już odebrana. Wróć jutro, żeby podlać drzewo ponownie!
+                </Text>
+                <Pressable
+                  style={styles.streakInfoPrimaryBtn}
+                  onPress={() => setShowStreakInfo(null)}
+                >
+                  <Text style={styles.streakInfoPrimaryText}>OK</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={showOracle}
         transparent
@@ -788,7 +857,10 @@ export default function Home() {
           <View style={styles.oracleStage}>
             <Pressable onPress={handleOracleAnswer}>
               <Animated.Image
-                source={equippedPreviewImage || require("../../assets/images/cloud.png")}
+                source={
+                  equippedPreviewImage ||
+                  require("../../assets/images/cloud.png")
+                }
                 style={[
                   styles.oracleMainCloud,
                   {
@@ -848,13 +920,11 @@ function UniverseTile({
   sub,
   iconBg,
   onPress,
-  glowAnim,
 }: {
   label: string;
   sub: string;
   iconBg: string;
   onPress: () => void;
-  glowAnim: Animated.Value;
 }) {
   return (
     <Pressable
@@ -865,14 +935,9 @@ function UniverseTile({
         pressed && { opacity: 0.85 },
       ]}
     >
-      <Animated.View
-        style={[
-          styles.tileIcon,
-          { backgroundColor: iconBg, transform: [{ scale: glowAnim }] },
-        ]}
-      >
+      <View style={[styles.tileIcon, { backgroundColor: iconBg }]}>
         <Ionicons name="planet-outline" size={22} color={colors.text.primary} />
-      </Animated.View>
+      </View>
       <Text style={styles.tileText}>{label}</Text>
       <Text style={styles.tileSub}>{sub}</Text>
     </Pressable>
@@ -1396,7 +1461,7 @@ const styles = StyleSheet.create({
   },
 
   claimFruitMiniButton: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
     height: 30,
     borderRadius: 999,
     backgroundColor: "rgba(111,174,122,0.28)",
@@ -1480,6 +1545,52 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#7b6730",
   },
+  streakInfoEmoji: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+
+  streakInfoText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.text.secondary,
+    textAlign: "center",
+    lineHeight: 21,
+    marginBottom: 20,
+    paddingHorizontal: 4,
+  },
+
+  streakInfoPrimaryBtn: {
+    width: "100%",
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: colors.text.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  streakInfoPrimaryText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#fff",
+  },
+
+  streakInfoSecondaryBtn: {
+    width: "100%",
+    height: 38,
+    borderRadius: 999,
+    backgroundColor: "rgba(70,80,90,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  streakInfoSecondaryText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text.secondary,
+  },
+
   star: {
     position: "absolute",
     color: "rgba(80,100,160,0.65)",

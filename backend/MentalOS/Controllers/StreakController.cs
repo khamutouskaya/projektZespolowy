@@ -7,6 +7,9 @@ using System.Security.Claims;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy serii aktywności — obsługa codziennej aktywności, nagród, owoców i aktualnego stanu serii
+    /// </summary>
     [ApiController]
     [Route("api/streak")]
     [Authorize]
@@ -83,8 +86,8 @@ namespace MentalOS.Controllers
                 .AnyAsync(j => j.UserId == userId && !j.IsSummary
                             && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
 
-            // Summary = either an AI-generated entry (IsSummary=true)
-            //           OR a regular entry with a non-empty Preview written by the user
+            // Podsumowanie to: wpis wygenerowany przez AI (IsSummary=true)
+            //              LUB zwykły wpis z niepustym Preview napisanym przez użytkownika
             var hasDaySummary = await _context.JournalEntries
                 .AnyAsync(j => j.UserId == userId
                             && (j.IsSummary || (j.Preview != null && j.Preview != ""))
@@ -98,7 +101,17 @@ namespace MentalOS.Controllers
 
             var progress = (hasJournalEntry ? 1 : 0) + (hasDaySummary ? 1 : 0);
 
-            return Ok(new { hasJournalEntry, hasDaySummary, progress, fruitsBalance, hasPendingFruit, streakCount, coinsBalance });
+            var hasDailyFruitUsed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "fruit_action"
+                             && sh.Date == startOfDay);
+
+            var hasDailyRewardClaimed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "daily_reward"
+                             && sh.Date == startOfDay);
+
+            return Ok(new { hasJournalEntry, hasDaySummary, progress, fruitsBalance, hasPendingFruit, streakCount, coinsBalance, hasDailyFruitUsed, hasDailyRewardClaimed });
         }
 
         [HttpPost("claim-fruit")]
@@ -113,6 +126,73 @@ namespace MentalOS.Controllers
             user.HasPendingFruit = false;
             await _context.SaveChangesAsync();
 
+            return Ok(new { fruitsBalance = user.FruitsBalance });
+        }
+
+        [HttpPost("claim-daily-reward")]
+        public async Task<IActionResult> ClaimDailyReward([FromQuery] string rewardType)
+        {
+            var userId = GetUserId();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return Unauthorized();
+
+            var startOfDay = DateTime.UtcNow.Date;
+            var endOfDay = startOfDay.AddDays(1);
+
+            var hasJournalEntry = await _context.JournalEntries
+                .AnyAsync(j => j.UserId == userId && !j.IsSummary
+                            && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
+
+            if (!hasJournalEntry)
+                return BadRequest(new { message = "No journal entry today" });
+
+            var alreadyClaimed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "daily_reward"
+                             && sh.Date == startOfDay);
+
+            if (alreadyClaimed)
+                return BadRequest(new { message = "Already claimed today" });
+
+            if (rewardType == "fruit")
+            {
+                user.FruitsBalance += 1;
+            }
+            else if (rewardType == "coins")
+            {
+                user.CoinsBalance += 10;
+            }
+            else
+            {
+                return BadRequest(new { message = "Invalid reward type" });
+            }
+
+            user.HasPendingFruit = false;
+
+            _context.StreakHistories.Add(new Domain.StreakHistory
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Date = startOfDay,
+                StreakValue = user.StreakCount,
+                BalanceAfter = user.CoinsBalance,
+                Action = "daily_reward",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { coinsBalance = user.CoinsBalance, fruitsBalance = user.FruitsBalance });
+        }
+
+        [HttpPost("debug/add-fruits")]
+        public async Task<IActionResult> DebugAddFruits([FromQuery] int amount = 5)
+        {
+            var userId = GetUserId();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return Unauthorized();
+            user.FruitsBalance += amount;
+            await _context.SaveChangesAsync();
             return Ok(new { fruitsBalance = user.FruitsBalance });
         }
 

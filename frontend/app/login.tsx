@@ -1,9 +1,11 @@
-import { useLoginMutation, useRegisterMutation } from "@/hooks/useAuthMutations";
+import {
+  useLoginMutation,
+  useRegisterMutation,
+} from "@/hooks/useAuthMutations";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageBackground,
   Keyboard,
@@ -18,6 +20,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useToastStore } from "@/services/store/useToastStore";
 import { Ionicons } from "@expo/vector-icons";
 import { authApi } from "@/services/api/auth";
 import { useAuthStore } from "@/services/store/useAuthStore";
@@ -48,11 +51,14 @@ export default function Login() {
       scopes: ["openid", "profile", "email"],
       usePKCE: true,
     },
-    discovery
+    discovery,
   );
 
   const handleLogin = () => {
-    if (!email || !password) return Alert.alert("Błąd", "Wpisz email i hasło");
+    if (!email || !password) {
+      useToastStore.getState().show("Uzupełnij dane", "Wpisz email i hasło, aby się zalogować.", "error");
+      return;
+    }
     loginMutation.mutate({ email, password });
   };
 
@@ -72,11 +78,11 @@ export default function Login() {
               ? { code_verifier: request.codeVerifier }
               : undefined,
           },
-          { tokenEndpoint: "https://oauth2.googleapis.com/token" }
+          { tokenEndpoint: "https://oauth2.googleapis.com/token" },
         );
         const idToken = tokenResult.idToken;
         if (!idToken) {
-          Alert.alert("Błąd", "Nie udało się pobrać tokenu Google.");
+          useToastStore.getState().show("Błąd Google", "Nie udało się pobrać tokenu. Spróbuj ponownie.", "error");
           return;
         }
         const data = await authApi.googleLogin(idToken);
@@ -85,13 +91,14 @@ export default function Login() {
       }
     } catch (e) {
       console.error("[OAuth] error:", e);
-      Alert.alert("Błąd", "Nie udało się zalogować przez Google.");
+      useToastStore.getState().show("Błąd Google", "Nie udało się zalogować przez Google.", "error");
     } finally {
       setIsGooglePending(false);
     }
   };
 
-  const isPending = loginMutation.isPending || registerMutation.isPending || isGooglePending;
+  const isPending =
+    loginMutation.isPending || registerMutation.isPending || isGooglePending;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -176,7 +183,11 @@ export default function Login() {
                       <ActivityIndicator size="small" color="#DB4437" />
                     ) : (
                       <>
-                        <Ionicons name="logo-google" size={18} color="#DB4437" />
+                        <Ionicons
+                          name="logo-google"
+                          size={18}
+                          color="#DB4437"
+                        />
                         <Text style={styles.googleButtonText}>
                           Kontynuuj z Google
                         </Text>
@@ -221,7 +232,6 @@ const styles = StyleSheet.create({
     width: 250,
     height: 240,
     resizeMode: "contain",
-    marginTop: 40,
   },
 
   center: {

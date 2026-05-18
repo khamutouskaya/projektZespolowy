@@ -1,4 +1,4 @@
-// Big Five (OCEAN) test types — /api/personality/
+// Typy testu osobowości Big Five (OCEAN) — /api/personality/
 export type PersonalityQuestion = {
   id: number;
   text: string;
@@ -19,7 +19,7 @@ export type PersonalityResult = {
   N: number;
 };
 
-// Legacy quiz types — kept for reference
+// Starsze typy quizu — zachowane dla odniesienia
 export type QuizOption = {
   key: string;
   text: string;

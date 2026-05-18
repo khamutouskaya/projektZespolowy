@@ -21,7 +21,6 @@ function GardenScreen() {
 
 export default memo(GardenScreen);
 
-
 const styles = StyleSheet.create({
   background: {
     flex: 1,

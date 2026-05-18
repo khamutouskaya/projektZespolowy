@@ -165,7 +165,7 @@ namespace MentalOS.Controllers
             if (user == null)
                 return NotFound(new { message = "User not found" });
 
-            // Delete avatar file
+            // Usuń plik awatara z dysku jeśli istnieje
             if (!string.IsNullOrEmpty(user.Avatar))
             {
                 var avatarPath = Path.Combine(_environment.WebRootPath, "avatars", Path.GetFileName(user.Avatar));
@@ -173,9 +173,9 @@ namespace MentalOS.Controllers
                     System.IO.File.Delete(avatarPath);
             }
 
-            // Manual deletes (no cascade from User defined)
+            // Ręczne usuwanie powiązanych rekordów (brak kaskady zdefiniowanej z poziomu User)
             var chatSessions = await _context.ChatSessions.Where(c => c.UserId == userId).ToListAsync();
-            _context.ChatSessions.RemoveRange(chatSessions); // ChatMessages cascade from ChatSession
+            _context.ChatSessions.RemoveRange(chatSessions); // wiadomości czatu kaskadują z sesji
 
             var userItems = await _context.UserItems.Where(u => u.UserId == userId).ToListAsync();
             _context.UserItems.RemoveRange(userItems);
@@ -189,7 +189,7 @@ namespace MentalOS.Controllers
             var gardens = await _context.Gardens.Where(g => g.UserId == userId).ToListAsync();
             _context.Gardens.RemoveRange(gardens); // GardenBeds cascade from Garden
 
-            // Removing the user cascades: PersonalityProfile, UserRoles, PasswordResetTokens, JournalEntries, PlannerTasks
+            // Usunięcie użytkownika kaskaduje: PersonalityProfile, UserRoles, PasswordResetTokens, JournalEntries, PlannerTasks
             _context.Users.Remove(user);
 
             await _context.SaveChangesAsync();
@@ -247,7 +247,7 @@ namespace MentalOS.Controllers
                 return BadRequest(new { message = "No file uploaded" });
             }
 
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" }; // TODO add to settings 
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" }; // dozwolone rozszerzenia plików awatara
             var extension = Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
 
             if(!allowedExtensions.Contains(extension))

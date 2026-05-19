@@ -3,6 +3,9 @@ using MentalOS.Services.Interfaces;
 
 namespace MentalOS.Services
 {
+    /// <summary>
+    /// Serwis osobowości Big Five — przetwarza odpowiedzi użytkownika z testu OCEAN i oblicza wyniki dla każdej cechy
+    /// </summary>
     public class PersonalityService
     {
         private readonly IQuestionProvider _provider;

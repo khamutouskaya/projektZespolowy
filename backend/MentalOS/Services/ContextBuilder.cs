@@ -6,6 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace MentalOS.Services
 {
+    /// <summary>
+    /// Buduje kontekst użytkownika przekazywany do modelu AI — profil osobowości, ostatnie wpisy dziennika,
+    /// analiza nastroju z ostatnich 7 dni oraz zadania i produktywność na dziś
+    /// </summary>
     public class ContextBuilder : IContextBuilder
     {
         private readonly AppDbContext _db;
@@ -64,7 +68,7 @@ namespace MentalOS.Services
             }
 
             // -------------------------
-            // 1️⃣ JOURNAL (последние записи)
+            // 1. DZIENNIK (ostatnie wpisy)
             // -------------------------
             var recentEntries = await _db.JournalEntries
                 .AsNoTracking()
@@ -87,7 +91,7 @@ namespace MentalOS.Services
             }
 
             // -------------------------
-            // 2️⃣ MOOD ANALYSIS (за неделю)
+            // 2. ANALIZA NASTROJU (ostatnie 7 dni)
             // -------------------------
             var weeklyEntries = await _db.JournalEntries
                 .AsNoTracking()
@@ -154,7 +158,7 @@ namespace MentalOS.Services
             return sb.ToString();
         }
 
-        // ограничение длины текста (очень важно)
+        // Ograniczenie długości tekstu — ważne dla limitu tokenów API
         private string Trim(string text, int maxLength)
         {
             if (string.IsNullOrEmpty(text)) return text;

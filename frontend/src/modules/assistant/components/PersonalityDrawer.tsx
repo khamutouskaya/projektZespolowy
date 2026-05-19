@@ -33,7 +33,7 @@ export function PersonalityDrawer({
 }: Props) {
   const translateX = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
-  // Keep modal mounted until close animation finishes
+  // Modal pozostaje zamontowany do zakończenia animacji zamykania
   const [modalVisible, setModalVisible] = useState(false);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;

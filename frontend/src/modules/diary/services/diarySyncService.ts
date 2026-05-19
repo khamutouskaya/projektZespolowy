@@ -25,8 +25,8 @@ const fromApiResponse = (data: any, userId: string): Partial<DiaryEntry> => ({
 });
 
 let syncPendingRunning = false;
-// Session-level guard: prevents the welcome-reward toast from appearing more than once
-// per app session, even if the server response is somehow duplicated.
+// Blokada na poziomie sesji: zapobiega pojawieniu się toastu powitalnej nagrody więcej niż raz
+// podczas jednej sesji, nawet jeśli odpowiedź serwera zostanie zduplikowana.
 let welcomeRewardShownThisSession = false;
 
 export const diarySyncService = {
@@ -91,7 +91,7 @@ export const diarySyncService = {
             );
           }
         } else {
-          // Before creating, check if local entry with same date exists (prevents duplicates)
+          // Przed utworzeniem sprawdź, czy istnieje lokalny wpis z tą samą datą (zapobiega duplikatom)
           const entryDate = new Date(serverEntry.entryDate).toLocaleDateString("pl-PL");
           const sameDay = diaryService
             .getAll(userId)

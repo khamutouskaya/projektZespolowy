@@ -25,13 +25,13 @@ namespace MentalOS.Data
         public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
         public DbSet<PlannerTask> PlannerTasks => Set<PlannerTask>();
 
-        // Streak + shop
+        // Seria aktywności i sklep
         public DbSet<StreakHistory> StreakHistories { get; set; }
         public DbSet<ShopItem> ShopItems { get; set; }
         public DbSet<UserItem> UserItems { get; set; }
         public DbSet<CoinTransaction> CoinTransactions { get; set; }
 
-        // Garden
+        // Ogród
         public DbSet<Garden> Gardens { get; set; }
         public DbSet<GardenBed> GardenBeds { get; set; }
 
@@ -71,7 +71,7 @@ namespace MentalOS.Data
                 entity.HasIndex(e => e.Name).IsUnique();
             });
 
-            // UserRole configuration
+            // Konfiguracja tabeli pośredniej UserRole (wiele-do-wielu: użytkownik–rola)
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.ToTable("user_roles");
@@ -206,7 +206,7 @@ namespace MentalOS.Data
                       .OnDelete(DeleteBehavior.Cascade)
                       .IsRequired(false);
                 entity.HasIndex(e => e.UserId);
-                entity.HasIndex(e => e.TaskDate); // for fast daily/weekly queries
+                entity.HasIndex(e => e.TaskDate); // indeks dla szybkich zapytań dziennych i tygodniowych
             });
         }
     }

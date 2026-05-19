@@ -9,6 +9,9 @@ using System.Security.Claims;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy plannera zadań — tworzenie, edycja, oznaczanie jako ukończone i usuwanie zadań (widok dzienny, tygodniowy, miesięczny)
+    /// </summary>
     [ApiController]
     [Route("api/planner")]
     [Authorize]

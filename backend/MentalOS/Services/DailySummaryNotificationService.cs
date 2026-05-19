@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace MentalOS.Services
 {
     /// <summary>
-    /// Background service that triggers daily summary notifications around 20:00.
+    /// Usługa działająca w tle — wysyła przypomnienia o podsumowaniu dnia około godz. 20:00 do użytkowników, którzy go jeszcze nie zapisali
     /// </summary>
     public class DailySummaryNotificationService : BackgroundService
     {
@@ -32,18 +32,18 @@ namespace MentalOS.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var now = DateTime.UtcNow;
-                var localTime = now.ToLocalTime(); // Adjust to local business time if needed
+                var localTime = now.ToLocalTime(); // konwersja na lokalną strefę czasową
 
-                // Check if it's currently 20:00 (between 20:00 and 20:59)
+                // Sprawdź czy jest godzina 20:00 (przedział 20:00–20:59)
                 if (localTime.Hour == NotificationHour)
                 {
                     await ProcessDailyNotificationsAsync(now, stoppingToken);
-                    // Wait until next hour to avoid repeated firing in the same hour window
+                    // Odczekaj godzinę, żeby nie wykonać akcji wielokrotnie w tej samej godzinie
                     await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
                 }
                 else
                 {
-                    // Check every 15 minutes if it's time
+                    // Sprawdzaj co 15 minut czy nadeszła pora wysyłki
                     await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
                 }
             }

@@ -10,6 +10,9 @@ using System.Security.Claims;
 
 namespace MentalOS.Controllers
 {
+    /// <summary>
+    /// Endpointy testu osobowości Big Five (OCEAN) — pobieranie pytań, obliczanie wyników i odczyt profilu użytkownika
+    /// </summary>
     [ApiController]
     [Route("api/personality")]
     [Authorize]

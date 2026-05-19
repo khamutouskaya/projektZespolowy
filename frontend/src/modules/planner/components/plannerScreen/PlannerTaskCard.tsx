@@ -54,7 +54,7 @@ export default function PlannerTaskCard({
 
   const swipeableRef = useRef<Swipeable | null>(null);
 
-  // RN Animated – complete / delete / strike / press
+  // RN Animated – animacje ukończenia, usunięcia, przekreślenia i naciśnięcia
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateYAnim = useRef(new Animated.Value(0)).current;
   const translateXAnim = useRef(new Animated.Value(0)).current;
@@ -64,7 +64,7 @@ export default function PlannerTaskCard({
   const heightAnim = useRef(new Animated.Value(1)).current;
   const marginAnim = useRef(new Animated.Value(15)).current;
 
-  // Reanimated – entry slide-in + scroll depth
+  // Reanimated – wjazd z lewej + efekt głębi przy przewijaniu
   const layoutY = useSharedValue(0);
   const entryProgress = useSharedValue(0);
 
@@ -77,7 +77,7 @@ export default function PlannerTaskCard({
   }, []);
 
   const liveStyle = useAnimatedStyle(() => {
-    // Entry: slide from left + fade in
+    // Wjazd: przesunięcie z lewej + pojawienie się
     const entryOpacity = entryProgress.value;
     const entryX = interpolate(
       entryProgress.value,
@@ -86,7 +86,7 @@ export default function PlannerTaskCard({
       Extrapolation.CLAMP,
     );
 
-    // Depth: cards near viewport edges shrink + dim
+    // Głębia: karty przy krawędziach ekranu zmniejszają się i przyciemniają
     let depthScale = 1;
     let depthOpacity = 1;
     if (scrollOffset) {

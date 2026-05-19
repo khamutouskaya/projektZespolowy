@@ -8,6 +8,9 @@ using MentalOS.Services.Interfaces;
 
 namespace MentalOS.Services
 {
+    /// <summary>
+    /// Serwis wysyłania emaili przez Gmail SMTP — używany do resetowania hasła i powiadomień systemowych
+    /// </summary>
     public sealed class GmailSmtpEmailService : IEmailService
     {
         public readonly IConfiguration _config;
@@ -32,7 +35,7 @@ namespace MentalOS.Services
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = subject;
 
-            // HTML body (can be changed to "plain")
+            // Treść emaila jako HTML (można zmienić na "plain" dla zwykłego tekstu)
             message.Body = new TextPart("html")
             {
                 Text = body

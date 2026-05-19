@@ -9,16 +9,14 @@ using System.Security.Claims;
 namespace MentalOS.Controllers
 {
 
+    /// <summary>
+    /// Endpointy sklepu — przeglądanie przedmiotów, zakup, ekwipowanie oraz historia transakcji
+    /// </summary>
     [ApiController]
     [Route("api/shop")]
     [Authorize]
     public class ShopController : ControllerBase
     {
-        // change payment controller, 
-        // isActive change, while it using and isActive - false while it dont
-
-        // password checker 
-
         private readonly IShopService _shopService;
         private readonly AppDbContext _context;
 
@@ -63,7 +61,7 @@ namespace MentalOS.Controllers
                 targetItem = await _context.Set<ShopItem>().FirstOrDefaultAsync(i => i.FrontendAccesoriesId == itemId);
             }
 
-            // Auto-create item in backend to support frontend mocks silently
+            // Automatyczne tworzenie przedmiotu gdy frontend przesyła dane — obsługa mocków
             if (targetItem == null && itemDto != null && !string.IsNullOrEmpty(itemDto.Name))
             {
                 targetItem = new ShopItem

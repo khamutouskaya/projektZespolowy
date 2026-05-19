@@ -25,11 +25,11 @@ export default function GenerateSummaryButton({ onGenerated, todayEntriesContent
       await diaryApi.generateSummary(new Date().toISOString(), todayEntriesContent);
       await diarySyncService.fullSync(userId);
 
-      // Trigger streak check after both journal entry and summary are on backend
+      // Wyzwól aktualizację serii gdy wpis i podsumowanie są już na backendzie
       try {
         await streakApi.triggerDaily();
       } catch {
-        // Streak trigger is best-effort — don't block the user
+        // Aktualizacja serii jest opcjonalna — nie blokuje użytkownika w razie błędu
       }
 
       Alert.alert("Sukces", "Wygenerowano podsumowanie dnia!");

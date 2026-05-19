@@ -24,7 +24,7 @@ export default function VideoScreen() {
         useRewardModalStore.getState().show(reward.coinsAwarded, "video");
       }
     } catch {
-      // reward check is non-critical
+      // aktualizacja nagrody jest opcjonalna — nie blokuje odtwarzania
     }
   };
 

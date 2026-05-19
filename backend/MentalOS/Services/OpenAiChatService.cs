@@ -5,6 +5,9 @@ using System.Text.Json;
 
 namespace MentalOS.Services.Interfaces
 {
+    /// <summary>
+    /// Klient API OpenAI dla czatu — wysyła wiadomości do modelu GPT i zwraca odpowiedź tekstową
+    /// </summary>
     public class OpenAiChatService : IAiChatService
     {
         private readonly HttpClient _httpClient;

@@ -64,19 +64,11 @@ export default function Home() {
   const [hasJournalEntry, setHasJournalEntry] = useState(false);
   const [streakCount, setStreakCount] = useState(0);
   const [coinsBalance, setCoinsBalance] = useState(0);
-  const [isStatusLoaded, setIsStatusLoaded] = useState(false);
 
-  // Once the daily reward is claimed it must stay "claimed" for the whole session,
-  // regardless of note deletions or navigation that might reset state before the
-  // next loadDailyStatus() call returns.
+  // Po odebraniu dziennej nagrody stan musi pozostać "odebrana" przez całą sesję,
+  // niezależnie od usunięcia notatek lub nawigacji która mogłaby zresetować stan
+  // przed zakończeniem kolejnego wywołania loadDailyStatus().
   const claimedThisSessionRef = useRef(false);
-
-  // Reset loaded flag whenever authentication changes (login / logout / restart)
-  // so the reward button is never shown until the server confirms the true state.
-  useEffect(() => {
-    setIsStatusLoaded(false);
-    claimedThisSessionRef.current = false;
-  }, [isAuthenticated]);
 
   const loadDailyStatus = useCallback(async () => {
     try {
@@ -101,9 +93,7 @@ export default function Home() {
         });
       }
     } catch {
-      // keep defaults if offline — status is still considered loaded
-    } finally {
-      setIsStatusLoaded(true);
+      // pozostaw domyślne wartości gdy brak połączenia
     }
   }, []);
 
@@ -126,18 +116,17 @@ export default function Home() {
     }, [isAuthenticated, loadDailyStatus]),
   );
 
-  // Home cloud float
+  // Animacja unoszenia chmury na ekranie głównym
   const cloudFloat = useRef(new Animated.Value(0)).current;
-  // Oracle cloud
+  // Chmura wyroczni
   const oracleFloat = useRef(new Animated.Value(0)).current;
   const oracleScale = useRef(new Animated.Value(1)).current;
-  // Answer reveal
+  // Pojawienie się odpowiedzi
   const answerScale = useRef(new Animated.Value(0)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
-  // Thinking pulse
+  // Pulsowanie wskaźnika myślenia
   const thinkingPulse = useRef(new Animated.Value(1)).current;
-  // Planet tile pulse
-  // Stars
+  // Gwiazdy
   const star1 = useRef(new Animated.Value(0.3)).current;
   const star2 = useRef(new Animated.Value(0.7)).current;
   const star3 = useRef(new Animated.Value(0.5)).current;
@@ -145,7 +134,7 @@ export default function Home() {
   const star5 = useRef(new Animated.Value(0.8)).current;
   const star6 = useRef(new Animated.Value(0.4)).current;
 
-  // Screen mount fade-in
+  // Pojawienie ekranu po zamontowaniu (fade-in)
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenSlide = useRef(new Animated.Value(16)).current;
   useEffect(() => {
@@ -163,7 +152,7 @@ export default function Home() {
     ]).start();
   }, [screenOpacity, screenSlide]);
 
-  // Home cloud gentle float
+  // Delikatne unoszenie się chmury na ekranie głównym
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -181,7 +170,7 @@ export default function Home() {
     ).start();
   }, [cloudFloat]);
 
-  // Oracle animations when modal opens/closes
+  // Animacje wyroczni przy otwieraniu/zamykaniu modala
   useEffect(() => {
     if (!showOracle) {
       oracleFloat.stopAnimation();
@@ -243,13 +232,10 @@ export default function Home() {
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
   const progress = dailyProgress;
-  // Reward available only when server-confirmed status is loaded, user has a diary
-  // entry today, and hasn't claimed yet.  Guarding with isStatusLoaded prevents the
-  // "Odbierz" button from flashing during the initial fetch after restart / re-login.
-  const isReady = isStatusLoaded && hasJournalEntry && !hasDailyRewardClaimed;
+  // Nagroda dostępna tylko gdy użytkownik ma wpis w dzienniku i jeszcze jej nie odebrał
+  const isReady = hasJournalEntry && !hasDailyRewardClaimed;
 
   const handleStreakCardPress = () => {
-    if (!isStatusLoaded) return;
     if (!hasJournalEntry) {
       setShowStreakInfo("noEntry");
     } else if (hasDailyRewardClaimed) {
@@ -271,7 +257,6 @@ export default function Home() {
       setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
-      useToastStore.getState().show("Nagroda dzienna! 🍎", "+1 jabłko trafiło do ogrodu.", "success");
     } catch {
       useToastStore.getState().show("Ups!", "Nie udało się odebrać jabłka. Spróbuj ponownie.", "error");
     } finally {
@@ -311,7 +296,7 @@ export default function Home() {
     answerScale.setValue(0);
     answerOpacity.setValue(0);
 
-    // Cloud squish → spring bounce
+    // Ściśnięcie chmury → sprężysty powrót
     Animated.sequence([
       Animated.spring(oracleScale, {
         toValue: 0.86,

@@ -19,11 +19,13 @@ namespace MentalOS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAiChatService _aiChatService;
+        private readonly IWelcomeRewardService _welcomeRewardService;
 
-        public JournalController(AppDbContext context, IAiChatService aiChatService)
+        public JournalController(AppDbContext context, IAiChatService aiChatService, IWelcomeRewardService welcomeRewardService)
         {
             _context = context;
             _aiChatService = aiChatService;
+            _welcomeRewardService = welcomeRewardService;
         }
 
         private Guid? GetCurrentUserId()
@@ -146,18 +148,23 @@ namespace MentalOS.Controllers
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new JournalEntryDto
+            MentalOS.DTOs.WelcomeRewardDto? welcomeReward = null;
+            if (!dto.IsSummary)
+                welcomeReward = await _welcomeRewardService.TryGrant(userId.Value, "note");
+
+            return CreatedAtAction(nameof(GetEntry), new { id = entry.Id }, new
             {
-                Id = entry.Id,
-                Title = entry.Title,
-                Content = entry.Content,
-                Preview = entry.Preview,
-                MoodScore = entry.MoodScore,
-                Emotions = entry.Emotions,
-                IsSummary = entry.IsSummary,
-                EntryDate = entry.EntryDate,
-                CreatedAt = entry.CreatedAt,
-                UpdatedAt = entry.UpdatedAt
+                id = entry.Id,
+                title = entry.Title,
+                content = entry.Content,
+                preview = entry.Preview,
+                moodScore = entry.MoodScore,
+                emotions = entry.Emotions,
+                isSummary = entry.IsSummary,
+                entryDate = entry.EntryDate,
+                createdAt = entry.CreatedAt,
+                updatedAt = entry.UpdatedAt,
+                welcomeReward,
             });
         }
 
@@ -214,6 +221,31 @@ namespace MentalOS.Controllers
             if (entry == null) return NotFound(new { message = "Journal entry not found" });
 
             _context.JournalEntries.Remove(entry);
+
+            // If the user has an unclaimed fruit reward, check whether removing this entry
+            // leaves no qualifying entry today — if so, revoke the pending reward.
+            var user = await _context.Users.FindAsync(userId.Value);
+            if (user is { HasPendingFruit: true } && !entry.IsSummary)
+            {
+                var startOfDay = DateTime.UtcNow.Date;
+                var endOfDay = startOfDay.AddDays(1);
+
+                var stillHasContent = await _context.JournalEntries
+                    .AnyAsync(j => j.UserId == userId.Value && !j.IsSummary
+                                && !string.IsNullOrEmpty(j.Content)
+                                && j.Id != id
+                                && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
+
+                var stillHasPreview = await _context.JournalEntries
+                    .AnyAsync(j => j.UserId == userId.Value && !j.IsSummary
+                                && !string.IsNullOrEmpty(j.Preview)
+                                && j.Id != id
+                                && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
+
+                if (!stillHasContent || !stillHasPreview)
+                    user.HasPendingFruit = false;
+            }
+
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Journal entry deleted successfully" });
@@ -413,6 +445,12 @@ Zwróć czysty tekst z wydzielonymi akapitami, bez nagłówków markdown.";
             if (user == null || user.HasPendingFruit) return;
 
             var startOfDay = DateTime.UtcNow.Date;
+
+            var alreadyClaimed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "daily_reward_claimed"
+                             && sh.Date == startOfDay);
+            if (alreadyClaimed) return;
             var endOfDay = startOfDay.AddDays(1);
 
             bool hasContent = await _context.JournalEntries

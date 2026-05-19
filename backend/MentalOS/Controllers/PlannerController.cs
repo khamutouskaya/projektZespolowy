@@ -15,12 +15,12 @@ namespace MentalOS.Controllers
     public class PlannerController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IGardenService _gardenService;
+        private readonly IWelcomeRewardService _welcomeRewardService;
 
-        public PlannerController(AppDbContext context, IGardenService gardenService)
+        public PlannerController(AppDbContext context, IWelcomeRewardService welcomeRewardService)
         {
             _context = context;
-            _gardenService = gardenService;
+            _welcomeRewardService = welcomeRewardService;
         }
 
         private Guid? GetCurrentUserId()
@@ -140,15 +140,6 @@ namespace MentalOS.Controllers
             _context.PlannerTasks.Add(task);
             await _context.SaveChangesAsync();
 
-            try
-            {
-                await _gardenService.PlantTreeAsync(userId.Value);
-            }
-            catch
-            {
-                // ignore
-            }
-
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, MapToDto(task));
         }
 
@@ -199,7 +190,29 @@ namespace MentalOS.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(MapToDto(task));
+            MentalOS.DTOs.WelcomeRewardDto? welcomeReward = null;
+            if (isCompleted)
+                welcomeReward = await _welcomeRewardService.TryGrant(userId.Value, "task");
+
+            var dto = MapToDto(task);
+            return Ok(new
+            {
+                id = dto.Id,
+                title = dto.Title,
+                description = dto.Description,
+                taskDate = dto.TaskDate,
+                hasTime = dto.HasTime,
+                reminderTime = dto.ReminderTime,
+                icon = dto.Icon,
+                category = dto.Category,
+                priority = dto.Priority,
+                recurrence = dto.Recurrence,
+                isCompleted = dto.IsCompleted,
+                completedAt = dto.CompletedAt,
+                createdAt = dto.CreatedAt,
+                updatedAt = dto.UpdatedAt,
+                welcomeReward,
+            });
         }
 
         [HttpDelete("{id}")]

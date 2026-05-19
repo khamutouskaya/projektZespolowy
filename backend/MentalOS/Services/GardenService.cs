@@ -160,7 +160,7 @@ namespace MentalOS.Services
             if (user == null)
                 throw new Exception("User not found");
 
-            await _streakService.AddBalance(user, 40, "harvest");
+            await _streakService.AddBalance(user, 30, "harvest");
 
             bed.TreeState = TreeState.Empty;
             bed.PlantedAt = null;
@@ -170,7 +170,7 @@ namespace MentalOS.Services
             return user.CoinsBalance;
         }
 
-        public async Task PlantTreeAsync(Guid userId)
+        public async Task PlantTreeAsync(Guid userId, Guid gardenBedId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -186,34 +186,26 @@ namespace MentalOS.Services
 
             if (garden == null)
             {
-                garden = new Garden
-                {
-                    UserId = userId
-                };
-
+                garden = new Garden { UserId = userId };
                 _context.Gardens.Add(garden);
                 await _context.SaveChangesAsync();
-
                 garden.GardenBeds = CreateDefaultBeds(garden.Id);
-
                 await _context.SaveChangesAsync();
             }
 
-            var beds = garden.GardenBeds.ToList();
+            var targetBed = garden.GardenBeds.FirstOrDefault(b => b.Id == gardenBedId);
 
-            foreach (var bed in beds)
-            {
-                UpdateBedState(bed);
-            }
+            if (targetBed == null)
+                throw new Exception("Garden bed not found");
 
-            var freeBed = beds.FirstOrDefault(b => b.TreeState == TreeState.Empty);
+            UpdateBedState(targetBed);
 
-            if (freeBed == null)
-                throw new Exception("No free garden beds");
+            if (targetBed.TreeState != TreeState.Empty)
+                throw new Exception("Garden bed is already occupied");
 
             user.FruitsBalance -= 1;
-            freeBed.PlantedAt = DateTime.UtcNow;
-            freeBed.TreeState = TreeState.Sprout;
+            targetBed.PlantedAt = DateTime.UtcNow;
+            targetBed.TreeState = TreeState.Sprout;
 
             await _context.SaveChangesAsync();
         }

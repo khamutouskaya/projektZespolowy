@@ -1,8 +1,10 @@
 ﻿using MentalOS.Data;
+using MentalOS.Domain;
 using MentalOS.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 
 namespace MentalOS.Controllers
@@ -93,8 +95,24 @@ namespace MentalOS.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             var fruitsBalance = user?.FruitsBalance ?? 0;
             var hasPendingFruit = user?.HasPendingFruit ?? false;
-            var streakCount = user?.StreakCount ?? 0;
             var coinsBalance = user?.CoinsBalance ?? 0;
+
+            // Streak = consecutive days the user wrote at least one diary entry (non-summary).
+            // If the user hasn't written today yet, show yesterday's streak so it doesn't
+            // disappear mid-day before they've had a chance to write.
+            var lookbackStart = startOfDay.AddDays(-400);
+            var rawEntryDates = await _context.JournalEntries
+                .Where(j => j.UserId == userId && !j.IsSummary && j.EntryDate >= lookbackStart)
+                .Select(j => j.EntryDate)
+                .ToListAsync();
+            var entryDateSet = rawEntryDates.Select(d => d.Date).ToHashSet();
+            var streakCount = 0;
+            var checkDay = entryDateSet.Contains(startOfDay) ? startOfDay : startOfDay.AddDays(-1);
+            while (entryDateSet.Contains(checkDay))
+            {
+                streakCount++;
+                checkDay = checkDay.AddDays(-1);
+            }
 
             var progress = (hasJournalEntry ? 1 : 0) + (hasDaySummary ? 1 : 0);
 
@@ -103,7 +121,64 @@ namespace MentalOS.Controllers
                              && sh.Action == "fruit_action"
                              && sh.Date == startOfDay);
 
-            return Ok(new { hasJournalEntry, hasDaySummary, progress, fruitsBalance, hasPendingFruit, streakCount, coinsBalance, hasDailyFruitUsed });
+            // daily_reward_claimed tracks the new diary-based daily reward (apple or 10 coins)
+            var hasDailyRewardClaimed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "daily_reward_claimed"
+                             && sh.Date == startOfDay);
+
+            return Ok(new { hasJournalEntry, hasDaySummary, progress, fruitsBalance, hasPendingFruit, streakCount, coinsBalance, hasDailyFruitUsed, hasDailyRewardClaimed });
+        }
+
+        [HttpPost("claim-daily-reward")]
+        public async Task<IActionResult> ClaimDailyReward([FromQuery] string rewardType)
+        {
+            if (rewardType != "coins" && rewardType != "fruit")
+                return BadRequest(new { message = "Invalid rewardType. Use 'coins' or 'fruit'." });
+
+            var userId = GetUserId();
+            var startOfDay = DateTime.UtcNow.Date;
+            var endOfDay = startOfDay.AddDays(1);
+
+            // Prevent reclaiming even if diary entry was deleted and recreated
+            var alreadyClaimed = await _context.StreakHistories
+                .AnyAsync(sh => sh.UserId == userId
+                             && sh.Action == "daily_reward_claimed"
+                             && sh.Date == startOfDay);
+            if (alreadyClaimed)
+                return BadRequest(new { message = "Daily reward already claimed today" });
+
+            // Reward only available when user has a diary entry today
+            var hasJournalEntry = await _context.JournalEntries
+                .AnyAsync(j => j.UserId == userId && !j.IsSummary
+                            && j.EntryDate >= startOfDay && j.EntryDate < endOfDay);
+            if (!hasJournalEntry)
+                return BadRequest(new { message = "No diary entry found for today" });
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return Unauthorized();
+
+            if (rewardType == "coins")
+                user.CoinsBalance += 10;
+            else
+                user.FruitsBalance += 1;
+
+            user.HasPendingFruit = false;
+
+            _context.StreakHistories.Add(new StreakHistory
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Date = startOfDay,
+                StreakValue = user.StreakCount,
+                BalanceAfter = user.CoinsBalance,
+                Action = "daily_reward_claimed",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { coinsBalance = user.CoinsBalance, fruitsBalance = user.FruitsBalance });
         }
 
         [HttpPost("claim-fruit")]
@@ -122,8 +197,10 @@ namespace MentalOS.Controllers
         }
 
         [HttpPost("debug/add-fruits")]
-        public async Task<IActionResult> DebugAddFruits([FromQuery] int amount = 5)
+        public async Task<IActionResult> DebugAddFruits([FromQuery] int amount = 5, [FromServices] IWebHostEnvironment env = null!)
         {
+            if (!env.IsDevelopment())
+                return NotFound();
             var userId = GetUserId();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return Unauthorized();

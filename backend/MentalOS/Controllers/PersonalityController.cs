@@ -18,15 +18,18 @@ namespace MentalOS.Controllers
         private readonly PersonalityService _service;
         private readonly IQuestionProvider _provider;
         private readonly AppDbContext _context;
+        private readonly IWelcomeRewardService _welcomeRewardService;
 
         public PersonalityController(
             PersonalityService service,
             IQuestionProvider provider,
-            AppDbContext context)
+            AppDbContext context,
+            IWelcomeRewardService welcomeRewardService)
         {
             _service = service;
             _provider = provider;
             _context = context;
+            _welcomeRewardService = welcomeRewardService;
         }
 
         private Guid? GetCurrentUserId()
@@ -94,7 +97,17 @@ namespace MentalOS.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(scores);
+            var welcomeReward = await _welcomeRewardService.TryGrant(userId.Value, "quiz");
+
+            return Ok(new
+            {
+                O = scores.GetValueOrDefault("O"),
+                C = scores.GetValueOrDefault("C"),
+                E = scores.GetValueOrDefault("E"),
+                A = scores.GetValueOrDefault("A"),
+                N = scores.GetValueOrDefault("N"),
+                welcomeReward,
+            });
         }
     }
 }

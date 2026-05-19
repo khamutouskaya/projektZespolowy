@@ -28,13 +28,13 @@ namespace MentalOS.Controllers
             return Ok(result);
         }
 
-        [HttpPost("plant")]
-        public async Task<IActionResult> PlantTree()
+        [HttpPost("plant/{gardenBedId}")]
+        public async Task<IActionResult> PlantTree(Guid gardenBedId)
         {
             var userId = GetUserId();
             try
             {
-                await _gardenService.PlantTreeAsync(userId);
+                await _gardenService.PlantTreeAsync(userId, gardenBedId);
                 return Ok();
             }
             catch (Exception ex)

@@ -98,6 +98,7 @@ namespace MentalOS.Controllers
                 StreakCount = user.StreakCount,
                 StreakActive = user.StreakActive,
                 CoinsBalance = user.CoinsBalance,
+                FruitsBalance = user.FruitsBalance,
                 IsPremium = user.IsPremium,
                 IsAdmin = user.IsAdmin,
                 CreatedAt = user.CreatedAt
@@ -146,6 +147,7 @@ namespace MentalOS.Controllers
                 StreakCount = user.StreakCount,
                 StreakActive = user.StreakActive,
                 CoinsBalance = user.CoinsBalance,
+                FruitsBalance = user.FruitsBalance,
                 IsPremium = user.IsPremium,
                 IsAdmin = user.IsAdmin,
                 CreatedAt = user.CreatedAt
@@ -189,6 +191,7 @@ namespace MentalOS.Controllers
                 StreakCount = user.StreakCount,
                 StreakActive = user.StreakActive,
                 CoinsBalance = user.CoinsBalance,
+                FruitsBalance = user.FruitsBalance,
                 IsPremium = user.IsPremium,
                 IsAdmin = user.IsAdmin,
                 CreatedAt = user.CreatedAt
@@ -232,6 +235,7 @@ namespace MentalOS.Controllers
                 StreakCount = user.StreakCount,
                 StreakActive = user.StreakActive,
                 CoinsBalance = user.CoinsBalance,
+                FruitsBalance = user.FruitsBalance,
                 IsPremium = user.IsPremium,
                 IsAdmin = user.IsAdmin,
                 CreatedAt = user.CreatedAt

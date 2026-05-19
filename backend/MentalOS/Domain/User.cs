@@ -46,6 +46,18 @@ namespace MentalOS.Domain
         
         [Column("is_premium")]
         public bool IsPremium { get; set; } = false;
+
+        [Column("has_received_note_reward")]
+        public bool HasReceivedNoteReward { get; set; } = false;
+
+        [Column("has_received_task_reward")]
+        public bool HasReceivedTaskReward { get; set; } = false;
+
+        [Column("has_received_video_reward")]
+        public bool HasReceivedVideoReward { get; set; } = false;
+
+        [Column("has_received_quiz_reward")]
+        public bool HasReceivedQuizReward { get; set; } = false;
         
         // Standardowe pola audytowe do śledzenia zmian
         [Column("created_at")]

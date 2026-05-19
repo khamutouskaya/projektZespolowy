@@ -66,6 +66,7 @@ builder.Services.AddHostedService<DataArchivingService>();
 //Streak system
 builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddScoped<IShopService, ShopService>();
+builder.Services.AddScoped<IWelcomeRewardService, WelcomeRewardService>();
 
 // Serwisy do ogroda
 builder.Services.AddScoped<IGardenService, GardenService>();
@@ -163,6 +164,14 @@ try
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS fruits_balance integer NOT NULL DEFAULT 0;");
         db.Database.ExecuteSqlRaw(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_pending_fruit boolean NOT NULL DEFAULT false;");
+        db.Database.ExecuteSqlRaw(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_received_note_reward boolean NOT NULL DEFAULT false;");
+        db.Database.ExecuteSqlRaw(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_received_task_reward boolean NOT NULL DEFAULT false;");
+        db.Database.ExecuteSqlRaw(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_received_video_reward boolean NOT NULL DEFAULT false;");
+        db.Database.ExecuteSqlRaw(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_received_quiz_reward boolean NOT NULL DEFAULT false;");
 
         var canConnect = true;
 

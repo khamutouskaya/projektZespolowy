@@ -136,7 +136,9 @@ export default function DiaryNoteScreen() {
           useRewardModalStore.getState().show(reward.coinsAwarded, "note");
         }
       } catch {}
-      streakApi.triggerDaily().catch(() => {});
+      try {
+        await streakApi.triggerDaily();
+      } catch {}
     }
 
     router.back();

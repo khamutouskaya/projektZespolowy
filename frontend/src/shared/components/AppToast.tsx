@@ -25,7 +25,7 @@ const TYPE_CONFIG: Record<ToastType, { icon: any; color: string; bg: string }> =
 export default function AppToast() {
   const { visible, type, title, message, hide } = useToastStore();
 
-  const slideAnim = useRef(new Animated.Value(90)).current;
+  const slideAnim = useRef(new Animated.Value(-90)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function AppToast() {
     } else {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: 90,
+          toValue: -90,
           duration: 220,
           useNativeDriver: true,
         }),
@@ -86,7 +86,7 @@ export default function AppToast() {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    bottom: 106,
+    top: 60,
     left: 16,
     right: 16,
     zIndex: 9999,

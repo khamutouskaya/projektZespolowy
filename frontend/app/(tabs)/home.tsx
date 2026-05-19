@@ -258,6 +258,7 @@ export default function Home() {
       setHasDailyRewardClaimed(true);
       setShowFruitModal(false);
       await loadDailyStatus();
+      useToastStore.getState().show("Nagroda dzienna! 🍎", "+1 jabłko trafiło do ogrodu.", "success");
     } catch {
       useToastStore.getState().show("Ups!", "Nie udało się odebrać jabłka. Spróbuj ponownie.", "error");
     } finally {

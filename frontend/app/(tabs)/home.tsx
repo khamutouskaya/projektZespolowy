@@ -64,11 +64,19 @@ export default function Home() {
   const [hasJournalEntry, setHasJournalEntry] = useState(false);
   const [streakCount, setStreakCount] = useState(0);
   const [coinsBalance, setCoinsBalance] = useState(0);
+  const [isStatusLoaded, setIsStatusLoaded] = useState(false);
 
   // Once the daily reward is claimed it must stay "claimed" for the whole session,
   // regardless of note deletions or navigation that might reset state before the
   // next loadDailyStatus() call returns.
   const claimedThisSessionRef = useRef(false);
+
+  // Reset loaded flag whenever authentication changes (login / logout / restart)
+  // so the reward button is never shown until the server confirms the true state.
+  useEffect(() => {
+    setIsStatusLoaded(false);
+    claimedThisSessionRef.current = false;
+  }, [isAuthenticated]);
 
   const loadDailyStatus = useCallback(async () => {
     try {
@@ -93,7 +101,9 @@ export default function Home() {
         });
       }
     } catch {
-      // keep defaults if offline
+      // keep defaults if offline — status is still considered loaded
+    } finally {
+      setIsStatusLoaded(true);
     }
   }, []);
 
@@ -233,10 +243,13 @@ export default function Home() {
   const thoughtOfTheDay =
     cloudThoughts[new Date().getDate() % cloudThoughts.length];
   const progress = dailyProgress;
-  // Reward available only when user has a diary entry today and hasn't claimed yet
-  const isReady = hasJournalEntry && !hasDailyRewardClaimed;
+  // Reward available only when server-confirmed status is loaded, user has a diary
+  // entry today, and hasn't claimed yet.  Guarding with isStatusLoaded prevents the
+  // "Odbierz" button from flashing during the initial fetch after restart / re-login.
+  const isReady = isStatusLoaded && hasJournalEntry && !hasDailyRewardClaimed;
 
   const handleStreakCardPress = () => {
+    if (!isStatusLoaded) return;
     if (!hasJournalEntry) {
       setShowStreakInfo("noEntry");
     } else if (hasDailyRewardClaimed) {

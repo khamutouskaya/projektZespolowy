@@ -35,7 +35,6 @@ builder.Services.AddRazorComponents()
 // Baza danych PostgreSQL z EF Core
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 // Serwisy autoryzacji i JWT
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();

@@ -4,9 +4,9 @@ services:
     image: postgres:16
     container_name: mentalos_postgres
     environment:
-      POSTGRES_USER: mentalos
-      POSTGRES_PASSWORD: mentalos_password
-      POSTGRES_DB: mentalos_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: mentalos
     ports:
       - "5432:5432"
     volumes:

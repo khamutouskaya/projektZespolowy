@@ -1,228 +1,284 @@
-## Dość ważne
+---
+# MentalOS - Dokumentacja Techniczna i Architektoniczna
 
-musicie mieć w folderze frontendu plik .env z linijką EXPO_PUBLIC_API_URL="http://10.0.2.2:5076/api"
-//10.0.2.2 - android symulator
-//z aplikacji expo go wpisujemy ipv4 addres computera (ipconfig)
-Albo inny adres, zależy od backendu, w razie czego przyjżyjcie się logom. Potem będzie to trzeba zastąpić rzeczywistym adresem backendu na serwerze i https, ale ten jest lokalny.
+## 1. Wstęp i Cel Projektu
 
-Może nie działać jeśli korzystacie z telefonu zamiast emulatora z Android Studio, wtedy adres będzie inny (zamiast 10.0.2.2, rzeczywisty adres IP komputera w sieci i będziecie raczej musieli być na takiej samej sieci)
+MentalOS to rozbudowana platforma do monitorowania zdrowia psychicznego. Aplikacja łączy w sobie funkcje autoterapii (dziennik, wsparcie mentalne), pomocy specjalistycznej (rezerwacja wizyt) oraz grywalizacji (ogród, sklep), która ma na celu budowanie zdrowych nawyków użytkownika poprzez system nagród (monety) i ciągłości (streaks). System został zaprojektowany z naciskiem na prywatność danych i bezpieczeństwo użytkownika.
+---
 
-## Dziennik — dokumentacja gałęzi
+## 2. Technologie i Uzasadnienie Wyboru
 
-Zmieniłem parę ekranów żeby tam wstawić tą komunikację, też nie miałem pewności czy ekran DiaryNoteScreen, miał mieć czy nie miał mieć przycisku do zapisu, więc dodałem tymczasowy (niezbyt widoczny / trzeba przescrollować żeby go zobaczyć) i czy w podglądzie ma się wyświetlać podsumowanie, czy początek całości, czy tylko początek podsumowania (na razie jest całe podsumowanie).
+### Frontend (Aplikacja Mobilna)
 
-## Co zostało dodane
+- **React Native & Expo:** Wybrane ze względu na możliwość kompilacji cross-platform (iOS/Android) z jednej bazy kodu. Expo dostarcza gotowe, natywne moduły (SecureStore, SQLite) bez konieczności konfiguracji Xcode/Android Studio.
+- **Expo Router:** Routing oparty na systemie plików (File-based routing). Upraszcza zarządzanie nawigacją (Tab Bar, Stack) i ułatwia wprowadzanie tzw. Auth Guards.
+- **TypeScript:** Gwarantuje bezpieczeństwo typów (Type Safety). Interfejsy DTO na frontendzie odzwierciedlają modele z .NET, co eliminuje błędy związane z literówkami w payloadach JSON.
+- **Zustand:** Wybrany do zarządzania Stanem Klienta (Client State). Przechowuje sesję użytkownika i motyw aplikacji.
+- **React Query:** Odpowiada za Stan Serwera. Automatyzuje cache'owanie, deduplikację zapytań HTTP, stany ładowania (isPending) oraz ponawianie zapytań w przypadku braku sieci (Auto-retry).
+- **SQLite:** Użyty do lokalnej bazy danych dla modułu Dziennika. Gwarantuje działanie aplikacji bez dostępu do internetu.
 
-Ta gałąź implementuje lokalny dziennik z obsługą trybu offline i przygotowaną infrastrukturą do synchronizacji z serwerem, oraz logowanie i rejstrację.
+### Backend (REST API)
+
+- **.NET 8 (ASP.NET Core Web API):** Wybrany ze względu na najwyższą wydajność, silne typowanie i wbudowane mechanizmy Dependency Injection oraz autoryzacji (Middleware).
+- **Język:** C# 12.0
+- **PostgreSQL:** Główna relacyjna baza danych. Gwarantuje spójność ACID, wydajność przy relacjach (Użytkownik -> Role -> Wpisy) oraz wsparcie dla pól JSONB.
+- **Entity Framework Core (EF Core):** ORM użyty do abstrakcji bazy danych i zarządzania migracjami.
+- **Serilog:** Strukturalne logowanie zdarzeń aplikacji, pozwalające na łatwe filtrowanie logów audytowych (np. błędy logowania).
+- **JWT (JSON Web Tokens):** Bezstanowy mechanizm autoryzacji, gwarantujący skalowalność i bezpieczeństwo.
 
 ---
 
-## Instalacja itp.
+## 3. Architektura Systemu
 
-W dużej mierze kierować się instrukcją z backendu, zainstalować zależności z dołu, zwrócić uwagę żeby dane wprowadzone w tworzeniu bazy były takie same jak w appsettings w folderze backendu (powinno być ok). Odpalić Docker, włączyć bazę, włączyć backend (powinno wyskoczyć w logach że połączenie udane), potem włączyć aplikację.
+System opiera się na architekturze klient-serwer. Frontend korzysta z architektury modularnej, a backend z architektury warstwowej.
 
-Możliwe błędy:
-Windows może próbować używać innej, wbudowanej bazy, wtedy należy ją wyłączyć
-Niezgodność loginu i hasła między bazą a appsettings
-Niezgodność portu między .env, a tym gdzie backend nasłuchuje (wyświetla się w logach backendu)
-Backend próbuje używać https, zamiast http, nie mamy certyfikatu, więc możemy kożystać tylko z http, odpowiednia linijka w chyba Program.cs musi być wykomentowana
+```mermaid
+graph TD
+    subgraph Frontend [Aplikacja Mobilna - React Native]
+        UI[UI / Expo Router] --> RQ[React Query]
+        UI --> Z[Zustand Store]
+        RQ --> Axios[Axios Interceptors]
+        Axios --> SSL((Bezpieczny Tunel TLS))
+        Z <--> Secure[Expo Secure Store]
+        UI <--> SQLite[(Lokalne SQLite)]
+    end
 
-## Zmiany w typie `DiaryEntry`
+    subgraph Backend [Serwer - .NET 8]
+        SSL --> Controllers[API Controllers]
+        Controllers --> Services[Logika Biznesowa / Services]
+        Controllers --> Middleware[Auth / Error Middleware]
+        Services --> EF[Entity Framework Core]
+        Services -.-> OAuth[Google/FB Graph API]
+    end
 
-Oryginalny typ został rozszerzony o nowe pola. Stare pola pozostały bez zmian.
-
-| Pole         | Było | Jest | Opis                                            |
-| ------------ | ---- | ---- | ----------------------------------------------- |
-| `id`         | ✅   | ✅   | bez zmian                                       |
-| `icon`       | ✅   | ✅   | bez zmian                                       |
-| `title`      | ✅   | ✅   | bez zmian                                       |
-| `preview`    | ✅   | ✅   | bez zmian                                       |
-| `date`       | ✅   | ✅   | bez zmian                                       |
-| `duration`   | ✅   | ✅   | bez zmian                                       |
-| `mood`       | ✅   | ✅   | bez zmian                                       |
-| `section`    | ✅   | ✅   | bez zmian                                       |
-| `userId`     | ❌   | ✅   | ID użytkownika — izolacja danych między kontami |
-| `content`    | ❌   | ✅   | pełna treść wpisu                               |
-| `tags`       | ❌   | ✅   | tagi jako JSON string, np. `["Spokój"]`         |
-| `syncStatus` | ❌   | ✅   | `"pending"` / `"synced"` / `"failed"`           |
-| `serverId`   | ❌   | ✅   | ID wpisu nadane przez serwer po synchronizacji  |
-| `updatedAt`  | ❌   | ✅   | czas ostatniej edycji                           |
-
----
-
-## Architektura
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                     Aplikacja                           │
-│                                                         │
-│  DiaryNoteScreen ──► useDiaryEntries (hook)             │
-│  DiaryEntryScreen        │                              │
-│  DiaryScreen ◄───────────┘                              │
-│                          │                              │
-│                    diaryService                         │
-│                          │                              │
-│                    SQLite (diary.db)                     │
-│                    lokalnie na urządzeniu               │
-└──────────────────────────┬──────────────────────────────┘
-                           │ (przyszłość)
-                           ▼
-              ┌────────────────────────┐
-              │  diarySyncService      │
-              │  (jeszcze nie gotowy)  │
-              │          │             │
-              │          ▼             │
-              │  Backend API           │
-              │  POST /api/diary       │
-              └────────────────────────┘
-```
-
-```
-Komponent (np. login.tsx)
-│ wywołuje hook
-▼
-useAuthMutations.ts (useLoginMutation, useRegisterMutation)
-│ wywołuje funkcję API
-▼
-auth.ts (authApi.login / authApi.register)
-│ używa klienta HTTP
-▼
-client.ts (apiClient — axios)
-│ HTTP request
-▼
-Backend ASP.NET Core
-```
-
-client.ts tworzy i konfiguruje klienta HTTP (axios). Dzięki interceptorom automatycznie doklejа token do każdego wychodzącego requestu i nasłuchuje odpowiedzi, jeśli backend zwróci 401, wylogowuje użytkownika.
-
-Zasadniczo dokleja znaczek i wpisuje adres serwera
-
-auth.ts definiuje konkretne funkcje HTTP, każda wie pod jaki endpoint uderzyć i jakie dane wysłać. Sam axios zajmuje się resztą.
-
-Nie wie gdzie jest endpoint, ale wie jaki chce, wysyła żądanie które jest przechwytywane przez client.ts
-
-useAuthMutations.ts łączy odpowiedź backendu z lokalnym stanem aplikacji, zapisuje token na dysku, aktualizuje store i nawiguje użytkownika.
-
-Dla logowania flow wygląda mniej więcej tak:
-
-```
-Użytkownik wpisuje email + hasło i klika "Zaloguj się"
-│
-▼
-handleLogin() w login.tsx
-│
-▼
-loginMutation.mutate({ email, password })
-│
-▼
-authApi.login() → POST http://10.0.2.2:5076/api/auth/login
-│
-▼ odpowiedź 200 OK
-{ token: "eyJ...", user: { id, email, personalityType, isAdmin } }
-│
-▼
-loginToStore(token, user) zapisuje sesję i przekierowuje do aplikacji
-
-        ▼ odpowiedź 401
-
-Alert "Nieprawidłowy email lub hasło"
+    EF --> DB[(PostgreSQL)]
 ```
 
 ---
 
-## Jak działa zapis wpisu
+## 4. Schemat Bazy Danych
 
-```
-Użytkownik pisze tekst
-        │
-        ▼
-DiaryEntryScreen (edytor tekstu)
-        │ router.replace z params.text
-        ▼
-DiaryNoteScreen (wybór nastroju, tagu, podsumowania)
-        │ handleSave()
-        ▼
-useDiaryEntries.addEntry()
-        │
-        ▼
-diaryService.create(userId, data)
-        │ serializuje cały wpis do JSON
-        ▼
-SQLite INSERT — sync_status = "pending"
-        │
-        ▼
-DiaryScreen — useFocusEffect odświeża listę
-```
+```mermaid
+erDiagram
+    USERS ||--o{ USER_ROLES : has
+    ROLES ||--o{ USER_ROLES : assigned_to
+    USERS ||--o| PERSONALITY_PROFILES : owns
+    USERS ||--o{ DIARY_ENTRIES : creates
 
-## Przechowywanie danych
-
-To możliwe będzie zmienione w przyszłości, zależy od backendu
-
-Dane wpisu są serializowane do jednego JSON stringa i trzymane w kolumnie `content`:
-
-```
-SQLite tabela diary_entries:
-┌────────────┬────────────┬───────────────────────────────────┬─────────────┬──────────┬────────────┐
-│ id         │ user_id    │ content (JSON)                    │ sync_status │ server_id│ updated_at │
-├────────────┼────────────┼───────────────────────────────────┼─────────────┼──────────┼────────────┤
-│ uuid-123   │ uuid-usr   │ {"title":"15.03","mood":"😊",...} │ pending     │ null     │ 2026-03-15 │
-└────────────┴────────────┴───────────────────────────────────┴─────────────┴──────────┴────────────┘
-```
-
-Podejście z JSON stringiem oznacza że dodanie nowego pola do wpisu nie wymaga migracji bazy danych.
-
-## Nowe pliki
-
-```
-src/modules/diary/
-  db/
-    diaryDb.ts              ← inicjalizacja SQLite, schemat tabeli
-  services/
-    diaryService.ts         ← CRUD na lokalnej bazie (getAll, create, update, delete)
-  hooks/
-    useDiaryEntries.ts      ← hook React, łączy diaryService z komponentami
-
-src/hooks/
-  useNetworkStatus.ts       ← wykrywanie połączenia sieciowego
-```
-
-## Zmodyfikowane pliki
-
-```
-src/modules/diary/
-  diary.types.ts            ← rozszerzony typ DiaryEntry
-  components/
-    diaryNote/
-      MoodSelector.tsx      ← stan przeniesiony do rodzica (controlled component)
-      TagSelector.tsx       ← stan przeniesiony do rodzica (controlled component)
-      SummaryInput.tsx      ← dodana możliwość edycji (prop onChangeSummary)
-    diaryScreen/
-      DiaryEntryCard.tsx    ← wyświetla mood, tagi i podsumowanie
-    diaryEntry/
-      DiaryEntryHeader.tsx  ← naprawiony przycisk OK (wywołuje onSave)
-  screens/
-    DiaryScreen.tsx         ← useFocusEffect odświeża wpisy po powrocie
-    DiaryNoteScreen.tsx     ← podłączony zapis, stan mood/tag/summary
-    DiaryEntryScreen.tsx    ← przekazuje tekst z powrotem przez params
-
-app/_layout.tsx             ← dodany AppInit z hydrate()
-app/index.tsx               ← guard nawigacyjny (sprawdza isAuthenticated)
+    USERS {
+        Guid Id PK
+        string Email
+        string PasswordHash
+        int StreakCount
+        int CoinsBalance
+        bool IsPremium
+    }
+    ROLES {
+        Guid Id PK
+        string Name
+    }
+    PERSONALITY_PROFILES {
+        Guid Id PK
+        Guid UserId FK
+        string PersonalityType
+    }
+    DIARY_ENTRIES {
+        Guid Id PK
+        Guid UserId FK
+        string Content
+        string SyncStatus
+    }
 ```
 
 ---
 
-## Zależności
+## 5. Przepływ Danych w Aplikacji (Activity Flow)
+
+Poniższy diagram obrazuje główną ścieżkę użytkownika, działanie modułów offline oraz mechanizmy integrujące aplikację z systemem grywalizacji.
+
+```mermaid
+flowchart TD
+    Start([Uruchomienie Aplikacji]) --> Hydrate{Hydratacja Zustand}
+    Hydrate -- Token znaleziony --> AppStart
+    Hydrate -- Brak Tokena --> AuthUI(Ekran Logowania / Rejestracji)
+
+    AuthUI -->|Logowanie| AuthAPI["API: POST /api/auth/login"]
+    AuthUI -->|Rejestracja| RegAPI["API: POST /api/auth/register"]
+
+    RegAPI --> PsychoQuiz["Rozwiązanie Quizu Psychotypu"]
+    PsychoQuiz --> PsychoSubmit["API: POST /api/personality/submit"]
+    PsychoSubmit --> SaveToken
+
+    AuthAPI --> AuthSuccess{Sukces?}
+    AuthSuccess -- Tak --> SaveToken(Zapis JWT w SecureStore)
+    AuthSuccess -- Błąd 401 --> AuthUI
+    SaveToken --> AppStart([Pulpit / Dashboard])
+
+    AppStart --> M_Diary([Moduł Dziennika])
+    AppStart --> M_Mental([Wsparcie Mentalne])
+    AppStart --> M_Garden([Grywalizacja: Ogród/Sklep])
+    AppStart --> M_Planner([Moduł Planera])
+    AppStart --> M_AI([Asystent AI])
+
+    M_Diary -->|Użytkownik tworzy wpis| LocalDiary[(Baza SQLite)]
+    LocalDiary --> CheckNet{Czy jest Internet?}
+    CheckNet -- Tak --> SyncDiary["API: POST /api/journal"]
+    CheckNet -- Nie --> QueueDiary[Status 'pending' - czeka na sieć]
+    SyncDiary --> AI_Summary["POST /api/journal/daily-summary/generate"]
+
+    M_Mental --> ViewVideo[Odtwarzanie Wideo/Audio]
+    ViewVideo -->|Koniec filmu| TrackVid["API: POST /api/mental-support/video-watched"]
+    TrackVid -- Zwraca nagrodę --> AwardUser(Aktualizacja stanu monet/streak)
+
+    M_Planner --> PlanTask["API: POST /api/planner"]
+    M_Planner --> CompleteTask["API: PATCH /api/planner/{id}/complete"]
+    CompleteTask -- Zwraca nagrodę --> AwardUser
+
+    M_Garden --> CheckStreak["API: GET /api/streak/daily-status"]
+    CheckStreak --> ClaimReward["API: POST /api/streak/claim-daily-reward"]
+    ClaimReward --> AddCoins{Backend weryfikuje i dodaje Monety}
+    AwardUser --> AddCoins
+    AddCoins --> ShopBuy["API: POST /api/shop/buy"]
+    ShopBuy --> Equip["API: POST /api/shop/equip-item"]
+
+    M_AI --> ChatMsg["API: POST /api/chat/message"]
+    ChatMsg --> ChatContext["API: GET /api/chat/history"]
+
+    SyncDiary -.-> InvalidQuery[React Query: Zaktualizuj widoki]
+    AddCoins -.-> InvalidQuery
+    Equip -.-> InvalidQuery
+```
+
+---
+
+## 6. Szczegółowa Logika Modułów
+
+### A. Autoryzacja i Personalizacja (Psychotyp)
+
+Aplikacja działa w trybie "pamiętaj mnie" z dodatkowym profilowaniem.
+
+1. Podczas rejestracji użytkownik wypełnia **Quiz Osobowości**. Wynik przesyłany jest do endpointu `/api/personality/submit`, co pozwala aplikacji na lepsze spersonalizowanie doświadczenia.
+2. Przy ponownym włączeniu aplikacji, `app/_layout.tsx` wywołuje funkcję `hydrate()` ze Store'a.
+3. Store asynchronicznie czyta zaszyfrowany token z `expo-secure-store`.
+4. Social Login: Aplikacja przekazuje tokeny od Google/FB do endpointów backendu. Backend sam weryfikuje ich poprawność w zewnętrznych API i zwraca własny token JWT MentalOS.
+
+### B. Moduł Dziennika (Offline-First i Upsert)
+
+1. **Lokalny zapis:** Kiedy użytkownik zapisuje wpis, trafia on w pierwszej kolejności do lokalnej bazy SQLite (`diaryDb.ts`) z flagą `syncStatus: "pending"`.
+2. **Przekazywanie Kontekstu:** Przejście między ekranami edycji a podsumowania odbywa się z użyciem parametrów URL (przekazywanie `id`).
+3. **Upsert:** Jeśli `id` istnieje, wykonywany jest UPDATE. Jeśli nie, generowane jest nowe UUID i wykonywany jest INSERT.
+4. **Synchronizacja w tle:** Zapytania asynchroniczne szukają wpisów o statusie "pending" i wysyłają je do bazy w .NET, zmieniając lokalny status na "synced".
+
+### C. Grywalizacja (Streaks, Ogród i Sklep)
+
+Logika portfela użytkownika znajduje się po stronie serwera dla zapewnienia bezpieczeństwa transakcji.
+
+1. **Nagrody za aktywność:** Odznaczanie zadań w Planerze (`toggleComplete`) oraz kończenie sesji Wsparcia Mentalnego (`trackVideoWatched`) zwraca obiekt `WelcomeReward`.
+2. **Aktualizacja:** Przychód monet automatycznie unieważnia (invalidate) cache w React Query dla stanu konta, co natychmiast odświeża licznik monet w sklepie (ShopScreen) i ogródku (GardenScreen).
+3. **Sklep:** Frontend wyłącznie wysyła intencję zakupu (`/api/shop/buy`). Ostateczna weryfikacja salda i przyznanie przedmiotu odbywa się w .NET.
+
+### D. Asystent AI i Wsparcie Mentalne
+
+- **Asystent:** Oparty na promptach czat z wykorzystaniem API zewnętrznego (OpenAI) pośredniczonego przez backend (/api/chat/message).
+- **Wsparcie Mentalne:** Baza materiałów relaksacyjnych (oddechowych, medytacyjnych). Moduł śledzi postęp użytkownika i po ukończeniu ćwiczenia zasila moduł Grywalizacji.
+
+### E. Moduł Planera (Zarządzanie Zadaniami)
+
+Planer służy do harmonogramowania dnia i działa w trybie Online (Synchronous REST API), co gwarantuje spójność zadań na różnych urządzeniach użytkownika.
+
+1. **Przetwarzanie DTO (Data Transfer Object):** Serwis frontendowy (planner.service.ts) posiada warstwę abstrakcji (metoda mapToPlannerTask), która tłumaczy surowy format z bazy danych na struktury używane w komponentach React.
+2. **Optymalizacja zapytań (PATCH):** Podczas odznaczania zadań jako wykonane, aplikacja nie wysyła pełnego obiektu. Używa lekkiego zapytania PATCH /api/planner/{id}/complete, co minimalizuje użycie przepustowości sieci.
+3. **Integracja z Grywalizacją:** Moduł ten jest aktywnie spięty z systemem motywacyjnym. Endpoint kończący zadanie może zwrócić w odpowiedzi obiekt WelcomeReward. Oznacza to, że za zrealizowanie celu z planera, użytkownik jest natychmiastowo nagradzany w obrębie aplikacji.
+
+---
+
+## 7. Struktura Projektu i Kluczowe Klasy
+
+Struktura bazuje na ścisłym podziale modułowym (Feature-Sliced Design), co zapobiega powstawaniu kodu typu "spaghetti" przy rosnącej liczbie funkcjonalności.
+
+### Frontend (frontend/)
+
+code Text
 
 ```
-npm install
-
-npx expo install zustand
-npx expo install jwt-decode
-npx expo install expo-splash-screen
-npx expo install axios
-npx expo install expo-secure-store
-npm install @tanstack/react-query
-npx expo install @react-native-community/netinfo
-npx expo install expo-sqlite
-npx expo install expo-crypto
+src/
+├── modules/                 # Niezależne moduły biznesowe
+│   ├── assistant/           # (Czat AI, prompty, widoki wiadomości)
+│   ├── diary/               # (DB lokalne, edytor, widoki wpisów)
+│   ├── garden/              # (Grywalizacja, punkty za logowanie)
+│   ├── home/                # (Pulpit główny / Dashboard)
+│   ├── mentalSupport/       # (Ćwiczenia oddechowe, odtwarzacz wideo)
+│   ├── planner/             # (Zadania, harmonogram, kalendarz)
+│   ├── profile/             # (Ustawienia konta, statystyki)
+│   ├── psychologists/       # (Lista dostępnych specjalistów)
+│   ├── psychotype/          # (Analiza i wyniki quizu osobowości)
+│   ├── shop/                # (Sklep z akcesoriami za monety z grywalizacji)
+│   └── visits/              # (Rezerwacja i historia wizyt)
+├── services/
+│   ├── api/client.ts        # Strażnik komunikacji HTTP (Interceptors)
+│   ├── store/useAuthStore.ts# Pamięć RAM sesji użytkownika (Zustand)
+│   └── storage.ts           # Interfejs expo-secure-store
+├── hooks/                   # React Query mutacje (np. useAuthMutations)
+├── types/                   # Interfejsy TypeScript (DTO, auth.types.ts)
+└── shared/                  # Komponenty uniwersalne (Button, LayoutContainer)
 ```
+
+### Backend (backend/MentalOS/)
+
+code Text
+
+```
+MentalOS/
+├── Controllers/
+│   └── AuthController.cs    # Endpointy logowania, rejestracji i Social Auth
+├── Services/
+│   ├── OAuthService.cs      # Komunikacja z API Google/Facebook
+│   └── TokenService.cs      # Generowanie i podpisywanie JWT
+├── Data/
+│   └── AppDbContext.cs      # Konfiguracja Entity Framework Core
+└── Middleware/
+    └── ErrorHandlingMiddleware.cs # Przechwytywanie wyjątków i formatowanie na JSON
+```
+
+---
+
+## 8. Bezpieczeństwo i Obsługa Błędów
+
+### Bezpieczeństwo (Security First)
+
+1. **Brak haseł w logach i lokalnych DB:** Hasła są natychmiast przesyłane do backendu. Backend soli je i haszuje (PBKDF2 HMAC-SHA256).
+2. **Bezpieczny schowek:** Expo-secure-store wykorzystuje enklawy sprzętowe systemu iOS (Keychain) oraz Android (Keystore).
+3. **Zasada Minimalnych Uprawnień:** API udostępnia dedykowane endpointy dla administratorów chronione atrybutem [Authorize(Roles = "admin")].
+
+### Obsługa Błędów
+
+1. **Frontend:** React Query przejmuje wszystkie błędy Axios. Wyświetlanie błędu następuje deklaratywnie poprzez sprawdzanie flagi isError i odczyt z error.response?.data?.message.
+2. **Backend:** Oparty na wzorcu Global Error Handler Middleware. Zamiast rzucać ekranami błędu HTML (YSOD), każdy wyjątek (np. błąd bazy) jest logowany przez Serilog i zwracany do telefonu jako czytelny obiekt JSON o strukturze: { "statusCode": 500, "message": "..." }.
+
+---
+
+## 9. Instrukcja Uruchomienia
+
+### Wymagania Wstępne
+
+- **Backend:** .NET 8.0 SDK, Docker Desktop (dla PostgreSQL).
+- **Frontend:** Node.js (LTS), aplikacja Expo Go na telefonie lub Android Studio (Emulator).
+
+### Uruchomienie Backendu
+
+1. Przejdź do folderu backendu.
+2. Upewnij się, że posiadasz poprawny plik appsettings.Development.json.
+3. Uruchom kontener z bazą danych: docker-compose up -d
+4. Wykonaj migracje bazy: dotnet ef database update
+5. Uruchom serwer: dotnet run (Serwer wystartuje nasłuchując na porcie 5076 na wszystkich interfejsach - 0.0.0.0).
+
+### Uruchomienie Frontendu
+
+1. Przejdź do folderu frontendu.
+2. Zainstaluj zależności: npm install
+3. Utwórz plik środowiskowy .env
+4. Edytuj .env podając poprawny adres backendu:
+   - Dla Emulatora Androida: EXPO_PUBLIC_API_URL=http://10.0.2.2:5076/api
+   - Dla fizycznego telefonu: EXPO_PUBLIC_API_URL=http://<TWOJE-IP-LOKALNE>:5076/api
+
+5. Uruchom Metro Bundler czyszcząc cache: npx expo start -c

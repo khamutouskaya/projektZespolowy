@@ -5,6 +5,7 @@ import { ShopItem } from "../../modules/shop/shop.types";
 
 interface ShopState {
   equippedPreviewImage: any | null;
+  equippedItemId: string | null;
   ownedItems: ShopItem[];
   fetchEquippedItem: () => Promise<void>;
   setEquippedPreview: (image: any | null) => void;
@@ -13,6 +14,7 @@ interface ShopState {
 
 export const useShopStore = create<ShopState>((set) => ({
   equippedPreviewImage: null,
+  equippedItemId: null,
   ownedItems: [],
   fetchEquippedItem: async () => {
     try {
@@ -27,9 +29,9 @@ export const useShopStore = create<ShopState>((set) => ({
           const foundItem = shopSectionsMock
             .flatMap((section) => section.items)
             .find((item) => item.id === activeItem.frontendAccesoriesId);
-          set({ equippedPreviewImage: foundItem?.preview || null, ownedItems: owned });
+          set({ equippedPreviewImage: foundItem?.preview || null, equippedItemId: foundItem?.id || null, ownedItems: owned });
         } else {
-          set({ equippedPreviewImage: null, ownedItems: owned });
+          set({ equippedPreviewImage: null, equippedItemId: null, ownedItems: owned });
         }
       }
     } catch (e) {
@@ -37,5 +39,5 @@ export const useShopStore = create<ShopState>((set) => ({
     }
   },
   setEquippedPreview: (image) => set({ equippedPreviewImage: image }),
-  reset: () => set({ equippedPreviewImage: null, ownedItems: [] }),
+  reset: () => set({ equippedPreviewImage: null, equippedItemId: null, ownedItems: [] }),
 }));

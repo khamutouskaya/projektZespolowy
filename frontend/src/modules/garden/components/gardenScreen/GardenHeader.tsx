@@ -1,5 +1,4 @@
-import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { apiClient } from "@/services/api/client";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { useAuthStore } from "@/services/store/useAuthStore";
 
 type Props = {
@@ -13,25 +12,12 @@ const COIN_IMAGE = require("../../../../../assets/shop/coin.png");
 export default function GardenHeader({ fruitsBalance, onRefresh }: Props) {
   const coinsBalance = useAuthStore((s) => s.user?.coinsBalance ?? 0);
 
-  const handleDebugAdd = async () => {
-    try {
-      const res = await apiClient.post("/streak/debug/add-fruits?amount=5");
-      await onRefresh();
-      Alert.alert("OK", `Dodano 5 jabłek. Saldo: ${res.data.fruitsBalance}`);
-    } catch (e: any) {
-      Alert.alert("Błąd", e?.response?.data?.message ?? e?.message ?? "Nieznany błąd");
-    }
-  };
-
   return (
     <View style={styles.container}>
       {/* Owoce */}
       <View style={styles.fruitBadge}>
         <Image source={FRUIT_IMAGE} style={styles.fruitIcon} resizeMode="contain" />
         <Text style={styles.fruitText}>{fruitsBalance}</Text>
-        <Pressable onPress={handleDebugAdd} style={styles.debugBtn}>
-          <Text style={styles.debugText}>+5</Text>
-        </Pressable>
       </View>
 
       {/* Monety — styl identyczny jak ShopBalance */}
@@ -74,17 +60,6 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0,0,0,0.5)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
-  },
-  debugBtn: {
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  debugText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#fff4dc",
   },
   coinWrapper: {
     flexDirection: "row",

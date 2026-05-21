@@ -37,7 +37,6 @@ const PREMIUM_FEATURES = [
   { icon: "analytics-outline", label: "Głęboka analiza wzorców" },
   { icon: "flash-outline", label: "Wykrywanie triggerów stresu" },
   { icon: "bar-chart-outline", label: "Analiza nastroju (tydzień / miesiąc)" },
-  { icon: "bulb-outline", label: "AI-porady na podstawie zachowania" },
   { icon: "trophy-outline", label: "Adaptacyjne cele" },
 ] as const;
 

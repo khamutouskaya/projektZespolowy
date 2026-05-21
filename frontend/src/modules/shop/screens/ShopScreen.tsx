@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
-import { ImageBackground, FlatList, StyleSheet, View, Alert, ActivityIndicator } from "react-native";
+import { ImageBackground, FlatList, StyleSheet, View, Alert } from "react-native";
 import ShopAvatar from "../components/ShopScreen/ShopAvatar";
 import ShopBalance from "../components/ShopScreen/ShopBalance";
 import ShopPreviewModal from "../components/ShopScreen/ShopPreviewModal";
@@ -16,7 +16,8 @@ function ShopScreen() {
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
-  const { fetchEquippedItem, equippedPreviewImage, ownedItems } = useShopStore();
+  const [insufficientFunds, setInsufficientFunds] = useState(false);
+  const { fetchEquippedItem, equippedPreviewImage, equippedItemId, ownedItems } = useShopStore();
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -24,6 +25,7 @@ function ShopScreen() {
   }, [fetchEquippedItem]);
 
   const handleOpenPreview = useCallback((item: ShopItem) => {
+    setInsufficientFunds(false);
     setSelectedItem(item);
     setIsPreviewVisible(true);
   }, []);
@@ -31,9 +33,15 @@ function ShopScreen() {
   const handleClosePreview = useCallback(() => {
     setIsPreviewVisible(false);
     setSelectedItem(null);
+    setInsufficientFunds(false);
   }, []);
 
   const handleBuy = useCallback(async (item: ShopItem) => {
+    const currentCoins = useAuthStore.getState().user?.coinsBalance ?? 0;
+    if (currentCoins < item.price) {
+      setInsufficientFunds(true);
+      return;
+    }
     setIsBuying(true);
     try {
       await apiClient.post(`/shop/buy?itemId=${item.id}`, {
@@ -49,13 +57,13 @@ function ShopScreen() {
         useAuthStore.setState({ user: { ...currentStore.user, coinsBalance: currentStore.user.coinsBalance - item.price } });
       }
       await fetchEquippedItem();
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert("Błąd", error.response?.data?.error || "Nie udało się kupić przedmiotu.");
-    } finally {
-      setIsBuying(false);
       setIsPreviewVisible(false);
       setSelectedItem(null);
+    } catch (error: any) {
+      console.error(error);
+      Alert.alert("Błąd", "Nie udało się kupić przedmiotu.");
+    } finally {
+      setIsBuying(false);
     }
   }, [fetchEquippedItem]);
 
@@ -68,6 +76,21 @@ function ShopScreen() {
     } catch (err: any) {
       console.error(err);
       Alert.alert("Błąd", "Nie udało się założyć przedmiotu.");
+    } finally {
+      setIsBuying(false);
+      setIsPreviewVisible(false);
+      setSelectedItem(null);
+    }
+  }, [fetchEquippedItem]);
+
+  const handleUnequip = useCallback(async (item: ShopItem) => {
+    setIsBuying(true);
+    try {
+      await apiClient.post(`/shop/unequip-item?itemId=${item.id}`);
+      await fetchEquippedItem();
+    } catch (err: any) {
+      console.error(err);
+      Alert.alert("Błąd", "Nie udało się zdjąć przedmiotu.");
     } finally {
       setIsBuying(false);
       setIsPreviewVisible(false);
@@ -110,6 +133,8 @@ function ShopScreen() {
     selectedItem ? ownedItems.some(o => o.id === selectedItem.id) : false,
   [selectedItem, ownedItems]);
 
+  const isEquipped = selectedItem?.id === equippedItemId;
+
   return (
     <ImageBackground
       source={BACKGROUND_IMAGE}
@@ -138,8 +163,11 @@ function ShopScreen() {
         onClose={handleClosePreview}
         onBuy={handleBuy}
         isOwned={isOwned}
+        isEquipped={isEquipped}
         onEquip={handleEquip}
+        onUnequip={handleUnequip}
         isBuying={isBuying}
+        insufficientFunds={insufficientFunds}
       />
     </ImageBackground>
   );
@@ -153,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingTop: 36,
+    paddingTop: 90,
     paddingBottom: 48,
     paddingHorizontal: 18,
   },

@@ -193,13 +193,14 @@ export default function DiaryNoteScreen() {
               </Pressable>
               <Pressable
                 style={[styles.chip, styles.chipTest]}
-                onPress={() =>
+                onPress={() => {
+                  if (testResult) testResultTransfer.set(testResult);
                   router.push(
                     testResult
                       ? "/(tabs)/diary/test?viewResult=1"
                       : "/(tabs)/diary/test"
-                  )
-                }
+                  );
+                }}
               >
                 <Text style={styles.chipText}>
                   {testResult ? "Podgląd testu ›" : "Zrób test ›"}

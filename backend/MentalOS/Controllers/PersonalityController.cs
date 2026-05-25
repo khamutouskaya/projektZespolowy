@@ -102,15 +102,15 @@ namespace MentalOS.Controllers
 
             var welcomeReward = await _welcomeRewardService.TryGrant(userId.Value, "quiz");
 
-            return Ok(new
-            {
-                O = scores.GetValueOrDefault("O"),
-                C = scores.GetValueOrDefault("C"),
-                E = scores.GetValueOrDefault("E"),
-                A = scores.GetValueOrDefault("A"),
-                N = scores.GetValueOrDefault("N"),
-                welcomeReward,
-            });
+           return Ok(new Dictionary<string, object?>
+{
+    ["O"] = scores.GetValueOrDefault("O"),
+    ["C"] = scores.GetValueOrDefault("C"),
+    ["E"] = scores.GetValueOrDefault("E"),
+    ["A"] = scores.GetValueOrDefault("A"),
+    ["N"] = scores.GetValueOrDefault("N"),
+    ["welcomeReward"] = welcomeReward,
+});
         }
     }
 }
